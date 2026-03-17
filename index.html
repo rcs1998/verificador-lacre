@@ -254,10 +254,22 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <!-- PROCESSOS -->
         <div class="admin-section" id="atab-processos">
           <div class="info-bar">Processos em aberto. Alertas são enviados após <span id="alerta-h-display">96</span>h.</div>
-          <button class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="loadProcessos()">🔄 Atualizar</button>
+          <div style="display:flex;gap:8px;margin-bottom:14px;">
+            <button class="btn btn-outline btn-sm" onclick="loadProcessos()">🔄 Atualizar</button>
+            <button class="btn btn-outline btn-sm" onclick="toggleHistorico()" id="btn-historico" style="color:var(--text2);">📋 Ver Histórico</button>
+          </div>
+          <div id="historico-section" style="display:none;margin-bottom:16px;">
+            <div class="info-bar" style="margin-bottom:10px;">Processos encerrados — últimos 50 registros</div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Mapa</th></tr></thead>
+                <tbody id="historico-tbody"></tbody>
+              </table>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Localização</th><th></th></tr></thead>
+              <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Localização</th><th>Mapa</th><th></th></tr></thead>
               <tbody id="processos-tbody"></tbody>
             </table>
           </div>
@@ -326,6 +338,20 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 
 <!-- jsQR for QR detection -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<!-- MAP MODAL -->
+<div id="map-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+      <span id="map-modal-title" style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--accent);letter-spacing:1px;"></span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a id="map-link" href="#" target="_blank" style="font-size:11px;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:4px 10px;border-radius:6px;letter-spacing:1px;">ABRIR NO GOOGLE MAPS</a>
+        <button onclick="closeMapModal()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;">✕</button>
+      </div>
+    </div>
+    <iframe id="map-iframe" width="100%" height="360" style="border:none;display:block;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -536,7 +562,7 @@ Regras:
 
 Retorne SOMENTE o JSON.`;
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:256} })
     });
@@ -912,13 +938,118 @@ async function loadProcessos() {
       const ms = agora - new Date(d.timestamp).getTime();
       const h = Math.floor(ms/3600000);
       const expirado = h >= horas;
+      const locOrig = d.locOrigem||'';
+      const hasLoc = locOrig && locOrig.includes(',') && !locOrig.includes('N/A') && !locOrig.includes('aprox') && !locOrig.includes('Não');
+      const mapBtn = hasLoc
+        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locOrig}',null,'${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--accent);color:var(--accent);">📍 Ver</button>`
+        : `<span style="font-size:11px;color:var(--text2)">—</span>`;
       return `<tr>
         <td><strong>${d.placa}</strong></td>
         <td style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.lacreNumero}</td>
         <td style="font-size:11px;color:var(--text2)">${new Date(d.timestamp).toLocaleString('pt-BR')}</td>
         <td>${expirado ? `<span class="badge badge-err">${h}h</span>` : `<span class="badge badge-ok">${h}h</span>`}</td>
-        <td style="font-size:11px;color:var(--text2)">${d.locOrigem||'—'}</td>
+        <td style="font-size:11px;color:var(--text2)">${locOrig||'—'}</td>
+        <td>${mapBtn}</td>
         <td><button class="btn btn-danger btn-sm" onclick="encerrarProcesso('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;">Encerrar</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) { console.warn(e.message); }
+}
+
+function verNoMapa(locOrigem, locDestino, placa) {
+  // Parse coordinates
+  function parseCoord(loc) {
+    if (!loc || !loc.includes(',')) return null;
+    const parts = loc.split(',');
+    const lat = parseFloat(parts[0].trim());
+    const lng = parseFloat(parts[1].trim());
+    if (isNaN(lat) || isNaN(lng)) return null;
+    return { lat, lng };
+  }
+
+  const orig = parseCoord(locOrigem);
+  const dest = parseCoord(locDestino);
+
+  let url;
+  if (orig && dest) {
+    // Show route from origem to destino
+    url = `https://www.google.com/maps/dir/?api=1&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&travelmode=driving`;
+  } else if (orig) {
+    // Show only origem
+    url = `https://www.google.com/maps?q=${orig.lat},${orig.lng}&z=15&markers=${orig.lat},${orig.lng}`;
+  } else {
+    alert('Coordenadas não disponíveis para este registro.');
+    return;
+  }
+
+  // Show modal with map info
+  const modal = document.getElementById('map-modal');
+  const title = document.getElementById('map-modal-title');
+  const iframe = document.getElementById('map-iframe');
+
+  title.textContent = `📍 Localização — Placa ${placa}`;
+
+  // Build embed URL
+  let embedUrl;
+  if (orig && dest) {
+    embedUrl = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&mode=driving`;
+  } else if (orig) {
+    embedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&q=${orig.lat},${orig.lng}&zoom=15`;
+  }
+
+  document.getElementById('map-link').href = url;
+  iframe.src = embedUrl;
+  modal.style.display = 'flex';
+}
+
+function closeMapModal() {
+  document.getElementById('map-modal').style.display = 'none';
+  document.getElementById('map-iframe').src = '';
+}
+
+async function toggleHistorico() {
+  const sec = document.getElementById('historico-section');
+  const btn = document.getElementById('btn-historico');
+  if (sec.style.display === 'none') {
+    sec.style.display = 'block';
+    btn.style.color = 'var(--accent)';
+    await loadHistorico();
+  } else {
+    sec.style.display = 'none';
+    btn.style.color = 'var(--text2)';
+  }
+}
+
+async function loadHistorico() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('processos')
+      .where('status', 'in', ['encerrado', 'encerrado_manual'])
+      .orderBy('encerradoEm', 'desc').limit(50).get();
+    const tbody = document.getElementById('historico-tbody');
+    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text2);text-align:center;">Nenhum processo encerrado</td></tr>'; return; }
+    tbody.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
+      const tsDestino = d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '—';
+      const res = d.resultado === 'ok'
+        ? '<span class="badge badge-ok">OK</span>'
+        : d.status === 'encerrado_manual'
+        ? '<span class="badge badge-warn">Manual</span>'
+        : '<span class="badge badge-err">Desvio</span>';
+      const locO = d.locOrigem||'';
+      const locD = d.locDestino||'';
+      const hasLoc = locO.includes(',');
+      const mapBtn = hasLoc
+        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--accent);color:var(--accent);">📍 Ver</button>`
+        : '<span style="font-size:11px;color:var(--text2)">—</span>';
+      return `<tr>
+        <td><strong>${d.placa}</strong></td>
+        <td style="font-family:'Rajdhani',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
+        <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
+        <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
+        <td>${res}</td>
+        <td>${mapBtn}</td>
       </tr>`;
     }).join('');
   } catch(e) { console.warn(e.message); }
