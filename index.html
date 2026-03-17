@@ -371,7 +371,7 @@ function initFirebase() {
 initFirebase();
 
 function initEmailJS() {
-  const pub = getCfg('ejs_pub', '');
+  const pub = getCfg('ejs_pub', 'HTO7hOr-_3BU0mUcG');
   if (pub) emailjs.init(pub);
 }
 initEmailJS();
@@ -701,7 +701,7 @@ async function getEmails() {
 }
 
 async function enviarEmailTodos(emails, assunto, textoPlano, corpoHtml) {
-  const svc = getCfg('ejs_svc',''); const tpl = getCfg('ejs_tpl','');
+  const svc = getCfg('ejs_svc','service_1e7gg3f'); const tpl = getCfg('ejs_tpl','template_vdkbodd');
   if (!svc || !tpl) { console.warn('EmailJS não configurado'); return; }
   for (const email of emails) {
     try {
