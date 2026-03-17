@@ -135,12 +135,13 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <video id="video-origem" autoplay playsinline></video>
         <canvas id="canvas-origem"></canvas>
         <img id="preview-origem" alt="">
-        <div class="cam-ph" id="placeholder-origem">
+        <div id="qr-indicator-origem" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:12px;color:var(--text2);letter-spacing:0.5px;z-index:2;text-shadow:0 1px 3px rgba(0,0,0,0.8);"></div>
+      <div class="cam-ph" id="placeholder-origem">
           <svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           <span>Câmera desativada</span>
         </div>
       </div>
-      <button class="btn btn-outline" onclick="startCamera('origem')">📷 Ativar Câmera</button>
+      <button class="btn btn-outline" id="btn-cam-origem" onclick="startCamera('origem')" style="display:none">📷 Ativar Câmera</button>
       <button class="btn btn-primary" id="btn-foto-origem" onclick="takePhoto('origem')" disabled>Tirar Foto</button>
       <button class="btn btn-outline" id="btn-refoto-origem" onclick="retakePhoto('origem')" style="display:none">🔄 Tirar Novamente</button>
       <div class="timestamp" id="ts-origem"></div>
@@ -172,12 +173,13 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <video id="video-destino" autoplay playsinline></video>
         <canvas id="canvas-destino"></canvas>
         <img id="preview-destino" alt="">
-        <div class="cam-ph" id="placeholder-destino">
+        <div id="qr-indicator-destino" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:12px;color:var(--text2);letter-spacing:0.5px;z-index:2;text-shadow:0 1px 3px rgba(0,0,0,0.8);"></div>
+      <div class="cam-ph" id="placeholder-destino">
           <svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           <span>Câmera desativada</span>
         </div>
       </div>
-      <button class="btn btn-outline" onclick="startCamera('destino')">📷 Ativar Câmera</button>
+      <button class="btn btn-outline" id="btn-cam-destino" onclick="startCamera('destino')" style="display:none">📷 Ativar Câmera</button>
       <button class="btn btn-primary" id="btn-foto-destino" onclick="takePhoto('destino')" disabled>Tirar Foto</button>
       <button class="btn btn-outline" id="btn-refoto-destino" onclick="retakePhoto('destino')" style="display:none">🔄 Tirar Novamente</button>
       <div class="timestamp" id="ts-destino"></div>
@@ -322,6 +324,8 @@ tr:hover td{background:rgba(255,255,255,0.02);}
   </div>
 </div>
 
+<!-- jsQR for QR detection -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -412,7 +416,12 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='origem')||(i===1&&tab==='destino')));
   document.getElementById('section-origem').classList.toggle('active',tab==='origem');
   document.getElementById('section-destino').classList.toggle('active',tab==='destino');
+  // Auto-start camera when switching tabs
+  setTimeout(()=>{ if(!state[tab].stream && !state[tab].photoBase64) startCamera(tab); }, 200);
 }
+
+// Auto-start camera on page load
+window.addEventListener('load', ()=>{ setTimeout(()=>startCamera('origem'), 500); });
 
 // ============================================================
 // CÂMERA
@@ -426,7 +435,51 @@ async function startCamera(lado) {
     document.getElementById(`placeholder-${lado}`).style.display = 'none';
     document.getElementById(`btn-foto-${lado}`).disabled = false;
     getLocation(lado);
-  } catch(e) { alert('Não foi possível acessar a câmera. Verifique as permissões.'); }
+    // Start QR detection loop
+    startQRDetection(lado);
+  } catch(e) {
+    const box = document.getElementById(`result-${lado}`);
+    box.className = 'status-box error show';
+    box.innerHTML = `<div class="status-title">📷 Câmera bloqueada</div>
+      <div class="status-item">Permita o acesso à câmera nas configurações do navegador e tente novamente.</div>`;
+    const btnCam = document.getElementById(`btn-cam-${lado}`);
+    if (btnCam) btnCam.style.display='block';
+  }
+}
+
+let qrDetecting = { origem: false, destino: false };
+
+function startQRDetection(lado) {
+  if (qrDetecting[lado]) return;
+  qrDetecting[lado] = true;
+  const v = document.getElementById(`video-${lado}`);
+  const c = document.getElementById(`canvas-${lado}`);
+  const indicator = document.getElementById(`qr-indicator-${lado}`);
+
+  function detect() {
+    if (!state[lado].stream || state[lado].photoBase64) { qrDetecting[lado]=false; return; }
+    if (v.readyState === v.HAVE_ENOUGH_DATA) {
+      c.width = v.videoWidth; c.height = v.videoHeight;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(v, 0, 0);
+      try {
+        const imageData = ctx.getImageData(0, 0, c.width, c.height);
+        if (window.jsQR) {
+          const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
+          if (code) {
+            if (indicator) { indicator.textContent = '✅ QR Code detectado! Capturando...'; indicator.style.color='var(--success)'; }
+            setTimeout(()=>{ if(!state[lado].photoBase64) takePhoto(lado); }, 300);
+            qrDetecting[lado] = false;
+            return;
+          } else {
+            if (indicator) { indicator.textContent = '🔍 Aponte para o QR Code...'; indicator.style.color='var(--text2)'; }
+          }
+        }
+      } catch(e) {}
+    }
+    requestAnimationFrame(detect);
+  }
+  requestAnimationFrame(detect);
 }
 
 function takePhoto(lado) {
@@ -487,21 +540,26 @@ Retorne SOMENTE o JSON.`;
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:256} })
     });
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`API HTTP ${res.status}: ${errText.substring(0,200)}`);
+    }
     const data = await res.json();
+    if (data.error) throw new Error(`API: ${data.error.message}`);
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-    const result = JSON.parse(text.replace(/```json|```/g,'').trim());
+    let result;
+    try { result = JSON.parse(text.replace(/```json|```/g,'').trim()); }
+    catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,100)}`); }
     document.getElementById(`loading-${lado}`).classList.remove('show');
-
-    // Rejeitar se não for QR Code ou código de barras
     if (result.tipo === 'outro' || (result.tipo !== 'qrcode' && result.tipo !== 'barcode')) {
       const box = document.getElementById(`result-${lado}`);
       box.className = 'status-box error show';
       box.innerHTML = `<div class="status-title">❌ Imagem inválida</div>
-        <div class="status-item">⚠️ <span>A imagem não contém um QR Code ou código de barras válido. Por favor, tire uma nova foto do lacre.</span></div>`;
-      document.getElementById(`btn-refoto-${lado}`).click();
+        <div class="status-item">⚠️ <span>Não é QR Code ou código de barras. Tire uma nova foto.</span></div>`;
+      document.getElementById(`btn-refoto-${lado}`).style.display='block';
+      document.getElementById(`btn-foto-${lado}`).style.display='none';
       return;
     }
-
     state[lado].lacreNumero = result.numero;
     state[lado].lacreIntegro = result.integro;
     if (lado==='origem') mostrarResultadoOrigem(result);
@@ -510,7 +568,11 @@ Retorne SOMENTE o JSON.`;
     document.getElementById(`loading-${lado}`).classList.remove('show');
     const box = document.getElementById(`result-${lado}`);
     box.className = 'status-box error show';
-    box.innerHTML = `<div class="status-title">❌ Erro na análise</div><p style="font-size:12px;color:var(--text2)">${err.message}</p>`;
+    box.innerHTML = `<div class="status-title">❌ Erro na análise</div>
+      <div class="status-item"><span style="font-size:12px;word-break:break-all">${err.message}</span></div>
+      <div class="status-item" style="font-size:11px;color:var(--text2)">Verifique sua conexão e tente novamente.</div>`;
+    document.getElementById(`btn-refoto-${lado}`).style.display='block';
+    document.getElementById(`btn-foto-${lado}`).style.display='none';
   }
 }
 
