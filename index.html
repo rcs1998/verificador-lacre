@@ -345,14 +345,28 @@ let db = null, auth = null;
 
 function initFirebase() {
   try {
+    // Tenta primeiro pelo localStorage (painel admin)
     const raw = getCfg('firebase_config', '{}');
     const cfg = JSON.parse(raw);
-    if (!cfg.apiKey) return;
-    if (firebase.apps.length) return;
-    firebase.initializeApp(cfg);
+    if (cfg.apiKey) {
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      db = firebase.firestore();
+      auth = firebase.auth();
+      return;
+    }
+    // Fallback: config fixa
+    const fixedCfg = {
+      apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
+      authDomain: "verificador-lacre.firebaseapp.com",
+      projectId: "verificador-lacre",
+      storageBucket: "verificador-lacre.firebasestorage.app",
+      messagingSenderId: "868626072222",
+      appId: "1:868626072222:web:b26599efa525476522b18f"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(fixedCfg);
     db = firebase.firestore();
     auth = firebase.auth();
-  } catch(e) { console.warn('Firebase não configurado:', e.message); }
+  } catch(e) { console.warn('Firebase erro:', e.message); }
 }
 initFirebase();
 
@@ -524,6 +538,15 @@ function mostrarResultadoOrigem(result) {
 async function registrarOrigem() {
   const placa = document.getElementById('placa-origem').value.trim().toUpperCase();
   if (!placa) { alert('Informe a placa antes de registrar.'); return; }
+
+  // Validar formato: antigo (ABC-1234 ou ABC1234) ou Mercosul (ABC1D23)
+  const reAntiga = /^[A-Z]{3}-?\d{4}$/;
+  const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+  if (!reAntiga.test(placa) && !reMercosul.test(placa)) {
+    alert('Placa inválida!\n\nFormatos aceitos:\n• Padrão antigo: ABC-1234\n• Mercosul: ABC1D23');
+    return;
+  }
+
   if (!state.origem.lacreNumero) { alert('Tire a foto do lacre primeiro.'); return; }
   if (!db) { alert('Firebase não configurado. Configure no painel admin.'); return; }
 
@@ -532,6 +555,10 @@ async function registrarOrigem() {
     const lacreDoc = await db.collection('lacresValidos').doc(state.origem.lacreNumero).get();
     if (!lacreDoc.exists) {
       alert(`Lacre ${state.origem.lacreNumero} não está cadastrado na base de lacres válidos!`);
+      return;
+    }
+    if (lacreDoc.data().inutilizado) {
+      alert(`Lacre ${state.origem.lacreNumero} já foi utilizado e está inutilizado. Utilize um novo lacre.`);
       return;
     }
     if (lacreDoc.data().emUso) {
@@ -582,6 +609,14 @@ async function registrarOrigem() {
 async function verificarDestino(resultDestino) {
   const placaDest = document.getElementById('placa-destino').value.trim().toUpperCase();
   if (!placaDest) { alert('Informe a placa.'); return; }
+
+  const reAntiga = /^[A-Z]{3}-?\d{4}$/;
+  const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+  if (!reAntiga.test(placaDest) && !reMercosul.test(placaDest)) {
+    alert('Placa inválida!\n\nFormatos aceitos:\n• Padrão antigo: ABC-1234\n• Mercosul: ABC1D23');
+    return;
+  }
+
   if (!db) { alert('Firebase não configurado.'); return; }
   const box = document.getElementById('result-destino');
   try {
@@ -624,13 +659,20 @@ async function verificarDestino(resultDestino) {
         <div class="status-item">📅 <span>Chegada: <strong>${tsDest}</strong></span></div>`;
     }
 
-    // Encerrar processo e liberar lacre
+    // Encerrar processo: lacre torna-se inutilizável, placa é liberada
     await db.collection('processos').doc(proc.processId).update({
       status:'encerrado', lacreDestino:resultDestino.numero, integroDestino:resultDestino.integro,
       locDestino: state.destino.loc||'N/A', tsDestino:state.destino.timestamp.toISOString(),
       resultado: ok ? 'ok' : 'desvio', encerradoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
-    await db.collection('lacresValidos').doc(proc.lacreNumero).update({ emUso:false, placa:null, processId:null });
+    // Lacre inutilizado (não pode ser reutilizado), placa liberada
+    await db.collection('lacresValidos').doc(proc.lacreNumero).update({
+      emUso: false,
+      inutilizado: true,
+      placa: null,
+      processId: null,
+      inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
     // Enviar e-mail
     const emails = await getEmails();
@@ -758,10 +800,10 @@ function renderLacres(lista) {
   tbody.innerHTML = lista.map(l=>`
     <tr>
       <td><strong>${l.numero}</strong></td>
-      <td>${l.emUso ? '<span class="badge badge-warn">Em uso</span>' : '<span class="badge badge-ok">Livre</span>'}</td>
+      <td>${l.inutilizado ? '<span class="badge badge-err">Inutilizado</span>' : l.emUso ? '<span class="badge badge-warn">Em uso</span>' : '<span class="badge badge-ok">Livre</span>'}</td>
       <td style="color:var(--text2)">${l.placa||'—'}</td>
       <td style="color:var(--text2);font-size:11px">${l.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="removerLacre('${l.id}',${l.emUso})" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="removerLacre('${l.id}',${!!l.emUso})" style="padding:5px 10px;font-size:11px;">Remover</button></td>
     </tr>`).join('');
 }
 
@@ -821,9 +863,16 @@ async function loadProcessos() {
 }
 
 async function encerrarProcesso(id, lacreNum) {
-  if (!confirm('Encerrar este processo manualmente?')) return;
+  if (!confirm('Encerrar este processo manualmente?\n\nO lacre será marcado como inutilizado e a placa será liberada.')) return;
   await db.collection('processos').doc(id).update({ status:'encerrado_manual', encerradoEm:firebase.firestore.FieldValue.serverTimestamp() });
-  await db.collection('lacresValidos').doc(lacreNum).update({ emUso:false, placa:null, processId:null });
+  // Lacre inutilizado, placa liberada
+  await db.collection('lacresValidos').doc(lacreNum).update({
+    emUso: false,
+    inutilizado: true,
+    placa: null,
+    processId: null,
+    inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
   loadProcessos();
 }
 
