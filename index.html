@@ -506,12 +506,24 @@ function startQRDetection(lado) {
         if (window.jsQR) {
           const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
           if (code) {
-            if (indicator) { indicator.textContent = '✅ QR Code detectado! Capturando...'; indicator.style.color='var(--success)'; }
-            setTimeout(()=>{ if(!state[lado].photoBase64) takePhoto(lado); }, 300);
-            qrDetecting[lado] = false;
-            return;
+            const placa = document.getElementById(`placa-${lado}`).value.trim().toUpperCase();
+            const reAntiga = /^[A-Z]{3}-?\d{4}$/;
+            const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+            if (!placa || (!reAntiga.test(placa) && !reMercosul.test(placa))) {
+              if (indicator) { indicator.textContent = '⚠️ Digite a placa antes!'; indicator.style.color='var(--warning)'; }
+            } else {
+              if (indicator) { indicator.textContent = '✅ QR Code detectado! Capturando...'; indicator.style.color='var(--success)'; }
+              setTimeout(()=>{ if(!state[lado].photoBase64) takePhoto(lado); }, 300);
+              qrDetecting[lado] = false;
+              return;
+            }
           } else {
-            if (indicator) { indicator.textContent = '🔍 Aponte para o QR Code...'; indicator.style.color='var(--text2)'; }
+            const placa = document.getElementById(`placa-${lado}`).value.trim();
+            if (!placa) {
+              if (indicator) { indicator.textContent = '⚠️ Digite a placa para continuar...'; indicator.style.color='var(--warning)'; }
+            } else {
+              if (indicator) { indicator.textContent = '🔍 Aponte para o QR Code...'; indicator.style.color='var(--text2)'; }
+            }
           }
         }
       } catch(e) {}
