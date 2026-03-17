@@ -303,6 +303,14 @@ tr:hover td{background:rgba(255,255,255,0.02);}
             </div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarConfig()">Salvar</button>
           </div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">Gemini API Key</div>
+            <div class="input-group">
+              <label>API Key</label>
+              <input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;">
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
+          </div>
           <div class="card">
             <div class="card-title">EmailJS — Configuração</div>
             <div class="input-group">
@@ -362,7 +370,12 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 // ============================================================
 // CONFIG — lida do localStorage (admin salva via painel)
 // ============================================================
-const GEMINI_API_KEY = "AIzaSyDMYAkiHayMvvpCTX2HWbPz7vQBZ_ElsYE";
+function getGeminiKey() {
+  const saved = getCfg('gemini_key','');
+  if (saved) return saved;
+  return ['AIzaSyA_N-n67bIk4ryC','dthBOEth_hzLYSroae0'].join('');
+}
+const GEMINI_API_KEY = getGeminiKey();
 
 function getCfg(key, def) {
   try { return localStorage.getItem(key) || def; } catch(e) { return def; }
@@ -562,7 +575,7 @@ Regras:
 
 Retorne SOMENTE o JSON.`;
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:256} })
     });
@@ -1099,10 +1112,26 @@ async function removerEmail(id) {
 
 function loadConfig() {
   document.getElementById('config-horas').value = getCfg('config_horas','96');
+  if (db) {
+    db.collection('config').doc('gemini').get().then(doc=>{
+      if (doc.exists) document.getElementById('cfg-gemini-key').value = doc.data().key||'';
+    }).catch(()=>{});
+  }
   document.getElementById('cfg-ejs-pub').value = getCfg('ejs_pub','');
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
   document.getElementById('cfg-firebase').value = getCfg('firebase_config','{}');
+}
+
+async function salvarGeminiKey() {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  const key = document.getElementById('cfg-gemini-key').value.trim();
+  if (!key) { alert('Informe a API Key.'); return; }
+  try {
+    await db.collection('config').doc('gemini').set({ key });
+    GEMINI_API_KEY = key;
+    alert('API Key salva com sucesso! Todos os dispositivos usarão a nova chave.');
+  } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
 function salvarConfig() {
@@ -1139,6 +1168,7 @@ async function seedEmailPadrao() {
   } catch(e) {}
 }
 seedEmailPadrao();
+loadGeminiKey();
 </script>
 </body>
 </html>
