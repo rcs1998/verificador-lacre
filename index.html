@@ -375,7 +375,7 @@ function getGeminiKey() {
   if (saved) return saved;
   return ['AIzaSyA_N-n67bIk4ryC','dthBOEth_hzLYSroae0'].join('');
 }
-const GEMINI_API_KEY = getGeminiKey();
+let GEMINI_API_KEY = getGeminiKey();
 
 function getCfg(key, def) {
   try { return localStorage.getItem(key) || def; } catch(e) { return def; }
@@ -575,8 +575,8 @@ Regras:
 
 Retorne SOMENTE o JSON.`;
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,{
-      method:'POST', headers:{'Content-Type':'application/json'},
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,{
+      method:'POST', headers:{'Content-Type':'application/json','x-goog-api-key': GEMINI_API_KEY},
       body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:256} })
     });
     if (!res.ok) {
