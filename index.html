@@ -1780,71 +1780,43 @@ async function loadHistorico() {
 }
 
 function renderHistorico(lista) {
-    const tbody = document.getElementById('historico-tbody');
-    if (!lista.length) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text2);text-align:center;padding:20px;">Nenhum processo encontrado</td></tr>'; return; }
-    tbody.innerHTML = lista.map(d => {
-      const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
-      const tsDestino = d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '—';
-      const res = d.resultado === 'ok'
-        ? '<span class="badge badge-ok">OK</span>'
-        : d.status === 'encerrado_manual'
-        ? '<span class="badge badge-warn">Manual</span>'
-        : '<span class="badge badge-err">Desvio</span>';
-      const locO = d.locOrigemCoords || d.locOrigem||'';
-      const locD = d.locDestinoCoords || d.locDestino||'';
-      const hasLoc = locO && locO.match(/-?\d+\.\d+/);
-      const mapBtn = hasLoc
-        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
-        : '<span style="font-size:11px;color:var(--text2)">—</span>';
-      const abertoPor = d.abertoPorNome||d.abertoPor||'—';
-      const fechadoPor = d.fechadoPorNome||d.fechadoPor||d.encerradoPor||'Auto';
-      const justif = d.justificativa ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>` : '<span style="font-size:11px;color:var(--text2)">—</span>';
-      return `<tr>
-        <td><strong>${d.placa}</strong></td>
-        <td style="font-size:12px">${d.motorista||'—'}</td>
-        <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
-        <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
-        <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
-        <td>${res}</td>
-        <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
-        <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
-        <td>${justif}</td>
-        <td>${mapBtn}</td>
-      </tr>`;
-    }).join('');
-  // dummy try/catch close - actual catch below
-  if (false) {
-      const d = doc.data();
-      const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
-      const tsDestino = d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '—';
-      const res = d.resultado === 'ok'
-        ? '<span class="badge badge-ok">OK</span>'
-        : d.status === 'encerrado_manual'
-        ? '<span class="badge badge-warn">Manual</span>'
-        : '<span class="badge badge-err">Desvio</span>';
-      const locO = d.locOrigemCoords || d.locOrigem||'';
-      const locD = d.locDestinoCoords || d.locDestino||'';
-      const hasLoc = locO && locO.match(/-?\d+\.\d+/);
-      const mapBtn = hasLoc
-        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
-        : '<span style="font-size:11px;color:var(--text2)">—</span>';
-      const abertoPor = d.abertoPorNome||d.abertoPor||'—';
-      const fechadoPor = d.fechadoPorNome||d.fechadoPor||d.encerradoPor||'Auto';
-      const justif = d.justificativa ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>` : '<span style="font-size:11px;color:var(--text2)">—</span>';
-      return `<tr>
-        <td><strong>${d.placa}</strong></td>
-        <td style="font-size:12px">${d.motorista||'—'}</td>
-        <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
-        <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
-        <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
-        <td>${res}</td>
-        <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
-        <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
-        <td>${justif}</td>
-        <td>${mapBtn}</td>
-      </tr>`;
-    }).join('');
+  const tbody = document.getElementById('historico-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text2);text-align:center;padding:20px;">Nenhum processo encontrado</td></tr>';
+    return;
   }
+  tbody.innerHTML = lista.map(d => {
+    const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
+    const tsDestino = d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '—';
+    const res = d.resultado === 'ok'
+      ? '<span class="badge badge-ok">OK</span>'
+      : d.status === 'encerrado_manual'
+      ? '<span class="badge badge-warn">Manual</span>'
+      : '<span class="badge badge-err">Desvio</span>';
+    const locO = d.locOrigemCoords || d.locOrigem||'';
+    const locD = d.locDestinoCoords || d.locDestino||'';
+    const hasLoc = locO && locO.match(/-?\d+\.\d+/);
+    const mapBtn = hasLoc
+      ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
+      : '<span style="font-size:11px;color:var(--text2)">—</span>';
+    const abertoPor = d.abertoPorNome||d.abertoPor||'—';
+    const fechadoPor = d.fechadoPorNome||d.fechadoPor||d.encerradoPor||'Auto';
+    const justif = d.justificativa
+      ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>`
+      : '<span style="font-size:11px;color:var(--text2)">—</span>';
+    return `<tr>
+      <td><strong>${d.placa}</strong></td>
+      <td style="font-size:12px">${d.motorista||'—'}</td>
+      <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
+      <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
+      <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
+      <td>${res}</td>
+      <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
+      <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
+      <td>${justif}</td>
+      <td>${mapBtn}</td>
+    </tr>`;
+  }).join('');
 }
 
 async function confirmarEncerramento(id, lacreNum) {
