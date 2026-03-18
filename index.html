@@ -45,25 +45,41 @@
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
 
 /* HEADER */
-.app-header{width:100%;background:var(--gerdau-blue);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:40;border-bottom:3px solid var(--gerdau-yellow);position:relative;}
-.header-logo{display:flex;align-items:center;gap:12px;position:absolute;left:50%;transform:translateX(-50%);}
-.header-logo img{height:36px;width:auto;filter:brightness(0) invert(1);}
+.app-header{width:100%;background:var(--gerdau-blue);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:auto;min-height:64px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:40;border-bottom:3px solid var(--gerdau-yellow);flex-wrap:wrap;gap:12px;}
+.header-logo{display:flex;align-items:center;gap:8px;flex:1;min-width:180px;}
+.header-logo div:first-child{color:#fff;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;white-space:nowrap;}
+.header-logo div:last-child{color:var(--gerdau-yellow);font-size:12px;font-weight:700;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
 .header-divider{width:1px;height:24px;background:rgba(255,255,255,0.3);}
-.header-title{color:white;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
-.admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:block !important;margin-left:auto;}
+.header-title{color:white;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
+.header-buttons{display:flex;gap:6px;margin-left:auto;}
+.admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:6px 10px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:block !important;white-space:nowrap;}
 .admin-btn:hover{background:rgba(255,255,255,0.22);}
 .admin-btn.hidden{display:none !important;}
+@media (min-width:769px) {
+  .app-header{padding:0 24px;min-height:70px;}
+  .header-logo div:first-child{font-size:11px;}
+  .header-logo div:last-child{font-size:14px;max-width:200px;}
+  .admin-btn{padding:8px 14px;font-size:12px;}
+}
 
 /* TOP ALERT */
 #top-alert{display:none;width:100%;padding:12px 20px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;position:sticky;top:64px;z-index:39;}
 
 /* CONTAINER */
-.container{width:100%;max-width:520px;padding:20px 16px 60px;}
+body{display:flex;flex-direction:column;align-items:center;}
+.container{width:100%;max-width:100%;padding:20px 16px 60px;margin:0 auto;}
+@media (min-width:769px) {
+  .container{max-width:900px;padding:30px 40px 60px;}
+}
 
 /* TABS */
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
-.tab{padding:13px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow-sm);}
+.tab{padding:13px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--shadow-sm);}
 .tab.active{background:var(--gerdau-blue);border-color:var(--gerdau-blue);color:#fff;box-shadow:var(--shadow-md);}
+@media (min-width:769px) {
+  .tabs{gap:12px;margin-bottom:24px;}
+  .tab{padding:15px;font-size:15px;}
+}
 
 /* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
@@ -243,10 +259,10 @@ tbody tr:hover{background:var(--surface2);}
 <div id="app-main">
   <div class="app-header">
     <div class="header-logo">
-      <div style="color:#fff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Operador:</div>
-      <div style="color:var(--gerdau-yellow);font-size:14px;font-weight:700;letter-spacing:1px;" id="op-nome-display">—</div>
+      <div>Operador:</div>
+      <div id="op-nome-display">—</div>
     </div>
-    <div style="display:flex;gap:8px;margin-left:auto;">
+    <div class="header-buttons">
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
       <button class="admin-btn" onclick="doAppLogout()">🚪 Sair</button>
     </div>
