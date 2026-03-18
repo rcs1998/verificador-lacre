@@ -151,201 +151,202 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 /* DASHBOARD */
 .dashboard-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px 20px 0;max-width:1200px;margin:0 auto;}
 @media(min-width:768px){.dashboard-grid{grid-template-columns:repeat(4,1fr);}}
-.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
-.dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.dash-card.blue::before{background:var(--gerdau-blue);}
-.dash-card.yellow::before{background:var(--gerdau-yellow);}
-.dash-card.green::before{background:var(--success);}
-.dash-card.red::before{background:var(--danger);}
-.dash-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;color:var(--gerdau-blue);line-height:1;}
-.dash-label{font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-top:4px;}
-.dash-icon{position:absolute;right:14px;top:14px;font-size:24px;opacity:.2;}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;box-shadow:var(--shadow-sm);}
+.dash-card.blue{border-top:3px solid var(--gerdau-blue);}
+.dash-card.yellow{border-top:3px solid var(--gerdau-yellow);}
+.dash-card.green{border-top:3px solid var(--success);}
+.dash-card.red{border-top:3px solid var(--danger);}
+.dash-icon{font-size:32px;margin-bottom:8px;}
+.dash-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;letter-spacing:2px;color:var(--gerdau-blue);margin-bottom:8px;}
+.dash-label{font-size:12px;color:var(--text2);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
 
 /* ADMIN TABS */
-.admin-tab-bar{display:flex;gap:0;padding:0 20px;border-bottom:2px solid var(--border);background:var(--surface);overflow-x:auto;max-width:1200px;margin:0 auto;width:100%;}
-.admin-tab{padding:14px 18px;background:none;border:none;border-bottom:3px solid transparent;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;margin-bottom:-2px;}
-.admin-tab.active{color:var(--gerdau-blue);border-bottom-color:var(--gerdau-blue);}
+.admin-tab-bar{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;max-width:1200px;margin:0 auto;}
+.admin-tab{background:transparent;border:none;padding:12px 16px;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-1px;}
 .admin-tab:hover{color:var(--gerdau-blue);}
+.admin-tab.active{color:var(--gerdau-blue);border-bottom-color:var(--gerdau-blue);}
 
 /* ADMIN CONTENT */
 .admin-content{padding:20px;max-width:1200px;margin:0 auto;}
 .admin-section{display:none;}
 .admin-section.active{display:block;}
+.form-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:flex-end;}
+@media(min-width:768px){.form-row{grid-template-columns:1fr 1fr auto;}}
 
 /* TABLE */
-.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);}
-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);}
-th{background:var(--gerdau-blue);color:#fff;padding:11px 14px;text-align:left;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;font-size:12px;font-weight:700;}
-th:first-child{border-radius:var(--radius-lg) 0 0 0;}
-th:last-child{border-radius:0 var(--radius-lg) 0 0;}
-td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--surface2);}
-
-/* LOGIN */
-.login-box{max-width:380px;margin:60px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;box-shadow:var(--shadow-lg);}
-.login-logo{text-align:center;margin-bottom:24px;}
-.login-logo{margin-bottom:20px;}
-.login-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;color:var(--gerdau-blue);margin-bottom:20px;text-transform:uppercase;text-align:center;}
-.form-row{display:flex;gap:8px;align-items:flex-end;}
-.form-row .input-group{flex:1;margin-bottom:0;}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:var(--surface2);border-bottom:2px solid var(--border);}
+th{padding:12px;text-align:left;font-weight:700;color:var(--text);letter-spacing:1px;text-transform:uppercase;font-size:11px;}
+td{padding:12px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:var(--surface2);}
 
 /* MAP MODAL */
-#map-modal{position:fixed;inset:0;background:rgba(10,20,40,0.75);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
-.map-modal-inner{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:640px;overflow:hidden;box-shadow:var(--shadow-lg);}
-.map-modal-header{background:var(--gerdau-blue);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
-.map-modal-header span{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:1px;}
+.map-modal-inner{background:var(--surface);border-radius:var(--radius-lg);width:90%;max-width:800px;overflow:hidden;box-shadow:var(--shadow-lg);}
+.map-modal-header{background:var(--gerdau-blue);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;}
 
 /* ANIMATIONS */
 @keyframes spin{to{transform:rotate(360deg);}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
-@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:none;}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
 
-/* DESKTOP */
-@media(min-width:768px){
-  .container{max-width:600px;}
-  .tabs{grid-template-columns:1fr 1fr;gap:12px;}
-  .card{padding:24px;}
+/* LOGIN */
+.login-box{background:var(--surface);border-radius:var(--radius-lg);padding:32px 24px;max-width:360px;margin:40px auto;box-shadow:var(--shadow-lg);}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--gerdau-blue);margin-bottom:20px;text-align:center;text-transform:uppercase;}
+
+/* APP LOGIN */
+#app-login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+#app-main{display:none;}
+.app-login-container{width:100%;max-width:400px;}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr;}
+  .dashboard-grid{grid-template-columns:1fr;}
+  table{font-size:12px;}
+  th,td{padding:8px;}
 }
 </style>
 </head>
 <body>
 
-
-<!-- APP HEADER -->
-<header class="app-header">
-  <div class="header-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" height="34" style="display:block;">
-  <text x="0" y="30" font-family="'Arial Black','Franklin Gothic Heavy',Impact,sans-serif" font-size="30" font-weight="900" fill="white" letter-spacing="2">GERDAU</text>
-</svg><div class="header-divider"></div>
-    <span class="header-title">VERIFICA LACRE</span>
-  </div>
-  <div style="flex:1"></div><button class="admin-btn" onclick="openAdmin()" style="position:relative;z-index:1;">⚙ Admin</button>
-</header>
-
-<div id="top-alert"></div>
-
-<div class="container">
-
-  <!-- APP LOGIN SCREEN -->
-  <div id="app-login-screen" style="max-width:400px;margin:40px auto;">
-    <div class="card" style="text-align:center;padding:32px 28px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:var(--gerdau-blue);letter-spacing:3px;margin-bottom:4px;">GERDAU</div>
-      <div style="width:40px;height:3px;background:var(--gerdau-yellow);margin:0 auto 20px;border-radius:2px;"></div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;">🔐 Acesso Operador</div>
-      <div class="input-group" style="text-align:left;">
-        <label>E-mail</label>
-        <input type="email" id="op-email" placeholder="SEU@EMAIL.COM" style="font-size:15px;letter-spacing:0;text-transform:none;">
+<!-- APP LOGIN SCREEN -->
+<div id="app-login-screen">
+  <div class="app-login-container">
+    <div class="login-box">
+      <div class="login-logo" style="text-align:center;margin-bottom:24px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;color:var(--gerdau-blue);letter-spacing:4px;">GERDAU</div>
+        <div style="width:40px;height:3px;background:var(--gerdau-yellow);margin:6px auto 0;border-radius:2px;"></div>
       </div>
-      <div class="input-group" style="text-align:left;margin-bottom:20px;">
+      <div class="login-title">Verifica Lacre</div>
+      <div class="input-group">
+        <label>E-mail</label>
+        <input type="email" id="op-email" placeholder="SEU@EMAIL.COM" style="letter-spacing:0;font-size:15px;">
+      </div>
+      <div class="input-group" style="margin-bottom:18px;">
         <label>Senha</label>
-        <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;" onkeydown="if(event.key==='Enter')doAppLogin()">
+        <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;">
       </div>
       <button class="btn btn-primary" onclick="doAppLogin()">Entrar</button>
-      <div id="app-login-err" style="color:var(--danger);font-size:13px;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
+      <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
-  </div>
-
-  <!-- MAIN APP (shown after login) -->
-  <div id="app-main" style="display:none;">
-  <!-- Logged user bar -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 4px;margin-bottom:4px;">
-    <div style="font-size:13px;color:var(--text2);font-weight:500;">👤 <span id="op-nome-display"></span></div>
-    <button onclick="doAppLogout()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text2);cursor:pointer;font-family:'Barlow',sans-serif;font-weight:600;letter-spacing:1px;">SAIR</button>
-  </div>
-
-  <div class="tabs" style="margin-top:4px;">
-    <div class="tab active" onclick="switchTab('origem')">📍 Origem</div>
-    <div class="tab" onclick="switchTab('destino')">🏁 Destino</div>
-  </div>
-
-  <!-- ORIGEM -->
-  <div class="section active" id="section-origem">
-    <div class="card">
-      <div class="card-title">Dados do Veículo</div>
-      <div class="input-group">
-        <label>Placa do Veículo</label>
-        <input type="text" id="placa-origem" placeholder="ABC-1234" maxlength="8">
-      </div>
-      <div class="input-group">
-        <label>Nome do Motorista</label>
-        <input type="text" id="motorista-origem" placeholder="NOME COMPLETO" style="text-transform:uppercase;letter-spacing:1px;font-size:16px;">
-      </div>
-      <div class="input-group" style="margin-bottom:0;">
-        <label>Observação (opcional)</label>
-        <input type="text" id="obs-origem" placeholder="EX: LACRE SUBSTITUÍDO" style="text-transform:uppercase;letter-spacing:0;font-size:14px;">
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Foto do Lacre — Origem</div>
-      <div class="qr-guide">
-        <span class="qr-guide-icon">📋</span>
-        <span class="qr-guide-text">Aponte a câmera para o QR Code do lacre. Mantenha o código centralizado e com boa iluminação. A foto será tirada automaticamente.</span>
-      </div>
-      <div class="camera-area" id="camera-origem">
-        <div class="corner tl"></div><div class="corner tr"></div>
-        <div class="corner bl"></div><div class="corner br"></div>
-        <video id="video-origem" autoplay playsinline></video>
-        <canvas id="canvas-origem"></canvas>
-        <img id="preview-origem" alt="">
-        <div id="qr-indicator-origem" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:13px;font-weight:700;letter-spacing:0.5px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.5);font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;"></div>
-        <div class="cam-ph" id="placeholder-origem">
-          <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span>Iniciando câmera...</span>
-        </div>
-      </div>
-      <button class="btn btn-outline" id="btn-cam-origem" onclick="startCamera('origem')" style="display:none">📷 Ativar Câmera</button>
-      <button class="btn btn-primary" id="btn-foto-origem" onclick="takePhoto('origem')" disabled style="display:none">Tirar Foto Manualmente</button>
-      <button class="btn btn-outline" id="btn-refoto-origem" onclick="retakePhoto('origem')" style="display:none">🔄 Tirar Novamente</button>
-      <div class="timestamp" id="ts-origem"></div>
-      <div class="loc-badge" id="loc-origem"></div>
-    </div>
-    <div class="loading" id="loading-origem"><div class="spinner"></div><div class="loading-text">Analisando lacre com IA...</div></div>
-    <div class="status-box" id="result-origem">
-      <div class="status-title" id="result-origem-title"></div>
-      <div id="result-origem-body"></div>
-      <div class="read-value" id="lacre-lido-origem"></div>
-    </div>
-    <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px">✅ Registrar Saída</button>
-  </div>
-
-  <!-- DESTINO -->
-  <div class="section" id="section-destino">
-    <div class="card">
-      <div class="card-title">Dados do Veículo</div>
-      <div class="input-group">
-        <label>Placa do Veículo</label>
-        <input type="text" id="placa-destino" placeholder="ABC-1234" maxlength="8">
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Foto do Lacre — Destino</div>
-      <div class="qr-guide">
-        <span class="qr-guide-icon">📋</span>
-        <span class="qr-guide-text">Aponte a câmera para o QR Code do lacre. Mantenha o código centralizado e com boa iluminação. A foto será tirada automaticamente.</span>
-      </div>
-      <div class="camera-area" id="camera-destino">
-        <div class="corner tl"></div><div class="corner tr"></div>
-        <div class="corner bl"></div><div class="corner br"></div>
-        <video id="video-destino" autoplay playsinline></video>
-        <canvas id="canvas-destino"></canvas>
-        <img id="preview-destino" alt="">
-        <div id="qr-indicator-destino" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:13px;font-weight:700;letter-spacing:0.5px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.5);font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;"></div>
-        <div class="cam-ph" id="placeholder-destino">
-          <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span>Iniciando câmera...</span>
-        </div>
-      </div>
-      <button class="btn btn-outline" id="btn-cam-destino" onclick="startCamera('destino')" style="display:none">📷 Ativar Câmera</button>
-      <button class="btn btn-primary" id="btn-foto-destino" onclick="takePhoto('destino')" disabled style="display:none">Tirar Foto Manualmente</button>
-      <button class="btn btn-outline" id="btn-refoto-destino" onclick="retakePhoto('destino')" style="display:none">🔄 Tirar Novamente</button>
-      <div class="timestamp" id="ts-destino"></div>
-      <div class="loc-badge" id="loc-destino"></div>
-    </div>
-    <div class="loading" id="loading-destino"><div class="spinner"></div><div class="loading-text">Verificando e comparando dados...</div></div>
-    <div class="status-box" id="result-destino"></div>
   </div>
 </div>
 
+<!-- APP MAIN -->
+<div id="app-main">
+  <div class="app-header">
+    <div class="header-logo">
+      <div style="color:#fff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Operador:</div>
+      <div style="color:var(--gerdau-yellow);font-size:14px;font-weight:700;letter-spacing:1px;" id="op-nome-display">—</div>
+    </div>
+    <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
+    <button class="admin-btn" onclick="doAppLogout()" style="position:absolute;right:24px;">🚪 Sair</button>
+  </div>
+
+  <div id="top-alert" class="info-bar" style="border-radius:0;margin:0;"></div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('origem')">📍 ORIGEM</button>
+      <button class="tab" onclick="switchTab('destino')">📍 DESTINO</button>
+    </div>
+
+    <!-- ORIGEM -->
+    <div class="section active" id="section-origem">
+      <div class="card">
+        <div class="card-title">Dados do Veículo</div>
+        <div class="input-group">
+          <label>Placa do Veículo</label>
+          <input type="text" id="placa-origem" placeholder="ABC-1234" maxlength="8">
+        </div>
+        <div class="input-group">
+          <label>Motorista</label>
+          <input type="text" id="motorista-origem" placeholder="NOME DO MOTORISTA" style="font-size:14px;letter-spacing:0;text-transform:none;">
+        </div>
+        <div class="input-group">
+          <label>Observações (opcional)</label>
+          <textarea id="obs-origem" placeholder="OBSERVAÇÕES SOBRE O TRANSPORTE" rows="3" style="font-size:13px;letter-spacing:0;text-transform:none;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Foto do Lacre — Origem</div>
+        <div class="qr-guide">
+          <span class="qr-guide-icon">📋</span>
+          <span class="qr-guide-text">Aponte a câmera para o QR Code do lacre. Mantenha o código centralizado e com boa iluminação. A foto será tirada automaticamente.</span>
+        </div>
+        <div class="camera-area" id="camera-origem">
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+          <video id="video-origem" autoplay playsinline></video>
+          <canvas id="canvas-origem"></canvas>
+          <img id="preview-origem" alt="">
+          <div id="qr-indicator-origem" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:13px;font-weight:700;letter-spacing:0.5px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.5);font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;"></div>
+          <div class="cam-ph" id="placeholder-origem">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Iniciando câmera...</span>
+          </div>
+        </div>
+        <button class="btn btn-outline" id="btn-cam-origem" onclick="startCamera('origem')" style="display:none">📷 Ativar Câmera</button>
+        <button class="btn btn-primary" id="btn-foto-origem" onclick="takePhoto('origem')" disabled style="display:none">Tirar Foto Manualmente</button>
+        <button class="btn btn-outline" id="btn-refoto-origem" onclick="retakePhoto('origem')" style="display:none">🔄 Tirar Novamente</button>
+        <div class="timestamp" id="ts-origem"></div>
+        <div class="loc-badge" id="loc-origem"></div>
+      </div>
+      <div class="loading" id="loading-origem"><div class="spinner"></div><div class="loading-text">Analisando lacre com IA...</div></div>
+      <div class="status-box" id="result-origem">
+        <div class="status-title" id="result-origem-title"></div>
+        <div id="result-origem-body"></div>
+        <div class="read-value" id="lacre-lido-origem"></div>
+      </div>
+      <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px">✅ Registrar Saída</button>
+    </div>
+
+    <!-- DESTINO -->
+    <div class="section" id="section-destino">
+      <div class="card">
+        <div class="card-title">Dados do Veículo</div>
+        <div class="input-group">
+          <label>Placa do Veículo</label>
+          <input type="text" id="placa-destino" placeholder="ABC-1234" maxlength="8">
+        </div>
+        <div class="input-group">
+          <label>Motorista</label>
+          <input type="text" id="motorista-destino" placeholder="NOME DO MOTORISTA" style="font-size:14px;letter-spacing:0;text-transform:none;">
+        </div>
+        <div class="input-group">
+          <label>Observações (opcional)</label>
+          <textarea id="obs-destino" placeholder="OBSERVAÇÕES SOBRE O RECEBIMENTO" rows="3" style="font-size:13px;letter-spacing:0;text-transform:none;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Foto do Lacre — Destino</div>
+        <div class="qr-guide">
+          <span class="qr-guide-icon">📋</span>
+          <span class="qr-guide-text">Aponte a câmera para o QR Code do lacre. Mantenha o código centralizado e com boa iluminação. A foto será tirada automaticamente.</span>
+        </div>
+        <div class="camera-area" id="camera-destino">
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+          <video id="video-destino" autoplay playsinline></video>
+          <canvas id="canvas-destino"></canvas>
+          <img id="preview-destino" alt="">
+          <div id="qr-indicator-destino" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:13px;font-weight:700;letter-spacing:0.5px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.5);font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;"></div>
+          <div class="cam-ph" id="placeholder-destino">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Iniciando câmera...</span>
+          </div>
+        </div>
+        <button class="btn btn-outline" id="btn-cam-destino" onclick="startCamera('destino')" style="display:none">📷 Ativar Câmera</button>
+        <button class="btn btn-primary" id="btn-foto-destino" onclick="takePhoto('destino')" disabled style="display:none">Tirar Foto Manualmente</button>
+        <button class="btn btn-outline" id="btn-refoto-destino" onclick="retakePhoto('destino')" style="display:none">🔄 Tirar Novamente</button>
+        <div class="timestamp" id="ts-destino"></div>
+        <div class="loc-badge" id="loc-destino"></div>
+      </div>
+      <div class="loading" id="loading-destino"><div class="spinner"></div><div class="loading-text">Verificando e comparando dados...</div></div>
+      <div class="status-box" id="result-destino"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ADMIN OVERLAY -->
 <div class="overlay" id="admin-overlay">
@@ -361,9 +362,9 @@ tr:hover td{background:var(--surface2);}
     <div id="admin-login" style="padding:20px;">
       <div class="login-box">
         <div class="login-logo" style="text-align:center;margin-bottom:24px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;color:var(--gerdau-blue);letter-spacing:4px;">GERDAU</div>
-      <div style="width:40px;height:3px;background:var(--gerdau-yellow);margin:6px auto 0;border-radius:2px;"></div>
-    </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;color:var(--gerdau-blue);letter-spacing:4px;">GERDAU</div>
+          <div style="width:40px;height:3px;background:var(--gerdau-yellow);margin:6px auto 0;border-radius:2px;"></div>
+        </div>
         <div class="login-title">🔒 Acesso Restrito</div>
         <div class="input-group">
           <label>E-mail</label>
@@ -382,7 +383,6 @@ tr:hover td{background:var(--surface2);}
     <div id="admin-body" style="display:none;">
 
       <!-- Dashboard -->
-      <!-- Month filter -->
       <div style="padding:16px 20px 0;max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;">
         <label style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Período:</label>
         <select id="dash-mes" onchange="loadDashboard()" style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;padding:7px 12px;outline:none;cursor:pointer;">
@@ -522,6 +522,7 @@ tr:hover td{background:var(--surface2);}
           <div class="card" style="margin-bottom:14px;">
             <div class="card-title">Criar novo usuário</div>
             <div class="input-group"><label>Nome completo</label><input type="text" id="novo-user-nome" placeholder="NOME DO OPERADOR" style="font-size:14px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Empresa</label><input type="text" id="novo-user-empresa" placeholder="NOME DA EMPRESA" style="font-size:14px;letter-spacing:0;text-transform:none;"></div>
             <div class="input-group"><label>E-mail</label><input type="email" id="novo-user-email" placeholder="OPERADOR@EMAIL.COM" style="font-size:14px;letter-spacing:0;text-transform:none;"></div>
             <div class="input-group"><label>Senha</label><input type="password" id="novo-user-senha" placeholder="Mínimo 6 caracteres" style="font-size:14px;letter-spacing:1px;"></div>
             <div class="input-group" style="margin-bottom:0;">
@@ -535,7 +536,7 @@ tr:hover td{background:var(--surface2);}
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:12px;" onclick="criarUsuario()">+ Criar Usuário</button>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>E-mail</th><th>Perfil</th><th>Criado em</th><th></th></tr></thead>
+            <table><thead><tr><th>E-mail</th><th>Nome</th><th>Empresa</th><th>Perfil</th><th>Criado em</th><th></th></tr></thead>
             <tbody id="usuarios-tbody"></tbody></table>
           </div>
         </div>
@@ -549,6 +550,14 @@ tr:hover td{background:var(--surface2);}
               <input type="number" id="config-horas" value="96" min="1" max="720" style="font-size:18px;width:120px;letter-spacing:2px;">
             </div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarConfig()">Salvar</button>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">Timeout de Sessão (Logout Automático)</div>
+            <div class="input-group">
+              <label>Horas de inatividade até logout automático</label>
+              <input type="number" id="config-timeout" value="5" min="1" max="24" style="font-size:18px;width:120px;letter-spacing:2px;">
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarTimeoutConfig()">Salvar</button>
           </div>
           <div class="card" style="margin-bottom:14px;">
             <div class="card-title">Gemini API Key</div>
@@ -591,13 +600,10 @@ tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
-
 <!-- SheetJS for XLSX support -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- jsQR -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-<!-- SheetJS -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -610,10 +616,11 @@ tr:hover td{background:var(--surface2);}
 // CONFIG — lida do localStorage (admin salva via painel)
 // ============================================================
 function getGeminiKey() {
-  // Priority: Firebase (saved by admin) > localStorage > new key fallback
+  // Priority: Firebase (saved by admin) > localStorage
   const saved = getCfg('gemini_key','');
   if (saved) return saved;
-  return ['AIzaSyA_N-n67bIk4ryC','dthBOEth_hzLYSroae0'].join('');
+  // IMPORTANTE: Não exponha a chave aqui. Use apenas Firebase.
+  return '';
 }
 let GEMINI_API_KEY = getGeminiKey();
 
@@ -663,7 +670,6 @@ function initFirebase() {
     console.log('Firebase inicializado com config fixa');
   } catch(e) {
     console.error('Firebase erro:', e.message);
-    // Show visible error to user
     const errDiv = document.createElement('div');
     errDiv.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#FDECEA;border:1px solid #F1A9A3;border-radius:8px;padding:12px 20px;font-size:13px;color:#C0392B;font-weight:600;z-index:999;text-align:center;';
     errDiv.textContent = '⚠️ Erro ao conectar: ' + e.message;
@@ -687,6 +693,7 @@ const state = {
 };
 
 let currentOperador = null;
+let sessionTimeoutMs = 5 * 60 * 60 * 1000; // 5 horas padrão
 
 async function doAppLogin() {
   if (!auth) { alert('Firebase não configurado.'); return; }
@@ -700,13 +707,16 @@ async function doAppLogin() {
     const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
     const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
-    currentOperador = { email, nome, uid: cred.user.uid, perfil };
+    const empresa = userDoc.exists ? (userDoc.data().empresa || '') : '';
+    currentOperador = { email, nome, uid: cred.user.uid, perfil, empresa };
     document.getElementById('op-nome-display').textContent = nome;
     document.getElementById('app-login-screen').style.display = 'none';
     document.getElementById('app-main').style.display = 'block';
     // Show/hide admin button based on perfil
     const adminBtn = document.querySelector('.admin-btn');
     if (adminBtn) adminBtn.style.display = (perfil === 'operacional') ? 'none' : '';
+    // Iniciar logout automático
+    initSessionTimeout();
     setTimeout(()=>startCamera('origem'), 300);
   } catch(e) {
     console.error('App login error:', e.code, e.message);
@@ -734,300 +744,152 @@ function doAppLogout() {
     state[lado].stream = null;
     state[lado].photoBase64 = null;
   });
-}
-
-function mostrarEntradaManual(lado) {
-  // Check if manual entry already shown
-  if (document.getElementById(`manual-entry-${lado}`)) return;
-
-  const box = document.getElementById(`result-${lado}`);
-  const manualDiv = document.createElement('div');
-  manualDiv.id = `manual-entry-${lado}`;
-  manualDiv.style.cssText = 'background:var(--warning-bg);border:1.5px solid var(--warning-border);border-radius:12px;padding:16px;margin-top:12px;';
-  manualDiv.innerHTML = `
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:10px;">⌨️ INSERÇÃO MANUAL DO LACRE</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Digite o número do lacre exatamente como está impresso:</div>
-    <div style="display:flex;gap:8px;">
-      <input type="text" id="manual-lacre-${lado}" placeholder="00001" maxlength="10"
-        style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;padding:10px 14px;border:1.5px solid var(--warning-border);border-radius:8px;background:#fff;color:var(--gerdau-blue);text-align:center;outline:none;"
-        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      <button onclick="confirmarManual('${lado}')"
-        style="background:var(--gerdau-blue);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;">
-        ✅ Confirmar
-      </button>
-    </div>
-    <div style="font-size:11px;color:var(--warning);margin-top:8px;font-weight:600;">⚠️ A inserção manual fica registrada no log do sistema.</div>`;
-
-  box.parentNode.insertBefore(manualDiv, box.nextSibling);
-  setTimeout(()=>document.getElementById(`manual-lacre-${lado}`)?.focus(), 100);
-}
-
-async function confirmarManual(lado) {
-  const input = document.getElementById(`manual-lacre-${lado}`);
-  const num = input?.value.trim();
-  if (!num) { alert('Digite o número do lacre.'); return; }
-
-  const numPad = num.padStart(5,'0');
-
-  // Remove manual entry div
-  document.getElementById(`manual-entry-${lado}`)?.remove();
-
-  // Set state as if AI had read it
-  state[lado].lacreNumero = numPad;
-  state[lado].lacreIntegro = true; // assume integro when manual — operator is responsible
-
-  // Log manual entry
-  await registrarLog('entrada_manual_lacre', `Lacre ${numPad} inserido manualmente na ${lado} — operador: ${currentOperador?.email||'?'}`);
-
-  const box = document.getElementById(`result-${lado}`);
-  box.className = 'status-box warning show';
-  box.innerHTML = `
-    <div class="status-title">⌨️ Número inserido manualmente</div>
-    <div class="status-item">🔐 <span>Lacre: <strong>${numPad}</strong></span></div>
-    <div class="status-item" style="font-size:11px;color:var(--warning);">⚠️ Inserção manual — operador responsável pela conferência física do lacre.</div>`;
-
-  // Show read value
-  const readVal = document.getElementById(`lacre-lido-${lado}`);
-  if (readVal) readVal.textContent = numPad;
-
-  if (lado === 'origem') {
-    document.getElementById('btn-registrar').style.display = 'block';
-    showTopAlert('⌨️ Número inserido manualmente — confira o lacre fisicamente!', 'warning');
-  } else {
-    verificarDestino({ numero: numPad, integro: true, observacao: 'Inserido manualmente pelo operador' });
-  }
-}
-
-function showTopAlert(msg, type) {
-  const el = document.getElementById('top-alert');
-  el.style.display = 'block';
-  if (type === 'ok') {
-    el.style.background = 'rgba(0,230,118,0.15)';
-    el.style.borderBottom = '2px solid var(--success)';
-    el.style.color = 'var(--success)';
-  } else if (type === 'error') {
-    el.style.background = 'rgba(255,61,61,0.15)';
-    el.style.borderBottom = '2px solid var(--danger)';
-    el.style.color = 'var(--danger)';
-  } else {
-    el.style.background = 'rgba(255,179,0,0.15)';
-    el.style.borderBottom = '2px solid var(--warning)';
-    el.style.color = 'var(--warning)';
-  }
-  el.textContent = msg;
-  // Scroll to top
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-function hideTopAlert() {
-  document.getElementById('top-alert').style.display = 'none';
+  // Limpar timeout
+  if (window._sessionTimer) clearTimeout(window._sessionTimer);
 }
 
 // ============================================================
-// GEOLOCALIZAÇÃO
+// SESSION TIMEOUT — 5 HORAS COM RESET
 // ============================================================
-async function reverseGeocode(lat, lng) {
-  try {
-    // Using OpenStreetMap Nominatim — free, no API key needed
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`,
-      { headers: { 'Accept-Language': 'pt-BR', 'User-Agent': 'VerificaLacre-Gerdau/1.0' } }
-    );
-    const data = await res.json();
-    if (data && data.address) {
-      const city = data.address.city || data.address.town || data.address.village || data.address.municipality || '';
-      const state_ = data.address.state || '';
-      const country = data.address.country_code?.toUpperCase() || '';
-      if (city && state_) return `${city}, ${state_}`;
-      if (state_) return `${state_}, ${country}`;
-    }
-  } catch(e) { console.warn('Geocode error:', e.message); }
-  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-}
-
-function getLocation(lado) {
-  if (!navigator.geolocation) { state[lado].loc = 'Localização não disponível'; return; }
-  navigator.geolocation.getCurrentPosition(
-    async pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-      state[lado].locCoords = coords;
-      state[lado].loc = coords;
-      document.getElementById(`loc-${lado}`).textContent = '📍 Obtendo endereço...';
-      const readable = await reverseGeocode(lat, lng);
-      state[lado].loc = readable;
-      document.getElementById(`loc-${lado}`).textContent = '📍 ' + readable;
-    },
-    () => {
-      fetch('https://ipapi.co/json/')
-        .then(r=>r.json())
-        .then(d=>{ state[lado].loc = `${d.city}, ${d.region} (aprox.)`; document.getElementById(`loc-${lado}`).textContent = '📍 ' + state[lado].loc; })
-        .catch(()=>{ state[lado].loc = 'Localização não obtida'; });
-    },
-    { timeout:8000 }
-  );
-}
-
-// ============================================================
-// NAVEGAÇÃO
-// ============================================================
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='origem')||(i===1&&tab==='destino')));
-  document.getElementById('section-origem').classList.toggle('active',tab==='origem');
-  document.getElementById('section-destino').classList.toggle('active',tab==='destino');
-  // Auto-start camera when switching tabs
-  setTimeout(()=>{ if(!state[tab].stream && !state[tab].photoBase64) startCamera(tab); }, 200);
-}
-
-// Auto-restore session on page load
-window.addEventListener('load', ()=>{
-  if (!auth) return;
-  auth.onAuthStateChanged(async user => {
-    if (user) {
-      try {
-        const userDoc = await db.collection('usuarios').doc(user.uid).get();
-        const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
-        const nome = userDoc.exists ? (userDoc.data().nome || user.email) : user.email;
-        currentOperador = { email: user.email, nome, uid: user.uid, perfil };
-        document.getElementById('op-nome-display').textContent = nome;
-        document.getElementById('app-login-screen').style.display = 'none';
-        document.getElementById('app-main').style.display = 'block';
-        const adminBtn = document.querySelector('.admin-btn');
-        if (adminBtn) adminBtn.style.display = (perfil === 'operacional') ? 'none' : '';
-        // Load Gemini key from Firebase
-        await loadGeminiKey();
-        setTimeout(()=>startCamera('origem'), 400);
-      } catch(e) { console.warn('Session restore error:', e.message); }
-    }
+function initSessionTimeout() {
+  // Carregar timeout configurado
+  const timeoutHoras = parseInt(getCfg('config_timeout', '5'));
+  sessionTimeoutMs = timeoutHoras * 60 * 60 * 1000;
+  
+  // Iniciar timer
+  resetSessionTimer();
+  
+  // Reset timer on any user interaction
+  ['click','keydown','touchstart','input'].forEach(ev => {
+    document.removeEventListener(ev, resetSessionTimer);
+    document.addEventListener(ev, resetSessionTimer, { passive: true });
   });
-});
+}
+
+function resetSessionTimer() {
+  if (!auth?.currentUser) return;
+  if (window._sessionTimer) clearTimeout(window._sessionTimer);
+  window._sessionTimer = setTimeout(() => {
+    alert('Sessão expirada por inatividade. Faça login novamente.');
+    doAppLogout();
+  }, sessionTimeoutMs);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`section-${tab}`).classList.add('active');
+  if (tab === 'destino') {
+    setTimeout(()=>startCamera('destino'), 300);
+  }
+}
 
 // ============================================================
-// CÂMERA
+// CÂMERA E FOTO
 // ============================================================
 async function startCamera(lado) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:'environment',width:{ideal:1280},height:{ideal:960}} });
+    const constraints = { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } };
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video = document.getElementById(`video-${lado}`);
+    video.srcObject = stream;
     state[lado].stream = stream;
-    const v = document.getElementById(`video-${lado}`);
-    v.srcObject = stream; v.classList.add('active');
+    video.classList.add('active');
     document.getElementById(`placeholder-${lado}`).style.display = 'none';
+    document.getElementById(`btn-foto-${lado}`).style.display = 'block';
     document.getElementById(`btn-foto-${lado}`).disabled = false;
-    getLocation(lado);
-    // Start QR detection loop
-    startQRDetection(lado);
-  } catch(e) {
-    const box = document.getElementById(`result-${lado}`);
-    box.className = 'status-box error show';
-    box.innerHTML = `<div class="status-title">📷 Câmera bloqueada</div>
-      <div class="status-item">Permita o acesso à câmera nas configurações do navegador e tente novamente.</div>`;
-    const btnCam = document.getElementById(`btn-cam-${lado}`);
-    if (btnCam) btnCam.style.display='block';
+    detectQRCode(lado);
+  } catch(err) {
+    console.error('Camera error:', err);
+    alert('Erro ao acessar câmera: ' + err.message);
   }
 }
 
-let qrDetecting = { origem: false, destino: false };
-
-function startQRDetection(lado) {
-  if (qrDetecting[lado]) return;
-  qrDetecting[lado] = true;
-  const v = document.getElementById(`video-${lado}`);
-  const c = document.getElementById(`canvas-${lado}`);
+async function detectQRCode(lado) {
+  if (!state[lado].stream) return;
+  const video = document.getElementById(`video-${lado}`);
+  const canvas = document.getElementById(`canvas-${lado}`);
+  const ctx = canvas.getContext('2d');
   const indicator = document.getElementById(`qr-indicator-${lado}`);
-
-  function detect() {
-    if (!state[lado].stream || state[lado].photoBase64) { qrDetecting[lado]=false; return; }
-    if (v.readyState === v.HAVE_ENOUGH_DATA) {
-      c.width = v.videoWidth; c.height = v.videoHeight;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(v, 0, 0);
-      try {
-        const imageData = ctx.getImageData(0, 0, c.width, c.height);
-        if (window.jsQR) {
-          const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts:'dontInvert' });
-          if (code) {
-            const placa = document.getElementById(`placa-${lado}`).value.trim().toUpperCase();
-            const reAntiga = /^[A-Z]{3}-?\d{4}$/;
-            const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
-            if (!placa || (!reAntiga.test(placa) && !reMercosul.test(placa))) {
-              if (indicator) { indicator.textContent = '⚠️ Digite a placa antes!'; indicator.style.color='var(--warning)'; }
-            } else {
-              if (indicator) { indicator.textContent = '✅ QR Code detectado! Capturando...'; indicator.style.color='var(--success)'; }
-              setTimeout(()=>{ if(!state[lado].photoBase64) takePhoto(lado); }, 300);
-              qrDetecting[lado] = false;
-              return;
-            }
-            // Note: jsQR raw value stored but Gemini will re-read and normalize
-          } else {
-            const placa = document.getElementById(`placa-${lado}`).value.trim();
-            if (!placa) {
-              if (indicator) { indicator.textContent = '⚠️ Digite a placa para continuar...'; indicator.style.color='var(--warning)'; }
-            } else {
-              if (indicator) { indicator.textContent = '🔍 Aponte para o QR Code...'; indicator.style.color='var(--text2)'; }
-            }
-          }
+  
+  const detectFrame = async () => {
+    if (!state[lado].stream) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        indicator.textContent = '✅ QR CODE DETECTADO';
+        indicator.style.color = '#1A8C4E';
+        if (!window._qrDetected) {
+          window._qrDetected = true;
+          setTimeout(() => takePhoto(lado), 500);
         }
-      } catch(e) {}
+      } else {
+        indicator.textContent = '🔍 Procurando QR Code...';
+        indicator.style.color = '#B7770D';
+        window._qrDetected = false;
+      }
     }
-    requestAnimationFrame(detect);
-  }
-  requestAnimationFrame(detect);
+    requestAnimationFrame(detectFrame);
+  };
+  detectFrame();
 }
 
-function takePhoto(lado) {
-  const v = document.getElementById(`video-${lado}`);
-  const c = document.getElementById(`canvas-${lado}`);
-  c.width = v.videoWidth; c.height = v.videoHeight;
-  c.getContext('2d').drawImage(v,0,0);
-  const b64 = c.toDataURL('image/jpeg',0.92).split(',')[1];
-  state[lado].photoBase64 = b64;
-  state[lado].timestamp = new Date();
-  const prev = document.getElementById(`preview-${lado}`);
-  prev.src = 'data:image/jpeg;base64,'+b64; v.classList.remove('active'); prev.classList.add('active');
-  if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
-  document.getElementById(`ts-${lado}`).textContent = '📅 '+state[lado].timestamp.toLocaleString('pt-BR');
-  document.getElementById(`btn-foto-${lado}`).style.display = 'none';
-  document.getElementById(`btn-refoto-${lado}`).style.display = 'block';
-  analisarLacre(lado);
+async function takePhoto(lado) {
+  const video = document.getElementById(`video-${lado}`);
+  const canvas = document.getElementById(`canvas-${lado}`);
+  const preview = document.getElementById(`preview-${lado}`);
+  const ctx = canvas.getContext('2d');
+  
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+  
+  canvas.toBlob(blob => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      state[lado].photoBase64 = e.target.result.split(',')[1];
+      preview.src = e.target.result;
+      preview.classList.add('active');
+      video.classList.remove('active');
+      document.getElementById(`btn-foto-${lado}`).style.display = 'none';
+      document.getElementById(`btn-refoto-${lado}`).style.display = 'block';
+      document.getElementById(`ts-${lado}`).textContent = new Date().toLocaleString('pt-BR');
+      
+      // Capturar localização
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude, longitude } = pos.coords;
+          state[lado].locCoords = `${latitude},${longitude}`;
+          state[lado].loc = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          document.getElementById(`loc-${lado}`).textContent = `📍 ${state[lado].loc}`;
+        }, err => console.warn('Geolocation error:', err));
+      }
+      
+      state[lado].timestamp = new Date();
+      analisarLacre(lado);
+    };
+    reader.readAsDataURL(blob);
+  }, 'image/jpeg', 0.8);
 }
 
 function retakePhoto(lado) {
-  // Stop existing stream first
-  if (state[lado].stream) {
-    state[lado].stream.getTracks().forEach(t=>t.stop());
-    state[lado].stream = null;
-  }
-  // Reset video element
   const video = document.getElementById(`video-${lado}`);
-  video.srcObject = null;
-  video.classList.remove('active');
-  // Reset preview
   const preview = document.getElementById(`preview-${lado}`);
   preview.classList.remove('active');
-  preview.src = '';
-  // Reset state
-  state[lado].photoBase64 = null;
-  state[lado].lacreNumero = null;
-  state[lado].locCoords = null;
-  qrDetecting[lado] = false;
-  // Reset UI
-  document.getElementById(`btn-foto-${lado}`).style.display = 'none';
-  document.getElementById(`btn-foto-${lado}`).disabled = true;
+  video.classList.add('active');
   document.getElementById(`btn-refoto-${lado}`).style.display = 'none';
+  document.getElementById(`btn-foto-${lado}`).style.display = 'block';
   document.getElementById(`ts-${lado}`).textContent = '';
   document.getElementById(`loc-${lado}`).textContent = '';
   document.getElementById(`result-${lado}`).className = 'status-box';
-  document.getElementById(`manual-entry-${lado}`)?.remove();
-  hideTopAlert();
-  // Show placeholder
-  document.getElementById(`placeholder-${lado}`).style.display = 'flex';
-  if (lado==='origem') {
-    document.getElementById('btn-registrar').style.display='none';
-    document.getElementById('lacre-lido-origem').textContent='';
-  }
-  // Restart camera
-  setTimeout(()=>startCamera(lado), 300);
+  state[lado].photoBase64 = null;
+  state[lado].lacreNumero = null;
+  state[lado].locCoords = null;
 }
 
 // ============================================================
@@ -1035,8 +897,17 @@ function retakePhoto(lado) {
 // ============================================================
 async function analisarLacre(lado) {
   document.getElementById(`loading-${lado}`).classList.add('show');
-  // Always refresh Gemini key from Firebase before analysis
   await loadGeminiKey();
+  
+  if (!GEMINI_API_KEY) {
+    const box = document.getElementById(`result-${lado}`);
+    box.className = 'status-box error show';
+    box.innerHTML = `<div class="status-title">❌ Erro de Configuração</div>
+      <div class="status-item">API Key do Gemini não configurada. Contate o administrador.</div>`;
+    document.getElementById(`loading-${lado}`).classList.remove('show');
+    return;
+  }
+  
   const prompt = `Você é um sistema de verificação de lacres de segurança para transporte de cargas.
 
 Analise esta imagem e retorne SOMENTE um JSON válido, sem markdown, sem explicações:
@@ -1054,30 +925,41 @@ Regras:
 - "observacao": descreva o estado físico brevemente
 
 Retorne SOMENTE o JSON.`;
+  
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
-      method:'POST', headers:{'Content-Type':'application/json','x-goog-api-key': GEMINI_API_KEY},
-      body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:512,thinkingConfig:{thinkingBudget:0}} })
+      method:'POST', 
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ 
+        contents:[{parts:[
+          {text:prompt},
+          {inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}
+        ]}], 
+        generationConfig:{temperature:0.1,maxOutputTokens:512}
+      })
     });
+    
     if (!res.ok) {
       const errText = await res.text();
       throw new Error(`API HTTP ${res.status}: ${errText.substring(0,200)}`);
     }
+    
     const data = await res.json();
     if (data.error) throw new Error(`API: ${data.error.message}`);
+    
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     let result;
     try {
-      // Remove markdown fences and find JSON object
       let cleaned = text.replace(/```json|```/g,'').trim();
-      // Find the outermost JSON object
       const start = cleaned.indexOf('{');
       const end = cleaned.lastIndexOf('}');
       if (start === -1 || end === -1) throw new Error('JSON não encontrado');
       cleaned = cleaned.substring(start, end + 1);
       result = JSON.parse(cleaned);
     } catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,120)}`); }
+    
     document.getElementById(`loading-${lado}`).classList.remove('show');
+    
     if (result.tipo === 'outro' || (result.tipo !== 'qrcode' && result.tipo !== 'barcode')) {
       const box = document.getElementById(`result-${lado}`);
       box.className = 'status-box error show';
@@ -1088,7 +970,7 @@ Retorne SOMENTE o JSON.`;
       mostrarEntradaManual(lado);
       return;
     }
-    // Normalize lacre number — extract digits only, pad to 5
+    
     const rawNumero = String(result.numero||'').trim();
     const digitsOnly = rawNumero.replace(/\D/g,'');
     if (digitsOnly && digitsOnly !== 'ILEGIVEL') {
@@ -1096,8 +978,10 @@ Retorne SOMENTE o JSON.`;
     } else if (!digitsOnly) {
       result.numero = rawNumero.toUpperCase();
     }
+    
     state[lado].lacreNumero = result.numero;
     state[lado].lacreIntegro = result.integro;
+    
     if (lado==='origem') mostrarResultadoOrigem(result);
     else verificarDestino(result);
   } catch(err) {
@@ -1121,12 +1005,15 @@ function mostrarResultadoOrigem(result) {
   const title = document.getElementById('result-origem-title');
   const body = document.getElementById('result-origem-body');
   document.getElementById('lacre-lido-origem').textContent = result.numero;
+  
   if (!result.integro) {
-    box.className = 'status-box error show'; title.textContent = '⚠️ Lacre comprometido!';
+    box.className = 'status-box error show';
+    title.textContent = '⚠️ Lacre comprometido!';
     body.innerHTML = `<div class="status-item">🔍 <span><strong>Obs:</strong> ${result.observacao}</span></div><div class="status-item" style="color:var(--danger)">Não recomendado prosseguir com o transporte.</div>`;
     showTopAlert('⚠️ ATENÇÃO — Lacre comprometido! Verifique antes de prosseguir.', 'error');
   } else {
-    box.className = 'status-box ok show'; title.textContent = '✅ Lacre íntegro';
+    box.className = 'status-box ok show';
+    title.textContent = '✅ Lacre íntegro';
     body.innerHTML = `<div class="status-item">🔍 <span><strong>Obs:</strong> ${result.observacao}</span></div>`;
     showTopAlert('✅ Lacre íntegro — Registre a saída abaixo', 'ok');
   }
@@ -1139,12 +1026,12 @@ function mostrarResultadoOrigem(result) {
 async function registrarOrigem() {
   if (!currentOperador) { alert('Faça login antes de registrar.'); return; }
   const placa = document.getElementById('placa-origem').value.trim().toUpperCase();
-  const motorista = document.getElementById('motorista-origem').value.trim().toUpperCase();
-  const obsAbertura = document.getElementById('obs-origem').value.trim().toUpperCase();
+  const motorista = document.getElementById('motorista-origem').value.trim();
+  const obsAbertura = document.getElementById('obs-origem').value.trim();
+  
   if (!placa) { alert('Informe a placa antes de registrar.'); return; }
   if (!motorista) { alert('Informe o nome do motorista antes de registrar.'); return; }
 
-  // Validar formato: antigo (ABC-1234 ou ABC1234) ou Mercosul (ABC1D23)
   const reAntiga = /^[A-Z]{3}-?\d{4}$/;
   const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
   if (!reAntiga.test(placa) && !reMercosul.test(placa)) {
@@ -1152,7 +1039,6 @@ async function registrarOrigem() {
     return;
   }
 
-  // Validar se placa está cadastrada
   const placaAutorizada = await validarPlacaCadastrada(placa);
   if (!placaAutorizada) {
     alert(`Placa ${placa} não está autorizada no sistema!\n\nEntre em contato com o administrador.`);
@@ -1162,7 +1048,6 @@ async function registrarOrigem() {
   if (!state.origem.lacreNumero) { alert('Tire a foto do lacre primeiro.'); return; }
   if (!db) { alert('Firebase não configurado. Configure no painel admin.'); return; }
 
-  // Validar se lacre está cadastrado e disponível
   try {
     const lacreDoc = await db.collection('lacresValidos').doc(state.origem.lacreNumero).get();
     if (!lacreDoc.exists) {
@@ -1179,7 +1064,8 @@ async function registrarOrigem() {
     }
 
     const btn = document.getElementById('btn-registrar');
-    btn.disabled = true; btn.textContent = 'Registrando...';
+    btn.disabled = true;
+    btn.textContent = 'Registrando...';
 
     const processId = Date.now().toString();
     const dados = {
@@ -1193,6 +1079,7 @@ async function registrarOrigem() {
       locOrigemCoords: state.origem.locCoords || '',
       abertoPor: currentOperador.email,
       abertoPorNome: currentOperador.nome,
+      abertoPorEmpresa: currentOperador.empresa || '',
       status: 'aberto',
       registradoEm: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -1200,7 +1087,7 @@ async function registrarOrigem() {
     await db.collection('processos').doc(processId).set(dados);
     await db.collection('lacresValidos').doc(state.origem.lacreNumero).update({ emUso:true, placa, processId });
 
-    // Mensagem de boa viagem
+    // E-mail de saída
     const emails = await getEmails();
     const msg = `✅ Saída registrada — Placa: ${placa} | Lacre: ${state.origem.lacreNumero} | ${state.origem.timestamp.toLocaleString('pt-BR')} | Local: ${state.origem.loc||'N/A'}`;
     await enviarEmailTodos(emails, `📍 Saída Registrada — ${placa}`, msg,
@@ -1212,27 +1099,26 @@ async function registrarOrigem() {
          <tr><td style="background:#fff;padding:24px;">
            <p style="margin:0 0 16px;font-size:14px;color:#333;">A saída do veículo <strong style="color:#1B3A6B;">${placa}</strong> foi registrada com sucesso.</p>
            <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
-             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🔐 Lacre</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${state.origem.lacreNumero}</td></tr>
-             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Data/Hora</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${state.origem.timestamp.toLocaleString('pt-BR')}</td></tr>
-             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Localização</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.origem.loc||'Não obtida'}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placa}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${motorista}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🏢 Empresa</td><td style="padding:10px 14px;font-size:13px;color:#333;">${currentOperador.empresa || '—'}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${currentOperador.nome}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${state.origem.lacreNumero}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Local</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${state.origem.loc||'N/A'}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.origem.timestamp.toLocaleString('pt-BR')}</td></tr>
+             ${obsAbertura ? `<tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📝 Observações</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${obsAbertura}</td></tr>` : ''}
            </table>
-           <div style="background:#E8F7EE;border-left:4px solid #1A8C4E;padding:14px 16px;border-radius:0 6px 6px 0;font-size:14px;color:#1A8C4E;font-weight:700;text-align:center;">🚛 Boa viagem!<br><span style="font-size:12px;font-weight:400;color:#5A6A85;">O processo será encerrado quando a foto do lacre for registrada no destino.</span></div>
          </td></tr>
-       </table>`
-    );
+       </table>`);
 
-    btn.textContent = '✅ Saída registrada!';
-    btn.style.background = 'linear-gradient(135deg,#00873d,var(--success))';
-
-    // Mensagem de boa viagem para o motorista
-    const msgBox = document.createElement('div');
-    msgBox.style.cssText = 'background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);border-radius:12px;padding:18px;margin-top:12px;text-align:center;animation:fadeIn .4s ease;';
-    msgBox.innerHTML = `
-      <div style="font-size:28px;margin-bottom:8px;">🚛</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:6px;">Boa viagem!</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.6;">Sua saída foi registrada com sucesso.<br>O processo será finalizado quando você registrar a foto do lacre no destino.</div>
-      <div style="margin-top:10px;font-size:12px;color:var(--text2);">🔐 Lacre: <strong style="color:var(--accent);letter-spacing:2px">${state.origem.lacreNumero}</strong></div>`;
-    document.getElementById('btn-registrar').parentNode.appendChild(msgBox);
+    alert('Saída registrada com sucesso!');
+    btn.disabled = false;
+    btn.textContent = '✅ Registrar Saída';
+    // Reset
+    document.getElementById('placa-origem').value = '';
+    document.getElementById('motorista-origem').value = '';
+    document.getElementById('obs-origem').value = '';
+    retakePhoto('origem');
   } catch(err) {
     alert('Erro: ' + err.message);
     document.getElementById('btn-registrar').disabled = false;
@@ -1245,8 +1131,15 @@ async function registrarOrigem() {
 // ============================================================
 async function verificarDestino(resultDestino) {
   const placaDest = document.getElementById('placa-destino').value.trim().toUpperCase();
-  if (!currentOperador) { alert('Faça login antes de registrar.'); return; }
-  if (!placaDest) { alert('Informe a placa.'); return; }
+  const motoristaDest = document.getElementById('motorista-destino').value.trim();
+  const obsDest = document.getElementById('obs-destino').value.trim();
+  
+  if (!placaDest) {
+    const box = document.getElementById('result-destino');
+    box.className = 'status-box error show';
+    box.innerHTML = `<div class="status-title">❌ Placa não informada</div><div class="status-item">Informe a placa do veículo antes de verificar o lacre.</div>`;
+    return;
+  }
 
   const reAntiga = /^[A-Z]{3}-?\d{4}$/;
   const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
@@ -1264,7 +1157,6 @@ async function verificarDestino(resultDestino) {
   if (!db) { alert('Firebase não configurado.'); return; }
   const box = document.getElementById('result-destino');
   try {
-    // Buscar processo aberto para esta placa
     const snap = await db.collection('processos').where('placa','==',placaDest).where('status','==','aberto').orderBy('registradoEm','desc').limit(1).get();
     if (snap.empty) {
       box.className = 'status-box error show';
@@ -1289,6 +1181,7 @@ async function verificarDestino(resultDestino) {
       box.className = 'status-box ok show';
       box.innerHTML = `<div class="status-title">✅ Verificação aprovada</div>
         <div class="status-item">🚛 <span>Placa: <strong>${placaDest}</strong></span></div>
+        <div class="status-item">👤 <span>Motorista: <strong>${motoristaDest || '—'}</strong></span></div>
         <div class="status-item">🔐 <span>Lacre: <strong>${resultDestino.numero}</strong></span></div>
         <div class="status-item">🛡️ <span>Integridade: <strong>Íntegro</strong></span></div>
         <div class="status-item">📍 <span>Origem: <strong>${proc.locOrigem}</strong></span></div>
@@ -1306,7 +1199,7 @@ async function verificarDestino(resultDestino) {
     }
 
     if (ok) {
-      // Tudo OK — encerra automaticamente
+      // Encerrar automaticamente
       await db.collection('processos').doc(proc.processId).update({
         status: 'encerrado',
         lacreDestino: resultDestino.numero,
@@ -1317,14 +1210,46 @@ async function verificarDestino(resultDestino) {
         resultado: 'ok',
         encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
         fechadoPor: currentOperador?.email||'',
-        fechadoPorNome: currentOperador?.nome||''
+        fechadoPorNome: currentOperador?.nome||'',
+        fechadoPorEmpresa: currentOperador?.empresa||'',
+        motorisDestino: motoristaDest || '',
+        observacaoDestino: obsDest || ''
       });
       await db.collection('lacresValidos').doc(proc.lacreNumero).update({
         emUso: false, inutilizado: true, placa: null, processId: null,
         inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
       });
+      
+      // E-mail de encerramento
+      const emails = await getEmails();
+      const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+           <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+             <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+             <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">✅ LACRE APROVADO</div>
+           </td></tr>
+           <tr><td style="background:#fff;padding:24px;">
+             <p style="margin:0 0 16px;font-size:14px;color:#333;">A chegada do veículo <strong style="color:#1B3A6B;">${placaDest}</strong> foi verificada com sucesso.</p>
+             <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista (Saída)</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.motorista||'—'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">👤 Motorista (Chegada)</td><td style="padding:10px 14px;font-size:13px;color:#333;">${motoristaDest||'—'}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🏢 Empresa (Saída)</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.abertoPorEmpresa||'—'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.abertoPorNome||proc.abertoPor||'—'}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Fechado por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${currentOperador?.nome||'—'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre origem</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${proc.lacreNumero}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre destino</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${resultDestino.numero}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🛡️ Integridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1A8C4E;">Íntegro</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.locOrigem}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Destino</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.destino.loc||'N/A'}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${tsOrigem}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Chegada</td><td style="padding:10px 14px;font-size:13px;color:#333;">${tsDest}</td></tr>
+             </table>
+             <div style="background:#E8F7EE;border-left:4px solid #1A8C4E;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#1A8C4E;font-weight:700;">✅ Processo encerrado automaticamente.</div>
+           </td></tr>
+         </table>`;
+      await enviarEmailTodos(emails, `✅ Lacre Aprovado — ${placaDest}`, `Lacre aprovado para ${placaDest}`, corpo);
     } else {
-      // Desvio — fica pendente para confirmação manual
+      // Desvio - fica pendente
       await db.collection('processos').doc(proc.processId).update({
         status: 'aguardando_confirmacao_desvio',
         lacreDestino: resultDestino.numero,
@@ -1334,40 +1259,15 @@ async function verificarDestino(resultDestino) {
         tsDestino: state.destino.timestamp.toISOString(),
         resultado: 'desvio',
         fechadoPor: currentOperador?.email||'',
-        fechadoPorNome: currentOperador?.nome||''
+        fechadoPorNome: currentOperador?.nome||'',
+        fechadoPorEmpresa: currentOperador?.empresa||'',
+        motorisDestino: motoristaDest || '',
+        observacaoDestino: obsDest || ''
       });
-    }
-
-    // Enviar e-mail com todas as observações
-    const emails = await getEmails();
-    const assunto = ok ? `✅ Lacre Aprovado — ${placaDest}` : `🚨 DESVIO DETECTADO — ${placaDest}`;
-    const obsDestino = resultDestino.observacao ? `<br>🔍 Observação do lacre no destino: <strong>${resultDestino.observacao}</strong>` : '';
-    const obsOrigem = proc.lacreIntegro === false ? `<br>⚠️ Observação do lacre na origem: <strong>Lacre estava comprometido na saída</strong>` : '';
-    const corpo = ok
-      ? `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
-           <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-             <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
-             <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">✅ LACRE APROVADO</div>
-           </td></tr>
-           <tr><td style="background:#fff;padding:24px;">
-             <p style="margin:0 0 16px;font-size:14px;color:#333;">A chegada do veículo <strong style="color:#1B3A6B;">${placaDest}</strong> foi verificada com sucesso.</p>
-             <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.motorista||'—'}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.abertoPorNome||proc.abertoPor||'—'}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Fechado por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${currentOperador?.nome||'—'}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre origem</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${proc.lacreNumero}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre destino</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${resultDestino.numero}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🛡️ Integridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1A8C4E;border-top:1px solid #DDE3EE;">Íntegro${obsDestino}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.locOrigem}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Destino</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${state.destino.loc||'N/A'}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;">${tsOrigem}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Chegada</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${tsDest}</td></tr>
-             </table>
-             <div style="background:#E8F7EE;border-left:4px solid #1A8C4E;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#1A8C4E;font-weight:700;">✅ Processo encerrado automaticamente.</div>
-           </td></tr>
-         </table>`
-      : `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+      
+      // E-mail de desvio
+      const emails = await getEmails();
+      const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
            <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
              <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
              <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🚨 DESVIO DETECTADO</div>
@@ -1380,6 +1280,8 @@ async function verificarDestino(resultDestino) {
                <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
                <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre esperado</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${proc.lacreNumero}</td></tr>
                <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre encontrado</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#C0392B;">${resultDestino.numero}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.abertoPorNome||proc.abertoPor||'—'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Detectado por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${currentOperador?.nome||'—'}</td></tr>
                <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.locOrigem}</td></tr>
                <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Destino</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.destino.loc||'N/A'}</td></tr>
                <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${tsOrigem}</td></tr>
@@ -1388,7 +1290,8 @@ async function verificarDestino(resultDestino) {
              <div style="background:#FEF3E2;border-left:4px solid #B7770D;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#B7770D;font-weight:700;">⏳ Processo aguarda confirmação manual no painel admin.</div>
            </td></tr>
          </table>`;
-    await enviarEmailTodos(emails, assunto, assunto, corpo);
+      await enviarEmailTodos(emails, `🚨 DESVIO DETECTADO — ${placaDest}`, `Desvio detectado para ${placaDest}`, corpo);
+    }
 
   } catch(err) {
     box.className = 'status-box error show';
@@ -1397,8 +1300,62 @@ async function verificarDestino(resultDestino) {
 }
 
 // ============================================================
-// EMAIL
+// HELPERS
 // ============================================================
+function showTopAlert(msg, type) {
+  const alert = document.getElementById('top-alert');
+  alert.textContent = msg;
+  alert.className = `info-bar ${type === 'error' ? 'danger-bar' : 'info-bar'}`;
+  alert.style.display = 'block';
+  setTimeout(() => alert.style.display = 'none', 5000);
+}
+
+function hideTopAlert() {
+  document.getElementById('top-alert').style.display = 'none';
+}
+
+function mostrarEntradaManual(lado) {
+  if (document.getElementById(`manual-entry-${lado}`)) return;
+  const box = document.getElementById(`result-${lado}`);
+  const manualDiv = document.createElement('div');
+  manualDiv.id = `manual-entry-${lado}`;
+  manualDiv.style.cssText = 'background:var(--warning-bg);border:1.5px solid var(--warning-border);border-radius:12px;padding:16px;margin-top:12px;';
+  manualDiv.innerHTML = `
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:10px;">⌨️ INSERÇÃO MANUAL DO LACRE</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Digite o número do lacre exatamente como está impresso:</div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="manual-lacre-${lado}" placeholder="00000" maxlength="5" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;text-transform:uppercase;outline:none;">
+      <button onclick="processarManual('${lado}')" class="btn btn-primary btn-sm" style="width:auto;padding:11px 16px;margin:0;">Confirmar</button>
+    </div>`;
+  box.parentNode.insertBefore(manualDiv, box.nextSibling);
+}
+
+function processarManual(lado) {
+  const input = document.getElementById(`manual-lacre-${lado}`);
+  const numero = input.value.trim().padStart(5,'0');
+  if (!numero || numero === '00000') { alert('Informe um número válido.'); return; }
+  
+  state[lado].lacreNumero = numero;
+  state[lado].lacreIntegro = true; // Assume íntegro se manual
+  
+  if (lado === 'origem') {
+    mostrarResultadoOrigem({ numero, integro: true, observacao: 'Inserido manualmente' });
+  } else {
+    verificarDestino({ numero, integro: true, observacao: 'Inserido manualmente' });
+  }
+  
+  document.getElementById(`manual-entry-${lado}`).remove();
+}
+
+async function validarPlacaCadastrada(placa) {
+  if (!db) return true;
+  try {
+    const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
+    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
+    return doc.exists;
+  } catch(e) { return true; }
+}
+
 async function getEmails() {
   if (!db) return [getCfg('email_default','rodrigo.santos16@gerdau.com.br')];
   try {
@@ -1409,7 +1366,8 @@ async function getEmails() {
 }
 
 async function enviarEmailTodos(emails, assunto, textoPlano, corpoHtml) {
-  const svc = getCfg('ejs_svc','service_1e7gg3f'); const tpl = getCfg('ejs_tpl','template_vdkbodd');
+  const svc = getCfg('ejs_svc','service_1e7gg3f');
+  const tpl = getCfg('ejs_tpl','template_vdkbodd');
   if (!svc || !tpl) { console.warn('EmailJS não configurado'); return; }
   for (const email of emails) {
     try {
@@ -1418,35 +1376,16 @@ async function enviarEmailTodos(emails, assunto, textoPlano, corpoHtml) {
   }
 }
 
-// ============================================================
-// ALERTA PROCESSOS EXPIRADOS (roda na abertura da página)
-// ============================================================
-async function checkProcessosExpirados() {
+async function registrarLog(acao, detalhe) {
   if (!db) return;
-  const horas = parseInt(getCfg('config_horas','96'));
-  const limite = new Date(Date.now() - horas * 3600000).toISOString();
   try {
-    const [s1,s2,s3] = await Promise.all([
-      db.collection('processos').where('status','==','aberto').get(),
-      db.collection('processos').where('status','==','aguardando_confirmacao').get(),
-      db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get()
-    ]);
-    const snap = { docs: [...s1.docs,...s2.docs,...s3.docs] };
-    for (const doc of snap.docs) {
-      const d = doc.data();
-      if (d.timestamp < limite && !d.alertaExpirado) {
-        const emails = await getEmails();
-        await enviarEmailTodos(emails,
-          `⏰ Processo em aberto há mais de ${horas}h — ${d.placa}`,
-          `Processo expirado — Placa: ${d.placa}`,
-          `O processo do veículo <strong>${d.placa}</strong> está aberto há mais de <strong>${horas} horas</strong>.<br><br>🔐 Lacre: ${d.lacreNumero}<br>📅 Saída: ${new Date(d.timestamp).toLocaleString('pt-BR')}<br>📍 Local saída: ${d.locOrigem}<br><br>Verifique a situação do transporte.`
-        );
-        await db.collection('processos').doc(d.processId).update({ alertaExpirado:true });
-      }
-    }
-  } catch(e) { console.warn('Erro ao checar expirados:', e.message); }
+    const user = auth?.currentUser?.email || 'sistema';
+    await db.collection('logs').add({
+      acao, detalhe, usuario: user,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.warn('Log error:', e.message); }
 }
-setTimeout(checkProcessosExpirados, 3000);
 
 // ============================================================
 // ADMIN — LOGIN
@@ -1458,13 +1397,12 @@ function openAdmin() {
   }
   const overlay = document.getElementById('admin-overlay');
   overlay.classList.add('show');
-  // Reset to login screen
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-body').style.display = 'none';
   document.getElementById('admin-email').value = '';
   document.getElementById('admin-pass').value = '';
   document.getElementById('login-err').style.display = 'none';
-  // If already logged in via app, pre-fill email and auto-login admin
+  
   if (auth?.currentUser) {
     const uid = auth.currentUser.uid;
     db.collection('usuarios').doc(uid).get().then(doc => {
@@ -1476,7 +1414,6 @@ function openAdmin() {
         applyRolePermissions();
         loadAdminData();
       } else {
-        // Pre-fill email for convenience
         document.getElementById('admin-email').value = auth.currentUser.email;
       }
     }).catch(e => {
@@ -1484,6 +1421,7 @@ function openAdmin() {
     });
   }
 }
+
 function closeAdmin() { document.getElementById('admin-overlay').classList.remove('show'); }
 
 let currentUserRole = 'operador';
@@ -1494,7 +1432,6 @@ async function doLogin() {
   const pass = document.getElementById('admin-pass').value;
   document.getElementById('login-err').style.display = 'none';
   try {
-    // Sign in (may already be signed in from app login)
     let uid;
     if (auth.currentUser && auth.currentUser.email === email) {
       uid = auth.currentUser.uid;
@@ -1505,7 +1442,6 @@ async function doLogin() {
     }
     const userDoc = await db.collection('usuarios').doc(uid).get();
     currentUserRole = userDoc.exists ? (userDoc.data().perfil || 'admin') : 'admin';
-    // Only allow operador and admin in admin panel
     if (currentUserRole === 'operacional') {
       document.getElementById('login-err').textContent = 'Perfil sem acesso ao painel admin.';
       document.getElementById('login-err').style.display = 'block';
@@ -1524,54 +1460,37 @@ async function doLogin() {
 
 function applyRolePermissions() {
   const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
-  // Show all first
   document.querySelectorAll('.admin-tab').forEach(t=>t.style.display='');
 
   if (currentUserRole === 'operador') {
-    // Operador: sees Dashboard + Lacres, Placas, Processos, Histórico
     const hidden = ['emails','usuarios','config'];
     document.querySelectorAll('.admin-tab').forEach((t,i)=>{
       if (hidden.includes(tabs[i])) t.style.display = 'none';
     });
   }
-  // operacional has no admin access - handled at app login level
-  // Session timeout: auto logout after 2 hours
-  const SESSION_TIMEOUT = 2 * 60 * 60 * 1000;
-  if (window._sessionTimer) clearTimeout(window._sessionTimer);
-  window._sessionTimer = setTimeout(() => {
-    alert('Sessão expirada por inatividade. Faça login novamente.');
-    doLogout();
-  }, SESSION_TIMEOUT);
-  // Reset timer on any user interaction
-  ['click','keydown','touchstart'].forEach(ev => {
-    document.removeEventListener(ev, resetSessionTimer);
-    document.addEventListener(ev, resetSessionTimer, { passive: true });
-  });
 }
 
-function resetSessionTimer() {
-  if (!auth?.currentUser) return;
-  const SESSION_TIMEOUT = 2 * 60 * 60 * 1000;
-  if (window._sessionTimer) clearTimeout(window._sessionTimer);
-  window._sessionTimer = setTimeout(() => {
-    alert('Sessão expirada por inatividade. Faça login novamente.');
-    doLogout();
-  }, SESSION_TIMEOUT);
-}
-
+// ============================================================
+// ADMIN — USUÁRIOS
+// ============================================================
 async function criarUsuario() {
   if (!auth || !db) { alert('Firebase não configurado.'); return; }
   const nome = document.getElementById('novo-user-nome').value.trim();
+  const empresa = document.getElementById('novo-user-empresa').value.trim();
   const email = document.getElementById('novo-user-email').value.trim();
   const senha = document.getElementById('novo-user-senha').value;
   const perfil = document.getElementById('novo-user-perfil').value;
+  
   if (!nome || !email || !senha) { alert('Preencha nome, e-mail e senha.'); return; }
   if (senha.length < 6) { alert('Senha deve ter no mínimo 6 caracteres.'); return; }
+  
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, senha);
     await db.collection('usuarios').doc(cred.user.uid).set({
-      nome, email, perfil, criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      nome, email, empresa, perfil, criadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
+    document.getElementById('novo-user-nome').value = '';
+    document.getElementById('novo-user-empresa').value = '';
     document.getElementById('novo-user-email').value = '';
     document.getElementById('novo-user-senha').value = '';
     alert(`Usuário ${email} criado com perfil ${perfil}!`);
@@ -1595,11 +1514,13 @@ async function loadUsuarios() {
         : '<span class="badge badge-ok">Operacional</span>';
       return `<tr>
         <td style="font-size:12px">${d.email}</td>
+        <td style="font-size:12px">${d.nome || '—'}</td>
+        <td style="font-size:12px">${d.empresa || '—'}</td>
         <td>${badge}</td>
         <td style="font-size:11px;color:var(--text2)">${d.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
         <td><button class="btn btn-danger btn-sm" onclick="removerUsuario('${doc.id}','${d.email}')" style="padding:5px 10px;font-size:11px;">Remover</button></td>
       </tr>`;
-    }).join('') || '<tr><td colspan="4" style="color:var(--text2);text-align:center;">Nenhum usuário cadastrado</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--text2);text-align:center;">Nenhum usuário cadastrado</td></tr>';
   } catch(e) { console.warn(e.message); }
 }
 
@@ -1616,7 +1537,6 @@ function doLogout() {
   document.getElementById('admin-email').value = '';
   document.getElementById('admin-pass').value = '';
   document.getElementById('login-err').style.display = 'none';
-  // Reset tab visibility
   document.querySelectorAll('.admin-tab').forEach(t=>t.style.display='');
 }
 
@@ -1640,8 +1560,6 @@ function adminTab(tab) {
 // ADMIN — DADOS
 // ============================================================
 let todosLacres = [];
-
-// loadAdminData defined below
 
 async function loadLacres() {
   if (!db) return;
@@ -1685,27 +1603,15 @@ async function adicionarLacres() {
     batch.set(ref,{ numero:num, emUso:false, placa:null, processId:null, cadastradoEm:firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
   }
   await batch.commit();
-  await registrarLog('cadastro_lacres', `Lacres ${String(de).padStart(5,'0')} a ${String(ate).padStart(5,'0')} cadastrados (${ate-de+1} lacres)`);
-  alert(`${ate-de+1} lacres adicionados!`);
+  await registrarLog('cadastro_lacres', `Lacres ${de} a ${ate} cadastrados`);
   loadLacres();
 }
 
 async function removerLacre(id, emUso) {
-  if (emUso) { alert('Este lacre está em uso e não pode ser removido.'); return; }
+  if (emUso) { alert('Não é possível remover um lacre em uso.'); return; }
   if (!confirm(`Remover lacre ${id}?`)) return;
   await db.collection('lacresValidos').doc(id).delete();
   loadLacres();
-}
-
-async function registrarLog(acao, detalhe) {
-  if (!db) return;
-  try {
-    const user = auth?.currentUser?.email || 'sistema';
-    await db.collection('logs').add({
-      acao, detalhe, usuario: user,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } catch(e) { console.warn('Log error:', e.message); }
 }
 
 async function loadPlacas() {
@@ -1751,21 +1657,11 @@ async function removerPlaca(id) {
   loadPlacas();
 }
 
-async function validarPlacaCadastrada(placa) {
-  if (!db) return true; // Se Firebase não configurado, deixa passar
-  try {
-    const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
-    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
-    return doc.exists;
-  } catch(e) { return true; } // Em caso de erro, deixa passar
-}
-
 async function loadProcessos() {
   if (!db) return;
   const horas = parseInt(getCfg('config_horas','96'));
   document.getElementById('alerta-h-display').textContent = horas;
   try {
-    // Fetch all three statuses separately to avoid composite index requirement
     const [snapAberto, snapConfOk, snapConfDesvio] = await Promise.all([
       db.collection('processos').where('status','==','aberto').get(),
       db.collection('processos').where('status','==','aguardando_confirmacao').get(),
@@ -1775,7 +1671,7 @@ async function loadProcessos() {
       .sort((a,b) => (b.data().registradoEm?.seconds||0) - (a.data().registradoEm?.seconds||0));
     const snap = { docs: allDocs, empty: allDocs.length === 0 };
     const tbody = document.getElementById('processos-tbody');
-    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text2);text-align:center;">Nenhum processo em aberto</td></tr>'; return; }
+    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text2);text-align:center;">Nenhum processo em aberto</td></tr>'; return; }
     const agora = Date.now();
     tbody.innerHTML = snap.docs.map(doc=>{
       const d = doc.data();
@@ -1804,14 +1700,13 @@ async function loadProcessos() {
         <td>${expirado ? `<span class="badge badge-err">${h}h</span>` : `<span class="badge badge-ok">${h}h</span>`}</td>
         <td style="font-size:11px;color:var(--text2)">${d.abertoPorNome||d.abertoPor||'—'}</td>
         <td>${mapBtn}</td>
-        <td>${confirmBtn}<button class="btn btn-danger btn-sm" onclick="encerrarProcesso('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;">Encerrar</button></td>
+        <td>${confirmBtn}<button class="btn btn-danger btn-sm" onclick="encerrarProcessoManual('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;">Encerrar</button></td>
       </tr>`;
     }).join('');
   } catch(e) { console.warn(e.message); }
 }
 
 function verNoMapa(locOrigem, locDestino, placa) {
-  // Parse coordinates
   function parseCoord(loc) {
     if (!loc || !loc.includes(',')) return null;
     const parts = loc.split(',');
@@ -1826,24 +1721,20 @@ function verNoMapa(locOrigem, locDestino, placa) {
 
   let url;
   if (orig && dest) {
-    // Show route from origem to destino
     url = `https://www.google.com/maps/dir/?api=1&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&travelmode=driving`;
   } else if (orig) {
-    // Show only origem
     url = `https://www.google.com/maps?q=${orig.lat},${orig.lng}&z=15&markers=${orig.lat},${orig.lng}`;
   } else {
     alert('Coordenadas não disponíveis para este registro.');
     return;
   }
 
-  // Show modal with map info
   const modal = document.getElementById('map-modal');
   const title = document.getElementById('map-modal-title');
   const iframe = document.getElementById('map-iframe');
 
   title.textContent = `📍 Localização — Placa ${placa}`;
 
-  // Build embed URL
   let embedUrl;
   if (orig && dest) {
     embedUrl = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&mode=driving`;
@@ -1948,22 +1839,56 @@ async function confirmarEncerramento(id, lacreNum) {
   loadProcessos();
 }
 
-async function encerrarProcesso(id, lacreNum) {
+async function encerrarProcessoManual(id, lacreNum) {
   const justificativa = prompt('Informe a justificativa para encerramento manual:\n(obrigatório)');
   if (!justificativa || !justificativa.trim()) { alert('Justificativa obrigatória para encerramento manual.'); return; }
   const user = auth?.currentUser?.email || 'desconhecido';
-  await db.collection('processos').doc(id).update({
-    status: 'encerrado_manual',
-    encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
-    justificativa: justificativa.trim(),
-    encerradoPor: user
-  });
-  await db.collection('lacresValidos').doc(lacreNum).update({
-    emUso: false, inutilizado: true, placa: null, processId: null,
-    inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  await registrarLog('encerramento_manual', `Processo ${id} encerrado manualmente. Lacre: ${lacreNum}. Justificativa: ${justificativa.trim()}`);
-  loadProcessos();
+  
+  try {
+    const proc = await db.collection('processos').doc(id).get();
+    const procData = proc.data();
+    
+    await db.collection('processos').doc(id).update({
+      status: 'encerrado_manual',
+      encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+      justificativa: justificativa.trim(),
+      encerradoPor: user,
+      fechadoPorNome: auth?.currentUser?.email || 'Admin'
+    });
+    
+    await db.collection('lacresValidos').doc(lacreNum).update({
+      emUso: false, inutilizado: true, placa: null, processId: null,
+      inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Enviar e-mail de encerramento manual
+    const emails = await getEmails();
+    const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+         <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+           <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+           <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">⏹️ PROCESSO ENCERRADO MANUALMENTE</div>
+         </td></tr>
+         <tr><td style="background:#fff;padding:24px;">
+           <p style="margin:0 0 16px;font-size:14px;color:#333;">O processo foi encerrado manualmente pelo administrador.</p>
+           <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${procData.placa}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${procData.motorista||'—'}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${procData.abertoPorNome||procData.abertoPor||'—'}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Encerrado por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${auth?.currentUser?.email || 'Admin'}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${lacreNum}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📝 Justificativa</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${justificativa.trim()}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;">${new Date(procData.timestamp).toLocaleString('pt-BR')}</td></tr>
+           </table>
+           <div style="background:#FEF3E2;border-left:4px solid #B7770D;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#B7770D;font-weight:700;">⏹️ Processo encerrado manualmente.</div>
+         </td></tr>
+       </table>`;
+    await enviarEmailTodos(emails, `⏹️ Processo Encerrado Manualmente — ${procData.placa}`, `Processo encerrado manualmente para ${procData.placa}`, corpo);
+    
+    await registrarLog('encerramento_manual', `Processo ${id} encerrado manualmente. Lacre: ${lacreNum}. Justificativa: ${justificativa.trim()}`);
+    loadProcessos();
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
 }
 
 async function loadEmails() {
@@ -1996,6 +1921,7 @@ async function removerEmail(id) {
 
 function loadConfig() {
   document.getElementById('config-horas').value = getCfg('config_horas','96');
+  document.getElementById('config-timeout').value = getCfg('config_timeout','5');
   if (db) {
     db.collection('config').doc('gemini').get().then(doc=>{
       if (doc.exists) document.getElementById('cfg-gemini-key').value = doc.data().key||'';
@@ -2023,6 +1949,13 @@ function salvarConfig() {
   alert('Configuração salva!');
 }
 
+function salvarTimeoutConfig() {
+  const timeout = document.getElementById('config-timeout').value;
+  setCfg('config_timeout', timeout);
+  sessionTimeoutMs = parseInt(timeout) * 60 * 60 * 1000;
+  alert('Timeout de sessão atualizado para ' + timeout + ' horas!');
+}
+
 function salvarEmailJS() {
   setCfg('ejs_pub', document.getElementById('cfg-ejs-pub').value.trim());
   setCfg('ejs_svc', document.getElementById('cfg-ejs-svc').value.trim());
@@ -2039,78 +1972,6 @@ function salvarFirebase() {
     alert('Firebase salvo! A página será recarregada.');
     location.reload();
   } catch(e) { alert('JSON inválido: ' + e.message); }
-}
-
-// Inicializar e-mail padrão no Firebase se não existir
-// ============================================================
-// LIMPAR PROCESSOS TESTE
-// ============================================================
-async function limparProcessosTeste() {
-  if (!confirm('Isso irá remover TODOS os processos abertos.\nUse apenas para limpar testes. Continuar?')) return;
-  try {
-    const [s1,s2,s3] = await Promise.all([
-      db.collection('processos').where('status','==','aberto').get(),
-      db.collection('processos').where('status','==','aguardando_confirmacao').get(),
-      db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get()
-    ]);
-    const batch = db.batch();
-    const lacresBatch = db.batch();
-    [...s1.docs,...s2.docs,...s3.docs].forEach(doc => {
-      batch.delete(doc.ref);
-      // Free up the lacre
-      const lacreNum = doc.data().lacreNumero;
-      if (lacreNum) {
-        lacresBatch.update(db.collection('lacresValidos').doc(lacreNum), {
-          emUso: false, placa: null, processId: null
-        });
-      }
-    });
-    await batch.commit();
-    await lacresBatch.commit();
-    alert('Processos de teste removidos!');
-    loadProcessos();
-    loadDashboard();
-  } catch(e) { alert('Erro: ' + e.message); }
-}
-
-// ============================================================
-// EXPORTAR CSV
-// ============================================================
-async function exportarCSV() {
-  try {
-    const [snapEnc, snapManual] = await Promise.all([
-      db.collection('processos').where('status','==','encerrado').get(),
-      db.collection('processos').where('status','==','encerrado_manual').get()
-    ]);
-    const docs = [...snapEnc.docs,...snapManual.docs]
-      .sort((a,b)=>(b.data().encerradoEm?.seconds||b.data().registradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||a.data().registradoEm?.seconds||0));
-
-    const header = ['Placa','Lacre Origem','Lacre Destino','Data Saída','Data Chegada','Resultado','Local Origem','Local Destino','Encerrado Por','Justificativa'];
-    const rows = docs.map(doc => {
-      const d = doc.data();
-      return [
-        d.placa||'',
-        d.lacreNumero||'',
-        d.lacreDestino||'',
-        d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '',
-        d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '',
-        d.resultado === 'ok' ? 'OK' : d.status === 'encerrado_manual' ? 'Manual' : 'Desvio',
-        (d.locOrigem||'').replace(/,/g,' '),
-        (d.locDestino||'').replace(/,/g,' '),
-        d.encerradoPor||'Auto',
-        (d.justificativa||'').replace(/,/g,' ')
-      ].map(v => `"${v}"`).join(',');
-    });
-
-    const csv = [header.join(','), ...rows].join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `historico_lacres_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  } catch(e) { alert('Erro ao exportar: ' + e.message); }
 }
 
 // ============================================================
@@ -2138,9 +1999,8 @@ async function importarLacresArquivo(input) {
   }
   const numeros = [];
 
-  for (const line of filteredLines) {
+  for (const line of lines) {
     if (line.includes('-') && !line.match(/^[A-Z]{3}-?\d/)) {
-      // Range: 00001-00100
       const [start, end] = line.split('-').map(n => parseInt(n.trim()));
       if (!isNaN(start) && !isNaN(end) && end >= start && end - start <= 10000) {
         for (let i = start; i <= end; i++) numeros.push(String(i).padStart(5,'0'));
@@ -2164,7 +2024,6 @@ async function importarLacresArquivo(input) {
   }
 
   try {
-    // Process in batches of 500
     const chunkSize = 500;
     for (let i = 0; i < numeros.length; i += chunkSize) {
       const chunk = numeros.slice(i, i + chunkSize);
@@ -2267,28 +2126,56 @@ function baixarModeloPlacas() {
   a.click();
 }
 
-async function seedEmailPadrao() {
-  if (!db) return;
+// ============================================================
+// EXPORTAR CSV
+// ============================================================
+async function exportarCSV() {
   try {
-    const snap = await db.collection('emails').where('email','==','rodrigo.santos16@gerdau.com.br').get();
-    if (snap.empty) {
-      await db.collection('emails').add({ email:'rodrigo.santos16@gerdau.com.br', adicionadoEm:firebase.firestore.FieldValue.serverTimestamp() });
-    }
-  } catch(e) {}
+    const [snapEnc, snapManual] = await Promise.all([
+      db.collection('processos').where('status','==','encerrado').get(),
+      db.collection('processos').where('status','==','encerrado_manual').get()
+    ]);
+    const docs = [...snapEnc.docs,...snapManual.docs]
+      .sort((a,b)=>(b.data().encerradoEm?.seconds||b.data().registradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||a.data().registradoEm?.seconds||0));
+
+    const header = ['Placa','Lacre Origem','Lacre Destino','Data Saída','Data Chegada','Resultado','Local Origem','Local Destino','Aberto Por','Fechado Por','Encerrado Por','Justificativa'];
+    const rows = docs.map(doc => {
+      const d = doc.data();
+      return [
+        d.placa||'',
+        d.lacreNumero||'',
+        d.lacreDestino||'',
+        d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '',
+        d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '',
+        d.resultado === 'ok' ? 'OK' : d.status === 'encerrado_manual' ? 'Manual' : 'Desvio',
+        (d.locOrigem||'').replace(/,/g,' '),
+        (d.locDestino||'').replace(/,/g,' '),
+        d.abertoPorNome||d.abertoPor||'',
+        d.fechadoPorNome||d.fechadoPor||'',
+        d.encerradoPor||'',
+        (d.justificativa||'').replace(/,/g,' ')
+      ].map(v => `"${v}"`).join(',');
+    });
+
+    const csv = [header.join(','), ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `historico_lacres_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('Erro ao exportar: ' + e.message); }
 }
-seedEmailPadrao();
-loadGeminiKey();
-</script>
-</body>
-</html>
-<script>
-// Dashboard loader
+
+// ============================================================
+// DASHBOARD
+// ============================================================
 async function loadDashboard() {
   if (!db) return;
   try {
     const mesEl = document.getElementById('dash-mes');
     const anoEl = document.getElementById('dash-ano');
-    // Set default to current month/year
     if (mesEl && !mesEl.dataset.init) {
       mesEl.value = new Date().getMonth();
       anoEl.value = new Date().getFullYear();
@@ -2319,7 +2206,6 @@ async function loadDashboard() {
     document.getElementById('dash-encerrados').textContent = encPeriodo.length;
     document.getElementById('dash-desvios').textContent = desviosPeriodo;
     document.getElementById('dash-pct').textContent = pct + '%';
-    // Color % based on value
     const pctEl = document.getElementById('dash-pct');
     if (parseFloat(pct) === 0) pctEl.style.color = 'var(--success)';
     else if (parseFloat(pct) < 10) pctEl.style.color = 'var(--warning)';
@@ -2327,9 +2213,52 @@ async function loadDashboard() {
   } catch(e) { console.warn('Dashboard error:', e.message); }
 }
 
-// Dashboard loads with admin panel
 async function loadAdminData() {
   loadLacres();
   loadDashboard();
 }
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+async function checkProcessosExpirados() {
+  if (!db) return;
+  const horas = parseInt(getCfg('config_horas','96'));
+  const limite = new Date(Date.now() - horas * 3600000).toISOString();
+  try {
+    const [s1,s2,s3] = await Promise.all([
+      db.collection('processos').where('status','==','aberto').get(),
+      db.collection('processos').where('status','==','aguardando_confirmacao').get(),
+      db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get()
+    ]);
+    const snap = { docs: [...s1.docs,...s2.docs,...s3.docs] };
+    for (const doc of snap.docs) {
+      const d = doc.data();
+      if (d.timestamp < limite && !d.alertaExpirado) {
+        const emails = await getEmails();
+        await enviarEmailTodos(emails,
+          `⏰ Processo em aberto há mais de ${horas}h — ${d.placa}`,
+          `Processo expirado — Placa: ${d.placa}`,
+          `O processo do veículo <strong>${d.placa}</strong> está aberto há mais de <strong>${horas} horas</strong>.<br><br>🔐 Lacre: ${d.lacreNumero}<br>📅 Saída: ${new Date(d.timestamp).toLocaleString('pt-BR')}<br>📍 Local saída: ${d.locOrigem}<br><br>Verifique a situação do transporte.`
+        );
+        await db.collection('processos').doc(d.processId).update({ alertaExpirado:true });
+      }
+    }
+  } catch(e) { console.warn('Erro ao checar expirados:', e.message); }
+}
+
+setTimeout(checkProcessosExpirados, 3000);
+async function seedEmailPadrao() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('emails').where('email','==','rodrigo.santos16@gerdau.com.br').get();
+    if (snap.empty) {
+      await db.collection('emails').add({ email:'rodrigo.santos16@gerdau.com.br', adicionadoEm:firebase.firestore.FieldValue.serverTimestamp() });
+    }
+  } catch(e) {}
+}
+seedEmailPadrao();
+loadGeminiKey();
 </script>
+</body>
+</html>
