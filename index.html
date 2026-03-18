@@ -637,7 +637,7 @@ function initFirebase() {
     }
     // Fallback: config fixa
     const fixedCfg = {
-      apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
+      apiKey: "AIzaSyA_N-n67bIk4ryCdthBOEth_hzLYSroae0",
       authDomain: "verificador-lacre.firebaseapp.com",
       projectId: "verificador-lacre",
       storageBucket: "verificador-lacre.firebasestorage.app",
@@ -647,7 +647,15 @@ function initFirebase() {
     if (!firebase.apps.length) firebase.initializeApp(fixedCfg);
     db = firebase.firestore();
     auth = firebase.auth();
-  } catch(e) { console.warn('Firebase erro:', e.message); }
+    console.log('Firebase inicializado com config fixa');
+  } catch(e) {
+    console.error('Firebase erro:', e.message);
+    // Show visible error to user
+    const errDiv = document.createElement('div');
+    errDiv.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#FDECEA;border:1px solid #F1A9A3;border-radius:8px;padding:12px 20px;font-size:13px;color:#C0392B;font-weight:600;z-index:999;text-align:center;';
+    errDiv.textContent = '⚠️ Erro ao conectar: ' + e.message;
+    document.body.appendChild(errDiv);
+  }
 }
 initFirebase();
 
@@ -688,7 +696,12 @@ async function doAppLogin() {
     if (adminBtn) adminBtn.style.display = (perfil === 'operacional') ? 'none' : '';
     setTimeout(()=>startCamera('origem'), 300);
   } catch(e) {
-    console.error('App login error:', e);
+    console.error('App login error:', e.code, e.message);
+    errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential'
+      ? 'E-mail ou senha incorretos.'
+      : e.code === 'auth/too-many-requests'
+      ? 'Muitas tentativas. Aguarde alguns minutos.'
+      : 'Erro: ' + e.message;
     errEl.style.display = 'block';
   }
 }
@@ -1326,9 +1339,19 @@ setTimeout(checkProcessosExpirados, 3000);
 // ADMIN — LOGIN
 // ============================================================
 function openAdmin() {
+  if (!db || !auth) {
+    alert('Firebase não está inicializado. Verifique sua conexão e recarregue a página.');
+    return;
+  }
   const overlay = document.getElementById('admin-overlay');
   overlay.classList.add('show');
-  // If already logged into Firebase, check if admin session exists
+  // Reset to login screen
+  document.getElementById('admin-login').style.display = 'block';
+  document.getElementById('admin-body').style.display = 'none';
+  document.getElementById('admin-email').value = '';
+  document.getElementById('admin-pass').value = '';
+  document.getElementById('login-err').style.display = 'none';
+  // If already logged in via app, pre-fill email and auto-login admin
   if (auth?.currentUser) {
     const uid = auth.currentUser.uid;
     db.collection('usuarios').doc(uid).get().then(doc => {
@@ -1339,8 +1362,13 @@ function openAdmin() {
         document.getElementById('admin-body').style.display = 'block';
         applyRolePermissions();
         loadAdminData();
+      } else {
+        // Pre-fill email for convenience
+        document.getElementById('admin-email').value = auth.currentUser.email;
       }
-    }).catch(()=>{});
+    }).catch(e => {
+      console.warn('openAdmin check error:', e);
+    });
   }
 }
 function closeAdmin() { document.getElementById('admin-overlay').classList.remove('show'); }
