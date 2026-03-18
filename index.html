@@ -222,6 +222,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
         <button class="admin-tab active" onclick="adminTab('lacres')">Lacres</button>
         <button class="admin-tab" onclick="adminTab('placas')">Placas</button>
         <button class="admin-tab" onclick="adminTab('processos')">Processos</button>
+        <button class="admin-tab" onclick="adminTab('historico')">Histórico</button>
         <button class="admin-tab" onclick="adminTab('emails')">E-mails</button>
         <button class="admin-tab" onclick="adminTab('usuarios')">Usuários</button>
         <button class="admin-tab" onclick="adminTab('config')">Config</button>
@@ -278,24 +279,24 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 
         <!-- PROCESSOS -->
         <div class="admin-section" id="atab-processos">
-          <div class="info-bar">Processos em aberto. Alertas são enviados após <span id="alerta-h-display">96</span>h.</div>
-          <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <button class="btn btn-outline btn-sm" onclick="loadProcessos()">🔄 Atualizar</button>
-            <button class="btn btn-outline btn-sm" onclick="toggleHistorico()" id="btn-historico" style="color:var(--text2);">📋 Ver Histórico</button>
-          </div>
-          <div id="historico-section" style="display:none;margin-bottom:16px;">
-            <div class="info-bar" style="margin-bottom:10px;">Processos encerrados — últimos 50 registros</div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Mapa</th></tr></thead>
-                <tbody id="historico-tbody"></tbody>
-              </table>
-            </div>
-          </div>
+          <div class="info-bar">Processos em aberto e aguardando confirmação. Alertas são enviados após <span id="alerta-h-display">96</span>h.</div>
+          <button class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="loadProcessos()">🔄 Atualizar</button>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Localização</th><th>Mapa</th><th></th></tr></thead>
+              <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Status</th><th>Mapa</th><th>Ações</th></tr></thead>
               <tbody id="processos-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- HISTORICO -->
+        <div class="admin-section" id="atab-historico">
+          <div class="info-bar">Histórico de todos os processos encerrados.</div>
+          <button class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="loadHistorico()">🔄 Atualizar</button>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Encerrado por</th><th>Justificativa</th><th>Mapa</th></tr></thead>
+              <tbody id="historico-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -1032,7 +1033,7 @@ function applyRolePermissions() {
   if (currentUserRole === 'operador') {
     // Hide emails, usuarios, config tabs
     document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-      const tabs = ['lacres','placas','processos','emails','usuarios','config'];
+      const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
       const hidden = ['emails','usuarios','config'];
       if (hidden.includes(tabs[i])) t.style.display = 'none';
     });
@@ -1096,7 +1097,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','emails','usuarios','config'];
+    const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -1107,6 +1108,7 @@ function adminTab(tab) {
   if (tab==='placas') loadPlacas();
   if (tab==='config') loadConfig();
   if (tab==='usuarios') loadUsuarios();
+  if (tab==='historico') loadHistorico();
 }
 
 // ============================================================
@@ -1158,6 +1160,7 @@ async function adicionarLacres() {
     batch.set(ref,{ numero:num, emUso:false, placa:null, processId:null, cadastradoEm:firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
   }
   await batch.commit();
+  await registrarLog('cadastro_lacres', `Lacres ${String(de).padStart(5,'0')} a ${String(ate).padStart(5,'0')} cadastrados (${ate-de+1} lacres)`);
   alert(`${ate-de+1} lacres adicionados!`);
   loadLacres();
 }
@@ -1167,6 +1170,17 @@ async function removerLacre(id, emUso) {
   if (!confirm(`Remover lacre ${id}?`)) return;
   await db.collection('lacresValidos').doc(id).delete();
   loadLacres();
+}
+
+async function registrarLog(acao, detalhe) {
+  if (!db) return;
+  try {
+    const user = auth?.currentUser?.email || 'sistema';
+    await db.collection('logs').add({
+      acao, detalhe, usuario: user,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.warn('Log error:', e.message); }
 }
 
 async function loadPlacas() {
@@ -1200,6 +1214,7 @@ async function adicionarPlaca() {
     placa, descricao: desc,
     adicionadaEm: firebase.firestore.FieldValue.serverTimestamp()
   });
+  await registrarLog('cadastro_placa', `Placa ${placa} cadastrada. Descrição: ${desc||'—'}`);
   document.getElementById('nova-placa').value = '';
   document.getElementById('nova-placa-desc').value = '';
   loadPlacas();
@@ -1320,19 +1335,6 @@ function closeMapModal() {
   document.getElementById('map-iframe').src = '';
 }
 
-async function toggleHistorico() {
-  const sec = document.getElementById('historico-section');
-  const btn = document.getElementById('btn-historico');
-  if (sec.style.display === 'none') {
-    sec.style.display = 'block';
-    btn.style.color = 'var(--accent)';
-    await loadHistorico();
-  } else {
-    sec.style.display = 'none';
-    btn.style.color = 'var(--text2)';
-  }
-}
-
 async function loadHistorico() {
   if (!db) return;
   try {
@@ -1361,12 +1363,16 @@ async function loadHistorico() {
       const mapBtn = hasLoc
         ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--accent);color:var(--accent);">📍 Ver</button>`
         : '<span style="font-size:11px;color:var(--text2)">—</span>';
+      const encPor = d.encerradoPor ? `<span style="font-size:11px;color:var(--text2)">${d.encerradoPor}</span>` : '<span style="font-size:11px;color:var(--text2)">Auto</span>';
+      const justif = d.justificativa ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>` : '<span style="font-size:11px;color:var(--text2)">—</span>';
       return `<tr>
         <td><strong>${d.placa}</strong></td>
         <td style="font-family:'Rajdhani',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
         <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
         <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
         <td>${res}</td>
+        <td>${encPor}</td>
+        <td>${justif}</td>
         <td>${mapBtn}</td>
       </tr>`;
     }).join('');
@@ -1375,28 +1381,35 @@ async function loadHistorico() {
 
 async function confirmarEncerramento(id, lacreNum) {
   if (!confirm('Confirmar encerramento do processo?\n\nO lacre será inutilizado e a placa liberada.')) return;
+  const user = auth?.currentUser?.email || 'desconhecido';
   await db.collection('processos').doc(id).update({
     status: 'encerrado',
-    encerradoEm: firebase.firestore.FieldValue.serverTimestamp()
+    encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    encerradoPor: user
   });
   await db.collection('lacresValidos').doc(lacreNum).update({
     emUso: false, inutilizado: true, placa: null, processId: null,
     inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
   });
+  await registrarLog('confirmacao_processo', `Processo ${id} confirmado. Lacre: ${lacreNum}`);
   loadProcessos();
 }
 
 async function encerrarProcesso(id, lacreNum) {
-  if (!confirm('Encerrar este processo manualmente?\n\nO lacre será marcado como inutilizado e a placa será liberada.')) return;
-  await db.collection('processos').doc(id).update({ status:'encerrado_manual', encerradoEm:firebase.firestore.FieldValue.serverTimestamp() });
-  // Lacre inutilizado, placa liberada
+  const justificativa = prompt('Informe a justificativa para encerramento manual:\n(obrigatório)');
+  if (!justificativa || !justificativa.trim()) { alert('Justificativa obrigatória para encerramento manual.'); return; }
+  const user = auth?.currentUser?.email || 'desconhecido';
+  await db.collection('processos').doc(id).update({
+    status: 'encerrado_manual',
+    encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    justificativa: justificativa.trim(),
+    encerradoPor: user
+  });
   await db.collection('lacresValidos').doc(lacreNum).update({
-    emUso: false,
-    inutilizado: true,
-    placa: null,
-    processId: null,
+    emUso: false, inutilizado: true, placa: null, processId: null,
     inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
   });
+  await registrarLog('encerramento_manual', `Processo ${id} encerrado manualmente. Lacre: ${lacreNum}. Justificativa: ${justificativa.trim()}`);
   loadProcessos();
 }
 
