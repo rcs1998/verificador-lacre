@@ -678,18 +678,17 @@ async function doAppLogin() {
     const cred = await auth.signInWithEmailAndPassword(email, pass);
     const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
-    currentOperador = { email, nome: userDoc.exists ? (userDoc.data().nome || email) : email, uid: cred.user.uid, perfil };
-    document.getElementById('op-nome-display').textContent = currentOperador.nome;
+    const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
+    currentOperador = { email, nome, uid: cred.user.uid, perfil };
+    document.getElementById('op-nome-display').textContent = nome;
     document.getElementById('app-login-screen').style.display = 'none';
     document.getElementById('app-main').style.display = 'block';
-    // Hide admin button for operacional users
-    if (perfil === 'operacional') {
-      document.querySelector('.admin-btn').style.display = 'none';
-    } else {
-      document.querySelector('.admin-btn').style.display = '';
-    }
+    // Show/hide admin button based on perfil
+    const adminBtn = document.querySelector('.admin-btn');
+    if (adminBtn) adminBtn.style.display = (perfil === 'operacional') ? 'none' : '';
     setTimeout(()=>startCamera('origem'), 300);
   } catch(e) {
+    console.error('App login error:', e);
     errEl.style.display = 'block';
   }
 }
@@ -1326,7 +1325,24 @@ setTimeout(checkProcessosExpirados, 3000);
 // ============================================================
 // ADMIN — LOGIN
 // ============================================================
-function openAdmin() { document.getElementById('admin-overlay').classList.add('show'); }
+function openAdmin() {
+  const overlay = document.getElementById('admin-overlay');
+  overlay.classList.add('show');
+  // If already logged into Firebase, check if admin session exists
+  if (auth?.currentUser) {
+    const uid = auth.currentUser.uid;
+    db.collection('usuarios').doc(uid).get().then(doc => {
+      const perfil = doc.exists ? doc.data().perfil : 'admin';
+      if (perfil === 'admin' || perfil === 'operador') {
+        currentUserRole = perfil;
+        document.getElementById('admin-login').style.display = 'none';
+        document.getElementById('admin-body').style.display = 'block';
+        applyRolePermissions();
+        loadAdminData();
+      }
+    }).catch(()=>{});
+  }
+}
 function closeAdmin() { document.getElementById('admin-overlay').classList.remove('show'); }
 
 let currentUserRole = 'operador';
@@ -1335,17 +1351,32 @@ async function doLogin() {
   if (!auth) { alert('Firebase Authentication não configurado. Configure o Firebase no painel.'); return; }
   const email = document.getElementById('admin-email').value.trim();
   const pass = document.getElementById('admin-pass').value;
+  document.getElementById('login-err').style.display = 'none';
   try {
-    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
-    const cred = await auth.signInWithEmailAndPassword(email, pass);
-    // Check user role
-    const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
-    currentUserRole = userDoc.exists ? (userDoc.data().perfil || 'operador') : 'admin';
+    // Sign in (may already be signed in from app login)
+    let uid;
+    if (auth.currentUser && auth.currentUser.email === email) {
+      uid = auth.currentUser.uid;
+    } else {
+      await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+      const cred = await auth.signInWithEmailAndPassword(email, pass);
+      uid = cred.user.uid;
+    }
+    const userDoc = await db.collection('usuarios').doc(uid).get();
+    currentUserRole = userDoc.exists ? (userDoc.data().perfil || 'admin') : 'admin';
+    // Only allow operador and admin in admin panel
+    if (currentUserRole === 'operacional') {
+      document.getElementById('login-err').textContent = 'Perfil sem acesso ao painel admin.';
+      document.getElementById('login-err').style.display = 'block';
+      return;
+    }
     document.getElementById('admin-login').style.display = 'none';
     document.getElementById('admin-body').style.display = 'block';
     applyRolePermissions();
     loadAdminData();
   } catch(e) {
+    console.error('Admin login error:', e);
+    document.getElementById('login-err').textContent = 'E-mail ou senha incorretos.';
     document.getElementById('login-err').style.display = 'block';
   }
 }
@@ -1361,10 +1392,8 @@ function applyRolePermissions() {
     document.querySelectorAll('.admin-tab').forEach((t,i)=>{
       if (hidden.includes(tabs[i])) t.style.display = 'none';
     });
-  } else if (currentUserRole === 'operacional') {
-    // Operacional: only opens/closes processes — hide entire admin panel button
-    document.getElementById('admin-overlay') && (document.querySelector('.admin-btn') && (document.querySelector('.admin-btn').style.display = 'none'));
   }
+  // operacional has no admin access - handled at app login level
   // Session timeout: auto logout after 2 hours
   const SESSION_TIMEOUT = 2 * 60 * 60 * 1000;
   if (window._sessionTimer) clearTimeout(window._sessionTimer);
@@ -1440,11 +1469,14 @@ async function removerUsuario(uid, email) {
 }
 
 function doLogout() {
-  if (auth) auth.signOut();
+  currentUserRole = 'operador';
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-body').style.display = 'none';
   document.getElementById('admin-email').value = '';
   document.getElementById('admin-pass').value = '';
+  document.getElementById('login-err').style.display = 'none';
+  // Reset tab visibility
+  document.querySelectorAll('.admin-tab').forEach(t=>t.style.display='');
 }
 
 function adminTab(tab) {
