@@ -511,15 +511,36 @@ function hideTopAlert() {
 // ============================================================
 // GEOLOCALIZAÇÃO
 // ============================================================
+async function reverseGeocode(lat, lng) {
+  try {
+    const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&language=pt-BR&result_type=locality|administrative_area_level_2`);
+    const data = await res.json();
+    if (data.status === 'OK' && data.results.length > 0) {
+      const comps = data.results[0].address_components;
+      const city = comps.find(c=>c.types.includes('administrative_area_level_2'))?.long_name || '';
+      const state_ = comps.find(c=>c.types.includes('administrative_area_level_1'))?.short_name || '';
+      const country = comps.find(c=>c.types.includes('country'))?.short_name || '';
+      if (city && state_) return `${city}, ${state_} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+    }
+  } catch(e) {}
+  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+}
+
 function getLocation(lado) {
   if (!navigator.geolocation) { state[lado].loc = 'Localização não disponível'; return; }
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      state[lado].loc = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-      document.getElementById(`loc-${lado}`).textContent = '📍 ' + state[lado].loc;
+    async pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      state[lado].loc = coords;
+      document.getElementById(`loc-${lado}`).textContent = '📍 Obtendo endereço...';
+      const readable = await reverseGeocode(lat, lng);
+      state[lado].loc = readable;
+      state[lado].locCoords = coords;
+      document.getElementById(`loc-${lado}`).textContent = '📍 ' + readable;
     },
     () => {
-      // Fallback: IP aproximado via API pública
       fetch('https://ipapi.co/json/')
         .then(r=>r.json())
         .then(d=>{ state[lado].loc = `${d.city}, ${d.region} (aprox.)`; document.getElementById(`loc-${lado}`).textContent = '📍 ' + state[lado].loc; })
