@@ -369,11 +369,24 @@ tr:hover td{background:var(--surface2);}
         <!-- LACRES -->
         <div class="admin-section active" id="atab-lacres">
           <div class="info-bar">Cadastre a sequência de lacres válidos. Cada lacre só pode ser usado em um único processo completo — após o fechamento correto no destino, o lacre é inutilizado e não pode ser reutilizado.</div>
-          <div class="form-row" style="margin-bottom:16px;">
+          <div class="form-row" style="margin-bottom:12px;">
             <div class="input-group"><label>De (número inicial)</label><input type="number" id="lacre-de" placeholder="00001" style="font-size:15px;letter-spacing:1px;"></div>
             <div class="input-group"><label>Até (número final)</label><input type="number" id="lacre-ate" placeholder="00100" style="font-size:15px;letter-spacing:1px;"></div>
             <button class="btn btn-primary btn-sm" style="padding:11px 16px;" onclick="adicionarLacres()">+ Adicionar</button>
           </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+            <span style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:1px;">OU IMPORTE UM ARQUIVO</span>
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+            <label style="flex:1;background:var(--surface2);border:1.5px dashed var(--border-strong);border-radius:8px;padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--text2);letter-spacing:1px;font-weight:600;text-transform:uppercase;" for="lacre-file">
+              📎 Selecionar arquivo .CSV, .TXT ou .XLSX
+            </label>
+            <input type="file" id="lacre-file" accept=".csv,.txt,.xlsx,.xls" style="display:none;" onchange="importarLacresArquivo(this)">
+            <button class="btn btn-outline btn-sm" onclick="baixarModeloLacres()" style="white-space:nowrap;">⬇ Modelo</button>
+          </div>
+          <div id="lacre-import-status" style="font-size:12px;color:var(--text2);margin-bottom:12px;display:none;"></div>
           <div class="form-row" style="margin-bottom:14px;">
             <input type="text" id="lacre-busca" placeholder="BUSCAR NÚMERO" style="font-size:14px;letter-spacing:1px;" oninput="filtrarLacres()">
           </div>
@@ -387,11 +400,24 @@ tr:hover td{background:var(--surface2);}
         <!-- PLACAS -->
         <div class="admin-section" id="atab-placas">
           <div class="info-bar">Somente placas cadastradas aqui poderão usar o sistema.</div>
-          <div class="form-row" style="margin-bottom:16px;">
+          <div class="form-row" style="margin-bottom:12px;">
             <div class="input-group"><label>Placa</label><input type="text" id="nova-placa" placeholder="ABC-1234" maxlength="8" style="font-size:16px;letter-spacing:2px;"></div>
             <div class="input-group"><label>Descrição (opcional)</label><input type="text" id="nova-placa-desc" placeholder="EX: CARRETA TANQUE" style="font-size:13px;letter-spacing:0;text-transform:uppercase;"></div>
             <button class="btn btn-primary btn-sm" style="padding:11px 16px;" onclick="adicionarPlaca()">+ Adicionar</button>
           </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+            <span style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:1px;">OU IMPORTE UM ARQUIVO</span>
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+            <label style="flex:1;background:var(--surface2);border:1.5px dashed var(--border-strong);border-radius:8px;padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--text2);letter-spacing:1px;font-weight:600;text-transform:uppercase;" for="placa-file">
+              📎 Selecionar arquivo .CSV, .TXT ou .XLSX
+            </label>
+            <input type="file" id="placa-file" accept=".csv,.txt,.xlsx,.xls" style="display:none;" onchange="importarPlacasArquivo(this)">
+            <button class="btn btn-outline btn-sm" onclick="baixarModeloPlacas()" style="white-space:nowrap;">⬇ Modelo</button>
+          </div>
+          <div id="placa-import-status" style="font-size:12px;color:var(--text2);margin-bottom:12px;display:none;"></div>
           <div class="table-wrap">
             <table><thead><tr><th>Placa</th><th>Descrição</th><th>Adicionada em</th><th></th></tr></thead>
             <tbody id="placas-tbody"></tbody></table>
@@ -401,7 +427,10 @@ tr:hover td{background:var(--surface2);}
         <!-- PROCESSOS -->
         <div class="admin-section" id="atab-processos">
           <div class="info-bar">Processos em aberto e aguardando confirmação. Alertas são enviados após <span id="alerta-h-display">96</span>h.</div>
-          <button class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="loadProcessos()">🔄 Atualizar</button>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="loadProcessos()">🔄 Atualizar</button>
+            <button class="btn btn-danger btn-sm" onclick="limparProcessosTeste()" style="width:auto;">🗑️ Limpar Testes</button>
+          </div>
           <div class="table-wrap">
             <table><thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Status</th><th>Mapa</th><th>Ações</th></tr></thead>
             <tbody id="processos-tbody"></tbody></table>
@@ -411,7 +440,10 @@ tr:hover td{background:var(--surface2);}
         <!-- HISTÓRICO -->
         <div class="admin-section" id="atab-historico">
           <div class="info-bar">Histórico de todos os processos encerrados.</div>
-          <button class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="loadHistorico()">🔄 Atualizar</button>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="loadHistorico()">🔄 Atualizar</button>
+            <button class="btn btn-success btn-sm" onclick="exportarCSV()" style="width:auto;">📥 Exportar CSV</button>
+          </div>
           <div class="table-wrap">
             <table><thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Encerrado por</th><th>Justificativa</th><th>Mapa</th></tr></thead>
             <tbody id="historico-tbody"></tbody></table>
@@ -505,8 +537,12 @@ tr:hover td{background:var(--surface2);}
 </div>
 
 
+<!-- SheetJS for XLSX support -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- jsQR -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<!-- SheetJS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -605,16 +641,20 @@ function hideTopAlert() {
 // ============================================================
 async function reverseGeocode(lat, lng) {
   try {
-    const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&language=pt-BR&result_type=locality|administrative_area_level_2`);
+    // Using OpenStreetMap Nominatim — free, no API key needed
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`,
+      { headers: { 'Accept-Language': 'pt-BR', 'User-Agent': 'VerificaLacre-Gerdau/1.0' } }
+    );
     const data = await res.json();
-    if (data.status === 'OK' && data.results.length > 0) {
-      const comps = data.results[0].address_components;
-      const city = comps.find(c=>c.types.includes('administrative_area_level_2'))?.long_name || '';
-      const state_ = comps.find(c=>c.types.includes('administrative_area_level_1'))?.short_name || '';
-      const country = comps.find(c=>c.types.includes('country'))?.short_name || '';
-      if (city && state_) return `${city}, ${state_} (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+    if (data && data.address) {
+      const city = data.address.city || data.address.town || data.address.village || data.address.municipality || '';
+      const state_ = data.address.state || '';
+      const country = data.address.country_code?.toUpperCase() || '';
+      if (city && state_) return `${city}, ${state_}`;
+      if (state_) return `${state_}, ${country}`;
     }
-  } catch(e) {}
+  } catch(e) { console.warn('Geocode error:', e.message); }
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
@@ -1251,7 +1291,7 @@ function adminTab(tab) {
 // ============================================================
 let todosLacres = [];
 
-async function loadAdminData() { loadLacres(); }
+// loadAdminData defined below
 
 async function loadLacres() {
   if (!db) return;
@@ -1624,6 +1664,231 @@ function salvarFirebase() {
 }
 
 // Inicializar e-mail padrão no Firebase se não existir
+// ============================================================
+// LIMPAR PROCESSOS TESTE
+// ============================================================
+async function limparProcessosTeste() {
+  if (!confirm('Isso irá remover TODOS os processos abertos.\nUse apenas para limpar testes. Continuar?')) return;
+  try {
+    const [s1,s2,s3] = await Promise.all([
+      db.collection('processos').where('status','==','aberto').get(),
+      db.collection('processos').where('status','==','aguardando_confirmacao').get(),
+      db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get()
+    ]);
+    const batch = db.batch();
+    const lacresBatch = db.batch();
+    [...s1.docs,...s2.docs,...s3.docs].forEach(doc => {
+      batch.delete(doc.ref);
+      // Free up the lacre
+      const lacreNum = doc.data().lacreNumero;
+      if (lacreNum) {
+        lacresBatch.update(db.collection('lacresValidos').doc(lacreNum), {
+          emUso: false, placa: null, processId: null
+        });
+      }
+    });
+    await batch.commit();
+    await lacresBatch.commit();
+    alert('Processos de teste removidos!');
+    loadProcessos();
+    loadDashboard();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+// ============================================================
+// EXPORTAR CSV
+// ============================================================
+async function exportarCSV() {
+  try {
+    const [snapEnc, snapManual] = await Promise.all([
+      db.collection('processos').where('status','==','encerrado').orderBy('encerradoEm','desc').get(),
+      db.collection('processos').where('status','==','encerrado_manual').orderBy('encerradoEm','desc').get()
+    ]);
+    const docs = [...snapEnc.docs,...snapManual.docs]
+      .sort((a,b)=>(b.data().encerradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||0));
+
+    const header = ['Placa','Lacre Origem','Lacre Destino','Data Saída','Data Chegada','Resultado','Local Origem','Local Destino','Encerrado Por','Justificativa'];
+    const rows = docs.map(doc => {
+      const d = doc.data();
+      return [
+        d.placa||'',
+        d.lacreNumero||'',
+        d.lacreDestino||'',
+        d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '',
+        d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '',
+        d.resultado === 'ok' ? 'OK' : d.status === 'encerrado_manual' ? 'Manual' : 'Desvio',
+        (d.locOrigem||'').replace(/,/g,' '),
+        (d.locDestino||'').replace(/,/g,' '),
+        d.encerradoPor||'Auto',
+        (d.justificativa||'').replace(/,/g,' ')
+      ].map(v => `"${v}"`).join(',');
+    });
+
+    const csv = [header.join(','), ...rows].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `historico_lacres_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('Erro ao exportar: ' + e.message); }
+}
+
+// ============================================================
+// IMPORTAR LACRES — ARQUIVO
+// ============================================================
+async function importarLacresArquivo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('lacre-import-status');
+  status.style.display = 'block';
+  status.style.color = 'var(--text2)';
+  status.textContent = '⏳ Processando arquivo...';
+
+  let lines = [];
+  if (file.name.match(/\.xlsx?$/i)) {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(ws, {header:1});
+    lines = data.flat().map(v=>String(v||'').trim()).filter(Boolean);
+    if (lines[0] && isNaN(parseInt(lines[0]))) lines = lines.slice(1);
+  } else {
+    const text = await file.text();
+    lines = text.split(/[\n,;]+/).map(l=>l.trim()).filter(Boolean);
+  }
+  const numeros = [];
+
+  for (const line of filteredLines) {
+    if (line.includes('-') && !line.match(/^[A-Z]{3}-?\d/)) {
+      // Range: 00001-00100
+      const [start, end] = line.split('-').map(n => parseInt(n.trim()));
+      if (!isNaN(start) && !isNaN(end) && end >= start && end - start <= 10000) {
+        for (let i = start; i <= end; i++) numeros.push(String(i).padStart(5,'0'));
+      }
+    } else {
+      const num = parseInt(line.replace(/\D/g,''));
+      if (!isNaN(num)) numeros.push(String(num).padStart(5,'0'));
+    }
+  }
+
+  if (numeros.length === 0) {
+    status.style.color = 'var(--danger)';
+    status.textContent = '❌ Nenhum número válido encontrado no arquivo.';
+    return;
+  }
+
+  if (numeros.length > 10000) {
+    status.style.color = 'var(--danger)';
+    status.textContent = `❌ Limite de 10.000 lacres por importação. Encontrados: ${numeros.length}`;
+    return;
+  }
+
+  try {
+    // Process in batches of 500
+    const chunkSize = 500;
+    for (let i = 0; i < numeros.length; i += chunkSize) {
+      const chunk = numeros.slice(i, i + chunkSize);
+      const batch = db.batch();
+      chunk.forEach(num => {
+        const ref = db.collection('lacresValidos').doc(num);
+        batch.set(ref, { numero: num, emUso: false, inutilizado: false, placa: null, processId: null, cadastradoEm: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      });
+      await batch.commit();
+      status.textContent = `⏳ Importando... ${Math.min(i + chunkSize, numeros.length)}/${numeros.length}`;
+    }
+    await registrarLog('importacao_lacres', `${numeros.length} lacres importados via arquivo`);
+    status.style.color = 'var(--success)';
+    status.textContent = `✅ ${numeros.length} lacres importados com sucesso!`;
+    input.value = '';
+    loadLacres();
+  } catch(e) {
+    status.style.color = 'var(--danger)';
+    status.textContent = '❌ Erro: ' + e.message;
+  }
+}
+
+function baixarModeloLacres() {
+  const csv = 'numero\n00001\n00002\n00003\n00010-00050\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'modelo_lacres.csv';
+  a.click();
+}
+
+// ============================================================
+// IMPORTAR PLACAS — ARQUIVO
+// ============================================================
+async function importarPlacasArquivo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('placa-import-status');
+  status.style.display = 'block';
+  status.style.color = 'var(--text2)';
+  status.textContent = '⏳ Processando arquivo...';
+
+  let dataLines = [];
+  if (file.name.match(/\.xlsx?$/i)) {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(ws, {header:1});
+    const start = String(data[0]?.[0]||'').toLowerCase().includes('placa') ? 1 : 0;
+    dataLines = data.slice(start).map(row=>row.map(v=>String(v||'').trim()).join(','));
+  } else {
+    const text = await file.text();
+    const lines = text.split(/[\n]+/).map(l=>l.trim()).filter(Boolean);
+    dataLines = lines[0]?.toLowerCase().includes('placa') ? lines.slice(1) : lines;
+  }
+
+  const placas = [];
+  const reAntiga = /^[A-Z]{3}-?\d{4}$/;
+  const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+
+  for (const line of dataLines) {
+    const parts = line.split(/[,;\t]/);
+    const placa = parts[0].trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const desc = (parts[1]||'').trim().toUpperCase();
+    if (reAntiga.test(placa) || reMercosul.test(placa)) {
+      placas.push({ placa, desc });
+    }
+  }
+
+  if (placas.length === 0) {
+    status.style.color = 'var(--danger)';
+    status.textContent = '❌ Nenhuma placa válida encontrada. Verifique o formato.';
+    return;
+  }
+
+  try {
+    const batch = db.batch();
+    placas.forEach(({ placa, desc }) => {
+      const ref = db.collection('placasAutorizadas').doc(placa);
+      batch.set(ref, { placa, descricao: desc, adicionadaEm: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    });
+    await batch.commit();
+    await registrarLog('importacao_placas', `${placas.length} placas importadas via arquivo`);
+    status.style.color = 'var(--success)';
+    status.textContent = `✅ ${placas.length} placas importadas com sucesso!`;
+    input.value = '';
+    loadPlacas();
+  } catch(e) {
+    status.style.color = 'var(--danger)';
+    status.textContent = '❌ Erro: ' + e.message;
+  }
+}
+
+function baixarModeloPlacas() {
+  const csv = 'placa,descricao\nABC1234,CARRETA TANQUE\nXYZ5678,BITREM\nABC1D23,CARRETA SIDER\n';
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'modelo_placas.csv';
+  a.click();
+}
+
 async function seedEmailPadrao() {
   if (!db) return;
   try {
@@ -1646,26 +1911,27 @@ loadGeminiKey();
 async function loadDashboard() {
   if (!db) return;
   try {
-    const agora = new Date();
-    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString();
-    const [s1,s2,s3,sEnc,sDesvio] = await Promise.all([
+    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const [s1,s2,s3,sEnc,sEncManual] = await Promise.all([
       db.collection('processos').where('status','==','aberto').get(),
       db.collection('processos').where('status','==','aguardando_confirmacao').get(),
       db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get(),
-      db.collection('processos').where('status','==','encerrado').where('timestamp','>=',inicioMes).get(),
-      db.collection('processos').where('resultado','==','desvio').where('timestamp','>=',inicioMes).get()
+      db.collection('processos').where('status','==','encerrado').get(),
+      db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
+    const todosEnc = [...sEnc.docs,...sEncManual.docs];
+    const encMes = todosEnc.filter(d=>(d.data().timestamp||'')>=inicioMes).length;
+    const desviosMes = todosEnc.filter(d=>d.data().resultado==='desvio'&&(d.data().timestamp||'')>=inicioMes).length;
     document.getElementById('dash-abertos').textContent = s1.size;
     document.getElementById('dash-pendentes').textContent = s2.size + s3.size;
-    document.getElementById('dash-encerrados').textContent = sEnc.size;
-    document.getElementById('dash-desvios').textContent = sDesvio.size;
+    document.getElementById('dash-encerrados').textContent = encMes;
+    document.getElementById('dash-desvios').textContent = desviosMes;
   } catch(e) { console.warn('Dashboard error:', e.message); }
 }
 
-// Override loadAdminData to also load dashboard
-const _origLoadAdmin = loadAdminData;
+// Dashboard loads with admin panel
 async function loadAdminData() {
-  await _origLoadAdmin();
+  loadLacres();
   loadDashboard();
 }
 </script>
