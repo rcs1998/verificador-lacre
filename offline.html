@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modo Offline - Gerdau Lacres</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Barlow', Arial, sans-serif;
+      background: linear-gradient(135deg, #1B3A6B 0%, #2E5090 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .offline-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 40px 30px;
+      text-align: center;
+      max-width: 400px;
+    }
+    .offline-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    h1 {
+      color: #1B3A6B;
+      font-size: 24px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    p {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .status-badge {
+      display: inline-block;
+      background: #FFEBEE;
+      color: #C62828;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .info-box {
+      background: #F5F5F5;
+      border-left: 4px solid #F5A623;
+      padding: 12px 16px;
+      text-align: left;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #555;
+    }
+    .info-box strong {
+      display: block;
+      color: #1B3A6B;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'Barlow', Arial, sans-serif;
+    }
+    .btn-primary {
+      background: #1B3A6B;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2E5090;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: #E0E0E0;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background: #D0D0D0;
+    }
+    .connection-indicator {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #E0E0E0;
+      font-size: 12px;
+      color: #999;
+    }
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #C62828;
+      margin-right: 6px;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📡</div>
+    <h1>Modo Offline</h1>
+    <div class="status-badge">Sem Conexão</div>
+    
+    <p>Você está sem conexão com a internet. Algumas funcionalidades podem estar limitadas.</p>
+    
+    <div class="info-box">
+      <strong>O que você pode fazer:</strong>
+      ✅ Visualizar dados em cache<br>
+      ✅ Tirar fotos de lacres<br>
+      ⏳ Sincronizar quando voltar online
+    </div>
+    
+    <div class="info-box">
+      <strong>O que não funciona:</strong>
+      ❌ Enviar dados para servidor<br>
+      ❌ Acessar informações em tempo real<br>
+      ❌ Carregar novos dados
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn-primary" onclick="tentarConectar()">🔄 Tentar Conectar</button>
+      <button class="btn-secondary" onclick="goHome()">🏠 Ir para Home</button>
+    </div>
+    
+    <div class="connection-indicator">
+      <span class="dot"></span>
+      Aguardando conexão...
+    </div>
+  </div>
+
+  <script>
+    // Verificar conexão periodicamente
+    function verificarConexao() {
+      fetch('/', { method: 'HEAD', cache: 'no-store' })
+        .then(() => {
+          // Conexão restaurada
+          document.querySelector('.dot').style.background = '#4CAF50';
+          document.querySelector('.connection-indicator').textContent = '✅ Conexão restaurada!';
+          setTimeout(() => {
+            location.reload();
+          }, 1500);
+        })
+        .catch(() => {
+          // Ainda sem conexão
+          console.log('Ainda offline...');
+        });
+    }
+
+    function tentarConectar() {
+      document.querySelector('.connection-indicator').textContent = '⏳ Verificando conexão...';
+      verificarConexao();
+    }
+
+    function goHome() {
+      location.href = '/';
+    }
+
+    // Verificar conexão a cada 5 segundos
+    setInterval(verificarConexao, 5000);
+
+    // Verificar imediatamente
+    verificarConexao();
+  </script>
+</body>
+</html>
