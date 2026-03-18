@@ -44,8 +44,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .header-logo img{height:36px;width:auto;filter:brightness(0) invert(1);}
 .header-divider{width:1px;height:24px;background:rgba(255,255,255,0.3);}
 .header-title{color:white;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
-.admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:block !important;}
 .admin-btn:hover{background:rgba(255,255,255,0.22);}
+.admin-btn.hidden{display:none !important;}
 
 /* TOP ALERT */
 #top-alert{display:none;width:100%;padding:12px 20px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;position:sticky;top:64px;z-index:39;}
@@ -714,7 +715,16 @@ async function doAppLogin() {
     document.getElementById('app-main').style.display = 'block';
     // Show/hide admin button based on perfil
     const adminBtn = document.querySelector('.admin-btn');
-    if (adminBtn) adminBtn.style.display = (perfil === 'operacional') ? 'none' : '';
+    console.log('Perfil do usuário:', perfil, 'Email:', email);
+    if (adminBtn) {
+      // Mostrar admin button para admin e operador, ocultar apenas para operacional
+      if (perfil === 'admin' || perfil === 'operador') {
+        adminBtn.style.display = 'block';
+        adminBtn.style.visibility = 'visible';
+      } else {
+        adminBtn.style.display = 'none';
+      }
+    }
     // Iniciar logout automático
     initSessionTimeout();
     setTimeout(()=>startCamera('origem'), 300);
@@ -737,7 +747,8 @@ function doAppLogout() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  document.querySelector('.admin-btn').style.display = '';
+  const adminBtn = document.querySelector('.admin-btn');
+  if (adminBtn) adminBtn.style.display = 'block';
   // Stop cameras
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
