@@ -39,12 +39,12 @@
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
 
 /* HEADER */
-.app-header{width:100%;background:var(--gerdau-blue);padding:0 24px;display:flex;align-items:center;justify-content:center;height:64px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:40;border-bottom:3px solid var(--gerdau-yellow);position:relative;}
+.app-header{width:100%;background:var(--gerdau-blue);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:40;border-bottom:3px solid var(--gerdau-yellow);position:relative;}
 .header-logo{display:flex;align-items:center;gap:12px;position:absolute;left:50%;transform:translateX(-50%);}
 .header-logo img{height:36px;width:auto;filter:brightness(0) invert(1);}
 .header-divider{width:1px;height:24px;background:rgba(255,255,255,0.3);}
 .header-title{color:white;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
-.admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:block !important;}
+.admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:block !important;margin-left:auto;}
 .admin-btn:hover{background:rgba(255,255,255,0.22);}
 .admin-btn.hidden{display:none !important;}
 
@@ -240,8 +240,10 @@ tbody tr:hover{background:var(--surface2);}
       <div style="color:#fff;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Operador:</div>
       <div style="color:var(--gerdau-yellow);font-size:14px;font-weight:700;letter-spacing:1px;" id="op-nome-display">—</div>
     </div>
-    <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
-    <button class="admin-btn" onclick="doAppLogout()" style="position:absolute;right:24px;">🚪 Sair</button>
+    <div style="display:flex;gap:8px;margin-left:auto;">
+      <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
+      <button class="admin-btn" onclick="doAppLogout()">🚪 Sair</button>
+    </div>
   </div>
 
   <div id="top-alert" class="info-bar" style="border-radius:0;margin:0;"></div>
