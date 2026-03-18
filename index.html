@@ -610,11 +610,23 @@ tr:hover td{background:var(--surface2);}
 // CONFIG — lida do localStorage (admin salva via painel)
 // ============================================================
 function getGeminiKey() {
+  // Priority: Firebase (saved by admin) > localStorage > new key fallback
   const saved = getCfg('gemini_key','');
   if (saved) return saved;
   return ['AIzaSyA_N-n67bIk4ryC','dthBOEth_hzLYSroae0'].join('');
 }
 let GEMINI_API_KEY = getGeminiKey();
+
+async function loadGeminiKey() {
+  if (!db) return;
+  try {
+    const doc = await db.collection('config').doc('gemini').get();
+    if (doc.exists && doc.data().key) {
+      GEMINI_API_KEY = doc.data().key;
+      setCfg('gemini_key', doc.data().key);
+    }
+  } catch(e) { console.warn('Gemini key load error:', e.message); }
+}
 
 function getCfg(key, def) {
   try { return localStorage.getItem(key) || def; } catch(e) { return def; }
@@ -722,6 +734,68 @@ function doAppLogout() {
     state[lado].stream = null;
     state[lado].photoBase64 = null;
   });
+}
+
+function mostrarEntradaManual(lado) {
+  // Check if manual entry already shown
+  if (document.getElementById(`manual-entry-${lado}`)) return;
+
+  const box = document.getElementById(`result-${lado}`);
+  const manualDiv = document.createElement('div');
+  manualDiv.id = `manual-entry-${lado}`;
+  manualDiv.style.cssText = 'background:var(--warning-bg);border:1.5px solid var(--warning-border);border-radius:12px;padding:16px;margin-top:12px;';
+  manualDiv.innerHTML = `
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:10px;">⌨️ INSERÇÃO MANUAL DO LACRE</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Digite o número do lacre exatamente como está impresso:</div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="manual-lacre-${lado}" placeholder="00001" maxlength="10"
+        style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;padding:10px 14px;border:1.5px solid var(--warning-border);border-radius:8px;background:#fff;color:var(--gerdau-blue);text-align:center;outline:none;"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      <button onclick="confirmarManual('${lado}')"
+        style="background:var(--gerdau-blue);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;">
+        ✅ Confirmar
+      </button>
+    </div>
+    <div style="font-size:11px;color:var(--warning);margin-top:8px;font-weight:600;">⚠️ A inserção manual fica registrada no log do sistema.</div>`;
+
+  box.parentNode.insertBefore(manualDiv, box.nextSibling);
+  setTimeout(()=>document.getElementById(`manual-lacre-${lado}`)?.focus(), 100);
+}
+
+async function confirmarManual(lado) {
+  const input = document.getElementById(`manual-lacre-${lado}`);
+  const num = input?.value.trim();
+  if (!num) { alert('Digite o número do lacre.'); return; }
+
+  const numPad = num.padStart(5,'0');
+
+  // Remove manual entry div
+  document.getElementById(`manual-entry-${lado}`)?.remove();
+
+  // Set state as if AI had read it
+  state[lado].lacreNumero = numPad;
+  state[lado].lacreIntegro = true; // assume integro when manual — operator is responsible
+
+  // Log manual entry
+  await registrarLog('entrada_manual_lacre', `Lacre ${numPad} inserido manualmente na ${lado} — operador: ${currentOperador?.email||'?'}`);
+
+  const box = document.getElementById(`result-${lado}`);
+  box.className = 'status-box warning show';
+  box.innerHTML = `
+    <div class="status-title">⌨️ Número inserido manualmente</div>
+    <div class="status-item">🔐 <span>Lacre: <strong>${numPad}</strong></span></div>
+    <div class="status-item" style="font-size:11px;color:var(--warning);">⚠️ Inserção manual — operador responsável pela conferência física do lacre.</div>`;
+
+  // Show read value
+  const readVal = document.getElementById(`lacre-lido-${lado}`);
+  if (readVal) readVal.textContent = numPad;
+
+  if (lado === 'origem') {
+    document.getElementById('btn-registrar').style.display = 'block';
+    showTopAlert('⌨️ Número inserido manualmente — confira o lacre fisicamente!', 'warning');
+  } else {
+    verificarDestino({ numero: numPad, integro: true, observacao: 'Inserido manualmente pelo operador' });
+  }
 }
 
 function showTopAlert(msg, type) {
@@ -917,6 +991,7 @@ function retakePhoto(lado) {
   document.getElementById(`ts-${lado}`).textContent = '';
   document.getElementById(`loc-${lado}`).textContent = '';
   document.getElementById(`result-${lado}`).className = 'status-box';
+  document.getElementById(`manual-entry-${lado}`)?.remove();
   hideTopAlert();
   if (lado==='origem') { document.getElementById('btn-registrar').style.display='none'; document.getElementById('lacre-lido-origem').textContent=''; }
   startCamera(lado);
@@ -972,9 +1047,10 @@ Retorne SOMENTE o JSON.`;
       const box = document.getElementById(`result-${lado}`);
       box.className = 'status-box error show';
       box.innerHTML = `<div class="status-title">❌ Imagem inválida</div>
-        <div class="status-item">⚠️ <span>Não é QR Code ou código de barras. Tire uma nova foto.</span></div>`;
+        <div class="status-item">⚠️ <span>Não é QR Code ou código de barras. Tire uma nova foto ou insira o número manualmente.</span></div>`;
       document.getElementById(`btn-refoto-${lado}`).style.display='block';
       document.getElementById(`btn-foto-${lado}`).style.display='none';
+      mostrarEntradaManual(lado);
       return;
     }
     // Normalize lacre number — extract digits only, pad to 5
@@ -995,9 +1071,10 @@ Retorne SOMENTE o JSON.`;
     box.className = 'status-box error show';
     box.innerHTML = `<div class="status-title">❌ Erro na análise</div>
       <div class="status-item"><span style="font-size:12px;word-break:break-all">${err.message}</span></div>
-      <div class="status-item" style="font-size:11px;color:var(--text2)">Verifique sua conexão e tente novamente.</div>`;
+      <div class="status-item" style="font-size:11px;color:var(--text2)">Verifique sua conexão ou insira o número manualmente.</div>`;
     document.getElementById(`btn-refoto-${lado}`).style.display='block';
     document.getElementById(`btn-foto-${lado}`).style.display='none';
+    mostrarEntradaManual(lado);
   }
 }
 
@@ -2167,9 +2244,6 @@ async function seedEmailPadrao() {
 seedEmailPadrao();
 loadGeminiKey();
 </script>
-</body>
-</html>
-
 </body>
 </html>
 <script>
