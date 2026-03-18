@@ -6,6 +6,12 @@
 <title>VerificaLacre — Gerdau</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<!-- PWA Configuration -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B3A6B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lacres Gerdau">
 <style>
 :root {
   --gerdau-blue:#1B3A6B;
@@ -611,6 +617,7 @@ tbody tr:hover{background:var(--surface2);}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
@@ -647,6 +654,8 @@ function setCfg(key, val) {
 
 let db = null, auth = null;
 
+let storage = null;
+
 function initFirebase() {
   try {
     // Tenta primeiro pelo localStorage (painel admin)
@@ -656,6 +665,7 @@ function initFirebase() {
       if (!firebase.apps.length) firebase.initializeApp(cfg);
       db = firebase.firestore();
       auth = firebase.auth();
+      storage = firebase.storage();
       return;
     }
     // Fallback: config fixa
@@ -670,6 +680,7 @@ function initFirebase() {
     if (!firebase.apps.length) firebase.initializeApp(fixedCfg);
     db = firebase.firestore();
     auth = firebase.auth();
+    storage = firebase.storage();
     console.log('Firebase inicializado com config fixa');
   } catch(e) {
     console.error('Firebase erro:', e.message);
@@ -906,7 +917,41 @@ function retakePhoto(lado) {
 }
 
 // ============================================================
-// ANÁLISE GEMINI
+// FIREBASE STORAGE - SALVAR FOTOS
+// ============================================================
+async function salvarFotoNoFirebase(base64, processId, lado) {
+  if (!storage) {
+    console.warn('Firebase Storage não inicializado');
+    return null;
+  }
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const nomeArquivo = `processos/${processId}/${lado}_${timestamp}.jpg`;
+    const ref = storage.ref(nomeArquivo);
+    
+    // Converter base64 para blob
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'image/jpeg' });
+    
+    // Fazer upload
+    const snapshot = await ref.put(blob);
+    const url = await snapshot.ref.getDownloadURL();
+    
+    console.log('Foto salva com sucesso:', url);
+    return url;
+  } catch(e) {
+    console.warn('Erro ao salvar foto no Firebase Storage:', e.message);
+    return null;
+  }
+}
+
+// ============================================================
+// ANÁLISE GEMINI COM OCR DE PLACAS
 // ============================================================
 async function analisarLacre(lado) {
   document.getElementById(`loading-${lado}`).classList.add('show');
@@ -921,14 +966,16 @@ async function analisarLacre(lado) {
     return;
   }
   
-  const prompt = `Você é um sistema de verificação de lacres de segurança para transporte de cargas.
+  const prompt = `Você é um sistema avançado de verificação de lacres de segurança para transporte de cargas.
 
 Analise esta imagem e retorne SOMENTE um JSON válido, sem markdown, sem explicações:
 {
   "tipo": "qrcode" | "barcode" | "outro",
   "numero": "NUMERO_LIDO_OU_ILEGIVEL",
   "integro": true | false,
-  "observacao": "estado físico do lacre em uma frase"
+  "observacao": "estado físico do lacre em uma frase",
+  "placa": "placa do veículo se visível (ex: ABC1234 ou ABC1D23), senão null",
+  "empresa": "nome da empresa se visível, senão null"
 }
 
 Regras:
@@ -936,6 +983,8 @@ Regras:
 - "numero": leia APENAS o número ou código identificador do lacre. Se o QR Code contiver uma URL ou texto com números, extraia SOMENTE os dígitos numéricos do identificador. Retorne apenas o número, sem letras, sem URL, sem prefixos. Exemplo: se ler "https://lacre.com/00003", retorne apenas "00003". Se ilegível, use "ILEGÍVEL"
 - "integro": true se intacto, false se rompido, violado, danificado ou cortado
 - "observacao": descreva o estado físico brevemente
+- "placa": tente extrair a placa do veículo se ela aparecer na imagem. Aceita formatos: ABC1234 (antigo) ou ABC1D23 (Mercosul)
+- "empresa": se conseguir ler o nome da empresa na imagem, inclua aqui
 
 Retorne SOMENTE o JSON.`;
   
@@ -994,6 +1043,25 @@ Retorne SOMENTE o JSON.`;
     
     state[lado].lacreNumero = result.numero;
     state[lado].lacreIntegro = result.integro;
+    state[lado].placaDetectada = result.placa || null;
+    state[lado].empresaDetectada = result.empresa || null;
+    
+    // Se detectou placa, validar contra banco de dados
+    if (result.placa && lado === 'origem') {
+      try {
+        const placaLimpa = result.placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const placaDoc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
+        if (placaDoc.exists) {
+          result.placaValida = true;
+          result.placaEmpresa = placaDoc.data().descricao || '';
+        } else {
+          result.placaValida = false;
+          result.aviso = `⚠️ Placa ${placaLimpa} não encontrada no cadastro!`;
+        }
+      } catch(e) {
+        console.warn('Erro ao validar placa:', e.message);
+      }
+    }
     
     if (lado==='origem') mostrarResultadoOrigem(result);
     else verificarDestino(result);
@@ -1019,15 +1087,26 @@ function mostrarResultadoOrigem(result) {
   const body = document.getElementById('result-origem-body');
   document.getElementById('lacre-lido-origem').textContent = result.numero;
   
+  let placaHTML = '';
+  if (result.placa) {
+    const placaStyle = result.placaValida 
+      ? 'background:#E8F5E9;color:#2E7D32;border:1px solid #81C784;'
+      : 'background:#FFEBEE;color:#C62828;border:1px solid #EF5350;';
+    placaHTML = `<div style="${placaStyle}border-radius:4px;padding:8px 12px;margin-top:8px;font-size:12px;font-weight:600;">
+      ${result.placaValida ? '✅' : '⚠️'} Placa: ${result.placa} ${result.placaEmpresa ? '(' + result.placaEmpresa + ')' : ''}
+      ${result.aviso ? '<br><small>' + result.aviso + '</small>' : ''}
+    </div>`;
+  }
+  
   if (!result.integro) {
     box.className = 'status-box error show';
     title.textContent = '⚠️ Lacre comprometido!';
-    body.innerHTML = `<div class="status-item">🔍 <span><strong>Obs:</strong> ${result.observacao}</span></div><div class="status-item" style="color:var(--danger)">Não recomendado prosseguir com o transporte.</div>`;
+    body.innerHTML = `<div class="status-item">🔍 <span><strong>Obs:</strong> ${result.observacao}</span></div><div class="status-item" style="color:var(--danger)">Não recomendado prosseguir com o transporte.</div>${placaHTML}`;
     showTopAlert('⚠️ ATENÇÃO — Lacre comprometido! Verifique antes de prosseguir.', 'error');
   } else {
     box.className = 'status-box ok show';
     title.textContent = '✅ Lacre íntegro';
-    body.innerHTML = `<div class="status-item">🔍 <span><strong>Obs:</strong> ${result.observacao}</span></div>`;
+    body.innerHTML = `<div class="status-item">🔍 <span><strong>Obs:</strong> ${result.observacao}</span></div>${placaHTML}`;
     showTopAlert('✅ Lacre íntegro — Registre a saída abaixo', 'ok');
   }
   document.getElementById('btn-registrar').style.display = 'block';
@@ -1081,6 +1160,13 @@ async function registrarOrigem() {
     btn.textContent = 'Registrando...';
 
     const processId = Date.now().toString();
+    
+    // Salvar foto no Firebase Storage
+    let fotoURL = null;
+    if (state.origem.photoBase64 && storage) {
+      fotoURL = await salvarFotoNoFirebase(state.origem.photoBase64, processId, 'origem');
+    }
+    
     const dados = {
       processId, placa,
       motorista,
@@ -1094,7 +1180,10 @@ async function registrarOrigem() {
       abertoPorNome: currentOperador.nome,
       abertoPorEmpresa: currentOperador.empresa || '',
       status: 'aberto',
-      registradoEm: firebase.firestore.FieldValue.serverTimestamp()
+      registradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+      fotoOrigemURL: fotoURL || null,
+      placaDetectada: state.origem.placaDetectada || null,
+      empresaDetectada: state.origem.empresaDetectada || null
     };
 
     await db.collection('processos').doc(processId).set(dados);
@@ -2272,6 +2361,15 @@ async function seedEmailPadrao() {
 }
 seedEmailPadrao();
 loadGeminiKey();
+</script>
+
+<!-- Registrar Service Worker para PWA -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('Service Worker registrado:', reg))
+      .catch(err => console.log('Erro ao registrar Service Worker:', err));
+  }
 </script>
 </body>
 </html>
