@@ -766,6 +766,7 @@ function startQRDetection(lado) {
               qrDetecting[lado] = false;
               return;
             }
+            // Note: jsQR raw value stored but Gemini will re-read and normalize
           } else {
             const placa = document.getElementById(`placa-${lado}`).value.trim();
             if (!placa) {
@@ -831,7 +832,7 @@ Analise esta imagem e retorne SOMENTE um JSON válido, sem markdown, sem explica
 
 Regras:
 - "tipo": identifique se é QR Code, código de barras ou outro tipo
-- "numero": leia o código. Se ilegível, use "ILEGÍVEL"
+- "numero": leia APENAS o número ou código identificador do lacre. Se o QR Code contiver uma URL ou texto com números, extraia SOMENTE os dígitos numéricos do identificador. Retorne apenas o número, sem letras, sem URL, sem prefixos. Exemplo: se ler "https://lacre.com/00003", retorne apenas "00003". Se ilegível, use "ILEGÍVEL"
 - "integro": true se intacto, false se rompido, violado, danificado ou cortado
 - "observacao": descreva o estado físico brevemente
 
@@ -868,6 +869,14 @@ Retorne SOMENTE o JSON.`;
       document.getElementById(`btn-refoto-${lado}`).style.display='block';
       document.getElementById(`btn-foto-${lado}`).style.display='none';
       return;
+    }
+    // Normalize lacre number — extract digits only, pad to 5
+    const rawNumero = String(result.numero||'').trim();
+    const digitsOnly = rawNumero.replace(/\D/g,'');
+    if (digitsOnly && digitsOnly !== 'ILEGIVEL') {
+      result.numero = digitsOnly.padStart(5,'0');
+    } else if (!digitsOnly) {
+      result.numero = rawNumero.toUpperCase();
     }
     state[lado].lacreNumero = result.numero;
     state[lado].lacreIntegro = result.integro;
