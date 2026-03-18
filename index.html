@@ -66,7 +66,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 /* INPUTS */
 .input-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
 label{font-size:11px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
-input[type="text"],input[type="email"],input[type="password"],input[type="number"],select,textarea{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;width:100%;text-transform:uppercase;outline:none;transition:border-color .2s;box-shadow:var(--shadow-sm);}
+input[type="text"],input[type="number"],select,textarea{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;width:100%;text-transform:uppercase;outline:none;transition:border-color .2s;box-shadow:var(--shadow-sm);}
+input[type="email"],input[type="password"]{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;width:100%;text-transform:none;outline:none;transition:border-color .2s;box-shadow:var(--shadow-sm);}
 input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,input[type="number"]:focus,select:focus,textarea:focus{border-color:var(--gerdau-blue);box-shadow:0 0 0 3px rgba(27,58,107,0.1);}
 
 /* CAMERA */
@@ -637,7 +638,7 @@ function initFirebase() {
     }
     // Fallback: config fixa
     const fixedCfg = {
-      apiKey: "AIzaSyA_N-n67bIk4ryCdthBOEth_hzLYSroae0",
+      apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
       authDomain: "verificador-lacre.firebaseapp.com",
       projectId: "verificador-lacre",
       storageBucket: "verificador-lacre.firebasestorage.app",
