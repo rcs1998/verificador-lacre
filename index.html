@@ -42,8 +42,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .app-header{width:100%;background:var(--gerdau-blue);padding:0 24px;display:flex;align-items:center;justify-content:center;height:64px;box-shadow:var(--shadow-md);position:sticky;top:0;z-index:40;border-bottom:3px solid var(--gerdau-yellow);position:relative;}
 .header-logo{display:flex;align-items:center;gap:12px;position:absolute;left:50%;transform:translateX(-50%);}
 .header-logo img{height:36px;width:auto;filter:brightness(0) invert(1);}
-.header-divider{width:1px;height:24px;background:rgba(255,255,255,0.25);}
-.header-title{color:rgba(255,255,255,0.95);font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
+.header-divider{width:1px;height:24px;background:rgba(255,255,255,0.3);}
+.header-title{color:white;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
 .admin-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:7px 14px;border-radius:6px;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
 .admin-btn:hover{background:rgba(255,255,255,0.22);}
 
@@ -213,20 +213,8 @@ tr:hover td{background:var(--surface2);}
 
 <!-- APP HEADER -->
 <header class="app-header">
-  <div class="header-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" height="42" style="display:block;">
-  <!-- Square box -->
-  <rect x="0" y="0" width="52" height="52" rx="2" fill="none" stroke="white" stroke-width="2.5"/>
-  <!-- Left C shape -->
-  <path d="M26 14 C18 14 12 19.5 12 26 C12 32.5 18 38 26 38 C30 38 33.5 36.5 36 34 L36 29 L27 29 L27 24 L42 24 L42 38 L37.5 38 L36.5 35 C33.5 37.5 30 39.5 26 39.5 C16.5 39.5 8.5 33.5 8.5 26 C8.5 18.5 16.5 12.5 26 12.5 C31 12.5 35.5 14.5 38.5 18 L34 21 C32 18.5 29.2 17 26 17Z" fill="white"/>
-  <!-- Right C shape (offset) -->
-  <path d="M35 14 C27 14 21 19.5 21 26 C21 32.5 27 38 35 38 C39 38 42.5 36.5 45 34 L45 29 L36 29 L36 24 L51 24 L51 38 L46.5 38 L45.5 35 C42.5 37.5 39 39.5 35 39.5 C25.5 39.5 17.5 33.5 17.5 26 C17.5 18.5 25.5 12.5 35 12.5 C40 12.5 44.5 14.5 47.5 18 L43 21 C41 18.5 38.2 17 35 17Z" fill="white"/>
-  <!-- GERDAU text -->
-  <text x="64" y="38" 
-    font-family="'Arial Black', 'Franklin Gothic Heavy', Impact, sans-serif" 
-    font-size="26" 
-    font-weight="900" 
-    fill="white" 
-    letter-spacing="2">GERDAU</text>
+  <div class="header-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" height="34" style="display:block;">
+  <text x="0" y="30" font-family="'Arial Black','Franklin Gothic Heavy',Impact,sans-serif" font-size="30" font-weight="900" fill="white" letter-spacing="2">GERDAU</text>
 </svg><div class="header-divider"></div>
     <span class="header-title">VERIFICA LACRE</span>
   </div>
@@ -335,11 +323,8 @@ tr:hover td{background:var(--surface2);}
     <!-- Login -->
     <div id="admin-login" style="padding:20px;">
       <div class="login-box">
-        <div class="login-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" height="50" style="display:block;margin:0 auto;">
-  <rect x="0" y="0" width="52" height="52" rx="2" fill="none" stroke="#1B3A6B" stroke-width="2.5"/>
-  <path d="M26 14 C18 14 12 19.5 12 26 C12 32.5 18 38 26 38 C30 38 33.5 36.5 36 34 L36 29 L27 29 L27 24 L42 24 L42 38 L37.5 38 L36.5 35 C33.5 37.5 30 39.5 26 39.5 C16.5 39.5 8.5 33.5 8.5 26 C8.5 18.5 16.5 12.5 26 12.5 C31 12.5 35.5 14.5 38.5 18 L34 21 C32 18.5 29.2 17 26 17Z" fill="#1B3A6B"/>
-  <path d="M35 14 C27 14 21 19.5 21 26 C21 32.5 27 38 35 38 C39 38 42.5 36.5 45 34 L45 29 L36 29 L36 24 L51 24 L51 38 L46.5 38 L45.5 35 C42.5 37.5 39 39.5 35 39.5 C25.5 39.5 17.5 33.5 17.5 26 C17.5 18.5 25.5 12.5 35 12.5 C40 12.5 44.5 14.5 47.5 18 L43 21 C41 18.5 38.2 17 35 17Z" fill="#1B3A6B"/>
-  <text x="64" y="38" font-family="'Arial Black','Franklin Gothic Heavy',Impact,sans-serif" font-size="26" font-weight="900" fill="#1B3A6B" letter-spacing="2">GERDAU</text>
+        <div class="login-logo" style="text-align:center;margin-bottom:20px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" height="44" style="display:block;margin:0 auto;">
+  <text x="0" y="30" font-family="'Arial Black','Franklin Gothic Heavy',Impact,sans-serif" font-size="30" font-weight="900" fill="#1B3A6B" letter-spacing="2">GERDAU</text>
 </svg></div>
         <div class="login-title">🔒 Acesso Restrito</div>
         <div class="input-group">
