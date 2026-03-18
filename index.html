@@ -224,7 +224,35 @@ tr:hover td{background:var(--surface2);}
 <div id="top-alert"></div>
 
 <div class="container">
-  <div class="tabs" style="margin-top:20px;">
+
+  <!-- APP LOGIN SCREEN -->
+  <div id="app-login-screen" style="max-width:400px;margin:40px auto;">
+    <div class="card" style="text-align:center;padding:32px 28px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:var(--gerdau-blue);letter-spacing:3px;margin-bottom:4px;">GERDAU</div>
+      <div style="width:40px;height:3px;background:var(--gerdau-yellow);margin:0 auto 20px;border-radius:2px;"></div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;">🔐 Acesso Operador</div>
+      <div class="input-group" style="text-align:left;">
+        <label>E-mail</label>
+        <input type="email" id="op-email" placeholder="SEU@EMAIL.COM" style="font-size:15px;letter-spacing:0;text-transform:none;">
+      </div>
+      <div class="input-group" style="text-align:left;margin-bottom:20px;">
+        <label>Senha</label>
+        <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;" onkeydown="if(event.key==='Enter')doAppLogin()">
+      </div>
+      <button class="btn btn-primary" onclick="doAppLogin()">Entrar</button>
+      <div id="app-login-err" style="color:var(--danger);font-size:13px;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
+    </div>
+  </div>
+
+  <!-- MAIN APP (shown after login) -->
+  <div id="app-main" style="display:none;">
+  <!-- Logged user bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 4px;margin-bottom:4px;">
+    <div style="font-size:13px;color:var(--text2);font-weight:500;">👤 <span id="op-nome-display"></span></div>
+    <button onclick="doAppLogout()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text2);cursor:pointer;font-family:'Barlow',sans-serif;font-weight:600;letter-spacing:1px;">SAIR</button>
+  </div>
+
+  <div class="tabs" style="margin-top:4px;">
     <div class="tab active" onclick="switchTab('origem')">📍 Origem</div>
     <div class="tab" onclick="switchTab('destino')">🏁 Destino</div>
   </div>
@@ -236,6 +264,14 @@ tr:hover td{background:var(--surface2);}
       <div class="input-group">
         <label>Placa do Veículo</label>
         <input type="text" id="placa-origem" placeholder="ABC-1234" maxlength="8">
+      </div>
+      <div class="input-group">
+        <label>Nome do Motorista</label>
+        <input type="text" id="motorista-origem" placeholder="NOME COMPLETO" style="text-transform:uppercase;letter-spacing:1px;font-size:16px;">
+      </div>
+      <div class="input-group" style="margin-bottom:0;">
+        <label>Observação (opcional)</label>
+        <input type="text" id="obs-origem" placeholder="EX: LACRE SUBSTITUÍDO" style="text-transform:uppercase;letter-spacing:0;font-size:14px;">
       </div>
     </div>
     <div class="card">
@@ -447,7 +483,7 @@ tr:hover td{background:var(--surface2);}
             <button class="btn btn-danger btn-sm" onclick="limparProcessosTeste()" style="width:auto;">🗑️ Limpar Testes</button>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Status</th><th>Mapa</th><th>Ações</th></tr></thead>
+            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Aberto por</th><th>Status</th><th>Mapa</th><th>Ações</th></tr></thead>
             <tbody id="processos-tbody"></tbody></table>
           </div>
         </div>
@@ -455,12 +491,13 @@ tr:hover td{background:var(--surface2);}
         <!-- HISTÓRICO -->
         <div class="admin-section" id="atab-historico">
           <div class="info-bar">Histórico de todos os processos encerrados.</div>
-          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
             <button class="btn btn-outline btn-sm" onclick="loadHistorico()">🔄 Atualizar</button>
             <button class="btn btn-success btn-sm" onclick="exportarCSV()" style="width:auto;">📥 Exportar CSV</button>
+            <input type="text" id="hist-filtro-op" placeholder="FILTRAR POR OPERADOR" oninput="filtrarHistorico()" style="font-size:13px;letter-spacing:0;text-transform:none;padding:7px 12px;height:auto;width:200px;">
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Placa</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Encerrado por</th><th>Justificativa</th><th>Mapa</th></tr></thead>
+            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Aberto por</th><th>Fechado por</th><th>Justificativa</th><th>Mapa</th></tr></thead>
             <tbody id="historico-tbody"></tbody></table>
           </div>
         </div>
@@ -480,15 +517,17 @@ tr:hover td{background:var(--surface2);}
 
         <!-- USUÁRIOS -->
         <div class="admin-section" id="atab-usuarios">
-          <div class="info-bar">Usuários operadores têm acesso apenas às abas Lacres, Placas e Processos.</div>
+          <div class="info-bar">Perfis: <strong>Operacional</strong> → só abre/fecha processos | <strong>Operador</strong> → Dashboard + Lacres, Placas, Processos e Histórico | <strong>Admin</strong> → acesso total</div>
           <div class="card" style="margin-bottom:14px;">
             <div class="card-title">Criar novo usuário</div>
+            <div class="input-group"><label>Nome completo</label><input type="text" id="novo-user-nome" placeholder="NOME DO OPERADOR" style="font-size:14px;letter-spacing:0;text-transform:none;"></div>
             <div class="input-group"><label>E-mail</label><input type="email" id="novo-user-email" placeholder="OPERADOR@EMAIL.COM" style="font-size:14px;letter-spacing:0;text-transform:none;"></div>
             <div class="input-group"><label>Senha</label><input type="password" id="novo-user-senha" placeholder="Mínimo 6 caracteres" style="font-size:14px;letter-spacing:1px;"></div>
             <div class="input-group" style="margin-bottom:0;">
               <label>Perfil</label>
               <select id="novo-user-perfil" style="text-transform:none;letter-spacing:0;font-size:15px;">
-                <option value="operador">Operador (Lacres, Placas, Processos)</option>
+                <option value="operacional">Operacional (somente abertura/fechamento de processos)</option>
+                <option value="operador">Operador (Dashboard + Lacres, Placas, Processos, Histórico)</option>
                 <option value="admin">Administrador (Acesso total)</option>
               </select>
             </div>
@@ -622,9 +661,55 @@ initEmailJS();
 // ESTADO
 // ============================================================
 const state = {
-  origem: { stream:null, photoBase64:null, lacreNumero:null, lacreIntegro:null, timestamp:null, loc:null },
-  destino:{ stream:null, photoBase64:null, lacreNumero:null, lacreIntegro:null, timestamp:null, loc:null }
+  origem: { stream:null, photoBase64:null, lacreNumero:null, lacreIntegro:null, timestamp:null, loc:null, locCoords:null },
+  destino:{ stream:null, photoBase64:null, lacreNumero:null, lacreIntegro:null, timestamp:null, loc:null, locCoords:null }
 };
+
+let currentOperador = null;
+
+async function doAppLogin() {
+  if (!auth) { alert('Firebase não configurado.'); return; }
+  const email = document.getElementById('op-email').value.trim();
+  const pass = document.getElementById('op-pass').value;
+  const errEl = document.getElementById('app-login-err');
+  errEl.style.display = 'none';
+  try {
+    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+    const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
+    const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
+    currentOperador = { email, nome: userDoc.exists ? (userDoc.data().nome || email) : email, uid: cred.user.uid, perfil };
+    document.getElementById('op-nome-display').textContent = currentOperador.nome;
+    document.getElementById('app-login-screen').style.display = 'none';
+    document.getElementById('app-main').style.display = 'block';
+    // Hide admin button for operacional users
+    if (perfil === 'operacional') {
+      document.querySelector('.admin-btn').style.display = 'none';
+    } else {
+      document.querySelector('.admin-btn').style.display = '';
+    }
+    setTimeout(()=>startCamera('origem'), 300);
+  } catch(e) {
+    errEl.style.display = 'block';
+  }
+}
+
+function doAppLogout() {
+  if (!confirm('Deseja sair?')) return;
+  if (auth) auth.signOut();
+  currentOperador = null;
+  document.getElementById('app-login-screen').style.display = 'block';
+  document.getElementById('app-main').style.display = 'none';
+  document.getElementById('op-email').value = '';
+  document.getElementById('op-pass').value = '';
+  document.querySelector('.admin-btn').style.display = '';
+  // Stop cameras
+  ['origem','destino'].forEach(lado => {
+    if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
+    state[lado].stream = null;
+    state[lado].photoBase64 = null;
+  });
+}
 
 function showTopAlert(msg, type) {
   const el = document.getElementById('top-alert');
@@ -680,11 +765,11 @@ function getLocation(lado) {
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
       const coords = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      state[lado].locCoords = coords;
       state[lado].loc = coords;
       document.getElementById(`loc-${lado}`).textContent = '📍 Obtendo endereço...';
       const readable = await reverseGeocode(lat, lng);
       state[lado].loc = readable;
-      state[lado].locCoords = coords;
       document.getElementById(`loc-${lado}`).textContent = '📍 ' + readable;
     },
     () => {
@@ -708,8 +793,17 @@ function switchTab(tab) {
   setTimeout(()=>{ if(!state[tab].stream && !state[tab].photoBase64) startCamera(tab); }, 200);
 }
 
-// Auto-start camera on page load
-window.addEventListener('load', ()=>{ setTimeout(()=>startCamera('origem'), 500); });
+// Auto-start camera only after app login
+window.addEventListener('load', ()=>{
+  // Check if already logged in (session persistence)
+  if (auth) {
+    auth.onAuthStateChanged(user => {
+      if (user && document.getElementById('app-main').style.display !== 'none') {
+        setTimeout(()=>startCamera('origem'), 500);
+      }
+    });
+  }
+});
 
 // ============================================================
 // CÂMERA
@@ -918,8 +1012,12 @@ function mostrarResultadoOrigem(result) {
 // REGISTRAR ORIGEM
 // ============================================================
 async function registrarOrigem() {
+  if (!currentOperador) { alert('Faça login antes de registrar.'); return; }
   const placa = document.getElementById('placa-origem').value.trim().toUpperCase();
+  const motorista = document.getElementById('motorista-origem').value.trim().toUpperCase();
+  const obsAbertura = document.getElementById('obs-origem').value.trim().toUpperCase();
   if (!placa) { alert('Informe a placa antes de registrar.'); return; }
+  if (!motorista) { alert('Informe o nome do motorista antes de registrar.'); return; }
 
   // Validar formato: antigo (ABC-1234 ou ABC1234) ou Mercosul (ABC1D23)
   const reAntiga = /^[A-Z]{3}-?\d{4}$/;
@@ -961,10 +1059,15 @@ async function registrarOrigem() {
     const processId = Date.now().toString();
     const dados = {
       processId, placa,
+      motorista,
+      observacaoAbertura: obsAbertura || '',
       lacreNumero: state.origem.lacreNumero,
       lacreIntegro: state.origem.lacreIntegro,
       timestamp: state.origem.timestamp.toISOString(),
       locOrigem: state.origem.loc || 'Não obtida',
+      locOrigemCoords: state.origem.locCoords || '',
+      abertoPor: currentOperador.email,
+      abertoPorNome: currentOperador.nome,
       status: 'aberto',
       registradoEm: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -1017,6 +1120,7 @@ async function registrarOrigem() {
 // ============================================================
 async function verificarDestino(resultDestino) {
   const placaDest = document.getElementById('placa-destino').value.trim().toUpperCase();
+  if (!currentOperador) { alert('Faça login antes de registrar.'); return; }
   if (!placaDest) { alert('Informe a placa.'); return; }
 
   const reAntiga = /^[A-Z]{3}-?\d{4}$/;
@@ -1083,9 +1187,12 @@ async function verificarDestino(resultDestino) {
         lacreDestino: resultDestino.numero,
         integroDestino: resultDestino.integro,
         locDestino: state.destino.loc||'N/A',
+        locDestinoCoords: state.destino.locCoords||'',
         tsDestino: state.destino.timestamp.toISOString(),
         resultado: 'ok',
-        encerradoEm: firebase.firestore.FieldValue.serverTimestamp()
+        encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        fechadoPor: currentOperador?.email||'',
+        fechadoPorNome: currentOperador?.nome||''
       });
       await db.collection('lacresValidos').doc(proc.lacreNumero).update({
         emUso: false, inutilizado: true, placa: null, processId: null,
@@ -1098,8 +1205,11 @@ async function verificarDestino(resultDestino) {
         lacreDestino: resultDestino.numero,
         integroDestino: resultDestino.integro,
         locDestino: state.destino.loc||'N/A',
+        locDestinoCoords: state.destino.locCoords||'',
         tsDestino: state.destino.timestamp.toISOString(),
-        resultado: 'desvio'
+        resultado: 'desvio',
+        fechadoPor: currentOperador?.email||'',
+        fechadoPorNome: currentOperador?.nome||''
       });
     }
 
@@ -1118,7 +1228,10 @@ async function verificarDestino(resultDestino) {
              <p style="margin:0 0 16px;font-size:14px;color:#333;">A chegada do veículo <strong style="color:#1B3A6B;">${placaDest}</strong> foi verificada com sucesso.</p>
              <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
                <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre origem</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${proc.lacreNumero}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.motorista||'—'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.abertoPorNome||proc.abertoPor||'—'}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Fechado por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${currentOperador?.nome||'—'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre origem</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${proc.lacreNumero}</td></tr>
                <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre destino</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${resultDestino.numero}</td></tr>
                <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🛡️ Integridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1A8C4E;border-top:1px solid #DDE3EE;">Íntegro${obsDestino}</td></tr>
                <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.locOrigem}</td></tr>
@@ -1238,12 +1351,19 @@ async function doLogin() {
 }
 
 function applyRolePermissions() {
+  const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
+  // Show all first
+  document.querySelectorAll('.admin-tab').forEach(t=>t.style.display='');
+
   if (currentUserRole === 'operador') {
+    // Operador: sees Dashboard + Lacres, Placas, Processos, Histórico
+    const hidden = ['emails','usuarios','config'];
     document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-      const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
-      const hidden = ['emails','usuarios','config'];
       if (hidden.includes(tabs[i])) t.style.display = 'none';
     });
+  } else if (currentUserRole === 'operacional') {
+    // Operacional: only opens/closes processes — hide entire admin panel button
+    document.getElementById('admin-overlay') && (document.querySelector('.admin-btn') && (document.querySelector('.admin-btn').style.display = 'none'));
   }
   // Session timeout: auto logout after 2 hours
   const SESSION_TIMEOUT = 2 * 60 * 60 * 1000;
@@ -1271,15 +1391,16 @@ function resetSessionTimer() {
 
 async function criarUsuario() {
   if (!auth || !db) { alert('Firebase não configurado.'); return; }
+  const nome = document.getElementById('novo-user-nome').value.trim();
   const email = document.getElementById('novo-user-email').value.trim();
   const senha = document.getElementById('novo-user-senha').value;
   const perfil = document.getElementById('novo-user-perfil').value;
-  if (!email || !senha) { alert('Preencha e-mail e senha.'); return; }
+  if (!nome || !email || !senha) { alert('Preencha nome, e-mail e senha.'); return; }
   if (senha.length < 6) { alert('Senha deve ter no mínimo 6 caracteres.'); return; }
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, senha);
     await db.collection('usuarios').doc(cred.user.uid).set({
-      email, perfil, criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      nome, email, perfil, criadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
     document.getElementById('novo-user-email').value = '';
     document.getElementById('novo-user-senha').value = '';
@@ -1299,7 +1420,9 @@ async function loadUsuarios() {
       const d = doc.data();
       const badge = d.perfil === 'admin'
         ? '<span class="badge badge-warn">Admin</span>'
-        : '<span class="badge badge-ok">Operador</span>';
+        : d.perfil === 'operador'
+        ? '<span class="badge badge-blue">Operador</span>'
+        : '<span class="badge badge-ok">Operacional</span>';
       return `<tr>
         <td style="font-size:12px">${d.email}</td>
         <td>${badge}</td>
@@ -1486,11 +1609,11 @@ async function loadProcessos() {
       const ms = agora - new Date(d.timestamp).getTime();
       const h = Math.floor(ms/3600000);
       const expirado = h >= horas;
-      const locOrig = d.locOrigem||'';
-      const locDest = d.locDestino||'';
-      const hasLoc = locOrig && locOrig.includes(',') && !locOrig.includes('N/A') && !locOrig.includes('aprox') && !locOrig.includes('Não');
+      const locOrig = d.locOrigemCoords || d.locOrigem||'';
+      const locDest = d.locDestinoCoords || d.locDestino||'';
+      const hasLoc = locOrig && locOrig.includes(',') && locOrig.match(/-?\d+\.\d+/);
       const mapBtn = hasLoc
-        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locOrig}','${locDest}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--accent);color:var(--accent);">📍 Ver</button>`
+        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locOrig}','${locDest}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
         : `<span style="font-size:11px;color:var(--text2)">—</span>`;
       const statusBadge = d.status === 'aberto'
         ? `<span class="badge badge-ok">Aberto</span>`
@@ -1502,10 +1625,11 @@ async function loadProcessos() {
         : '';
       return `<tr>
         <td><strong>${d.placa}</strong><br><small style="font-size:10px">${statusBadge}</small></td>
-        <td style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.lacreNumero}</td>
+        <td style="font-size:12px;color:var(--text)">${d.motorista||'—'}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px">${d.lacreNumero}</td>
         <td style="font-size:11px;color:var(--text2)">${new Date(d.timestamp).toLocaleString('pt-BR')}</td>
         <td>${expirado ? `<span class="badge badge-err">${h}h</span>` : `<span class="badge badge-ok">${h}h</span>`}</td>
-        <td style="font-size:11px;color:var(--text2)">${locOrig||'—'}</td>
+        <td style="font-size:11px;color:var(--text2)">${d.abertoPorNome||d.abertoPor||'—'}</td>
         <td>${mapBtn}</td>
         <td>${confirmBtn}<button class="btn btn-danger btn-sm" onclick="encerrarProcesso('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;">Encerrar</button></td>
       </tr>`;
@@ -1564,6 +1688,18 @@ function closeMapModal() {
   document.getElementById('map-iframe').src = '';
 }
 
+let _historicoCache = [];
+
+function filtrarHistorico() {
+  const q = document.getElementById('hist-filtro-op')?.value.trim().toLowerCase() || '';
+  const filtrado = q ? _historicoCache.filter(d =>
+    (d.abertoPorNome||d.abertoPor||'').toLowerCase().includes(q) ||
+    (d.fechadoPorNome||d.fechadoPor||'').toLowerCase().includes(q) ||
+    (d.motorista||'').toLowerCase().includes(q)
+  ) : _historicoCache;
+  renderHistorico(filtrado);
+}
+
 async function loadHistorico() {
   if (!db) return;
   try {
@@ -1577,11 +1713,47 @@ async function loadHistorico() {
         const tb = a.data().encerradoEm?.seconds || a.data().registradoEm?.seconds || 0;
         return ta - tb;
       })
-      .slice(0,100);
-    const snap = { docs: allEncDocs, empty: allEncDocs.length === 0 };
+      .slice(0,200);
+    _historicoCache = allEncDocs.map(d=>d.data());
+    renderHistorico(_historicoCache);
+  } catch(e) { console.warn(e.message); }
+}
+
+function renderHistorico(lista) {
     const tbody = document.getElementById('historico-tbody');
-    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text2);text-align:center;padding:20px;">Nenhum processo encerrado</td></tr>'; return; }
-    tbody.innerHTML = snap.docs.map(doc => {
+    if (!lista.length) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text2);text-align:center;padding:20px;">Nenhum processo encontrado</td></tr>'; return; }
+    tbody.innerHTML = lista.map(d => {
+      const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
+      const tsDestino = d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '—';
+      const res = d.resultado === 'ok'
+        ? '<span class="badge badge-ok">OK</span>'
+        : d.status === 'encerrado_manual'
+        ? '<span class="badge badge-warn">Manual</span>'
+        : '<span class="badge badge-err">Desvio</span>';
+      const locO = d.locOrigemCoords || d.locOrigem||'';
+      const locD = d.locDestinoCoords || d.locDestino||'';
+      const hasLoc = locO && locO.match(/-?\d+\.\d+/);
+      const mapBtn = hasLoc
+        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
+        : '<span style="font-size:11px;color:var(--text2)">—</span>';
+      const abertoPor = d.abertoPorNome||d.abertoPor||'—';
+      const fechadoPor = d.fechadoPorNome||d.fechadoPor||d.encerradoPor||'Auto';
+      const justif = d.justificativa ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>` : '<span style="font-size:11px;color:var(--text2)">—</span>';
+      return `<tr>
+        <td><strong>${d.placa}</strong></td>
+        <td style="font-size:12px">${d.motorista||'—'}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
+        <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
+        <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
+        <td>${res}</td>
+        <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
+        <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
+        <td>${justif}</td>
+        <td>${mapBtn}</td>
+      </tr>`;
+    }).join('');
+  // dummy try/catch close - actual catch below
+  if (false) {
       const d = doc.data();
       const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
       const tsDestino = d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '—';
@@ -1590,26 +1762,29 @@ async function loadHistorico() {
         : d.status === 'encerrado_manual'
         ? '<span class="badge badge-warn">Manual</span>'
         : '<span class="badge badge-err">Desvio</span>';
-      const locO = d.locOrigem||'';
-      const locD = d.locDestino||'';
-      const hasLoc = locO.includes(',');
+      const locO = d.locOrigemCoords || d.locOrigem||'';
+      const locD = d.locDestinoCoords || d.locDestino||'';
+      const hasLoc = locO && locO.match(/-?\d+\.\d+/);
       const mapBtn = hasLoc
-        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--accent);color:var(--accent);">📍 Ver</button>`
+        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
         : '<span style="font-size:11px;color:var(--text2)">—</span>';
-      const encPor = d.encerradoPor ? `<span style="font-size:11px;color:var(--text2)">${d.encerradoPor}</span>` : '<span style="font-size:11px;color:var(--text2)">Auto</span>';
+      const abertoPor = d.abertoPorNome||d.abertoPor||'—';
+      const fechadoPor = d.fechadoPorNome||d.fechadoPor||d.encerradoPor||'Auto';
       const justif = d.justificativa ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>` : '<span style="font-size:11px;color:var(--text2)">—</span>';
       return `<tr>
         <td><strong>${d.placa}</strong></td>
-        <td style="font-family:'Rajdhani',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
+        <td style="font-size:12px">${d.motorista||'—'}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
         <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
         <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
         <td>${res}</td>
-        <td>${encPor}</td>
+        <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
+        <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
         <td>${justif}</td>
         <td>${mapBtn}</td>
       </tr>`;
     }).join('');
-  } catch(e) { console.warn(e.message); }
+  }
 }
 
 async function confirmarEncerramento(id, lacreNum) {
