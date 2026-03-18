@@ -695,7 +695,7 @@ async function doAppLogin() {
   const errEl = document.getElementById('app-login-err');
   errEl.style.display = 'none';
   try {
-    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const cred = await auth.signInWithEmailAndPassword(email, pass);
     const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
@@ -880,16 +880,27 @@ function switchTab(tab) {
   setTimeout(()=>{ if(!state[tab].stream && !state[tab].photoBase64) startCamera(tab); }, 200);
 }
 
-// Auto-start camera only after app login
+// Auto-restore session on page load
 window.addEventListener('load', ()=>{
-  // Check if already logged in (session persistence)
-  if (auth) {
-    auth.onAuthStateChanged(user => {
-      if (user && document.getElementById('app-main').style.display !== 'none') {
-        setTimeout(()=>startCamera('origem'), 500);
-      }
-    });
-  }
+  if (!auth) return;
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      try {
+        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
+        const nome = userDoc.exists ? (userDoc.data().nome || user.email) : user.email;
+        currentOperador = { email: user.email, nome, uid: user.uid, perfil };
+        document.getElementById('op-nome-display').textContent = nome;
+        document.getElementById('app-login-screen').style.display = 'none';
+        document.getElementById('app-main').style.display = 'block';
+        const adminBtn = document.querySelector('.admin-btn');
+        if (adminBtn) adminBtn.style.display = (perfil === 'operacional') ? 'none' : '';
+        // Load Gemini key from Firebase
+        await loadGeminiKey();
+        setTimeout(()=>startCamera('origem'), 400);
+      } catch(e) { console.warn('Session restore error:', e.message); }
+    }
+  });
 });
 
 // ============================================================
@@ -982,19 +993,41 @@ function takePhoto(lado) {
 }
 
 function retakePhoto(lado) {
-  document.getElementById(`preview-${lado}`).classList.remove('active');
-  document.getElementById(`preview-${lado}`).src = '';
-  state[lado].photoBase64 = null; state[lado].lacreNumero = null;
-  document.getElementById(`btn-foto-${lado}`).style.display = 'block';
-  document.getElementById(`btn-foto-${lado}`).disabled = false;
+  // Stop existing stream first
+  if (state[lado].stream) {
+    state[lado].stream.getTracks().forEach(t=>t.stop());
+    state[lado].stream = null;
+  }
+  // Reset video element
+  const video = document.getElementById(`video-${lado}`);
+  video.srcObject = null;
+  video.classList.remove('active');
+  // Reset preview
+  const preview = document.getElementById(`preview-${lado}`);
+  preview.classList.remove('active');
+  preview.src = '';
+  // Reset state
+  state[lado].photoBase64 = null;
+  state[lado].lacreNumero = null;
+  state[lado].locCoords = null;
+  qrDetecting[lado] = false;
+  // Reset UI
+  document.getElementById(`btn-foto-${lado}`).style.display = 'none';
+  document.getElementById(`btn-foto-${lado}`).disabled = true;
   document.getElementById(`btn-refoto-${lado}`).style.display = 'none';
   document.getElementById(`ts-${lado}`).textContent = '';
   document.getElementById(`loc-${lado}`).textContent = '';
   document.getElementById(`result-${lado}`).className = 'status-box';
   document.getElementById(`manual-entry-${lado}`)?.remove();
   hideTopAlert();
-  if (lado==='origem') { document.getElementById('btn-registrar').style.display='none'; document.getElementById('lacre-lido-origem').textContent=''; }
-  startCamera(lado);
+  // Show placeholder
+  document.getElementById(`placeholder-${lado}`).style.display = 'flex';
+  if (lado==='origem') {
+    document.getElementById('btn-registrar').style.display='none';
+    document.getElementById('lacre-lido-origem').textContent='';
+  }
+  // Restart camera
+  setTimeout(()=>startCamera(lado), 300);
 }
 
 // ============================================================
@@ -1002,6 +1035,8 @@ function retakePhoto(lado) {
 // ============================================================
 async function analisarLacre(lado) {
   document.getElementById(`loading-${lado}`).classList.add('show');
+  // Always refresh Gemini key from Firebase before analysis
+  await loadGeminiKey();
   const prompt = `Você é um sistema de verificação de lacres de segurança para transporte de cargas.
 
 Analise esta imagem e retorne SOMENTE um JSON válido, sem markdown, sem explicações:
