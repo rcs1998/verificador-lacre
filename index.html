@@ -316,16 +316,17 @@ tr:hover td{background:var(--surface2);}
 
     <!-- Admin Header -->
     <div class="admin-header">
-      <h1><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" height="28" style="display:inline-block;vertical-align:middle;margin-right:10px;"><rect x="0" y="0" width="52" height="52" rx="2" fill="none" stroke="white" stroke-width="2.5"/><path d="M26 14 C18 14 12 19.5 12 26 C12 32.5 18 38 26 38 C30 38 33.5 36.5 36 34 L36 29 L27 29 L27 24 L42 24 L42 38 L37.5 38 L36.5 35 C33.5 37.5 30 39.5 26 39.5 C16.5 39.5 8.5 33.5 8.5 26 C8.5 18.5 16.5 12.5 26 12.5 C31 12.5 35.5 14.5 38.5 18 L34 21 C32 18.5 29.2 17 26 17Z" fill="white"/><path d="M35 14 C27 14 21 19.5 21 26 C21 32.5 27 38 35 38 C39 38 42.5 36.5 45 34 L45 29 L36 29 L36 24 L51 24 L51 38 L46.5 38 L45.5 35 C42.5 37.5 39 39.5 35 39.5 C25.5 39.5 17.5 33.5 17.5 26 C17.5 18.5 25.5 12.5 35 12.5 C40 12.5 44.5 14.5 47.5 18 L43 21 C41 18.5 38.2 17 35 17Z" fill="white"/></svg> GERDAU — VERIFICA LACRE</h1>
+      <h1>GERDAU — VERIFICA LACRE</h1>
       <button class="admin-btn" onclick="closeAdmin()">✕ Fechar</button>
     </div>
 
     <!-- Login -->
     <div id="admin-login" style="padding:20px;">
       <div class="login-box">
-        <div class="login-logo" style="text-align:center;margin-bottom:20px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" height="44" style="display:block;margin:0 auto;">
-  <text x="0" y="30" font-family="'Arial Black','Franklin Gothic Heavy',Impact,sans-serif" font-size="30" font-weight="900" fill="#1B3A6B" letter-spacing="2">GERDAU</text>
-</svg></div>
+        <div class="login-logo" style="text-align:center;margin-bottom:24px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;color:var(--gerdau-blue);letter-spacing:4px;">GERDAU</div>
+      <div style="width:40px;height:3px;background:var(--gerdau-yellow);margin:6px auto 0;border-radius:2px;"></div>
+    </div>
         <div class="login-title">🔒 Acesso Restrito</div>
         <div class="input-group">
           <label>E-mail</label>
@@ -344,11 +345,25 @@ tr:hover td{background:var(--surface2);}
     <div id="admin-body" style="display:none;">
 
       <!-- Dashboard -->
+      <!-- Month filter -->
+      <div style="padding:16px 20px 0;max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;">
+        <label style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:1px;text-transform:uppercase;">Período:</label>
+        <select id="dash-mes" onchange="loadDashboard()" style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;padding:7px 12px;outline:none;cursor:pointer;">
+          <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+          <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+          <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+          <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+        </select>
+        <select id="dash-ano" onchange="loadDashboard()" style="background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;padding:7px 12px;outline:none;cursor:pointer;">
+          <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+        </select>
+      </div>
       <div class="dashboard-grid" id="dashboard-cards">
         <div class="dash-card blue"><div class="dash-icon">🔓</div><div class="dash-num" id="dash-abertos">—</div><div class="dash-label">Processos Abertos</div></div>
         <div class="dash-card yellow"><div class="dash-icon">⏳</div><div class="dash-num" id="dash-pendentes">—</div><div class="dash-label">Aguardando Confirmação</div></div>
-        <div class="dash-card green"><div class="dash-icon">✅</div><div class="dash-num" id="dash-encerrados">—</div><div class="dash-label">Encerrados no Mês</div></div>
-        <div class="dash-card red"><div class="dash-icon">🚨</div><div class="dash-num" id="dash-desvios">—</div><div class="dash-label">Desvios no Mês</div></div>
+        <div class="dash-card green"><div class="dash-icon">✅</div><div class="dash-num" id="dash-encerrados">—</div><div class="dash-label">Encerrados no Período</div></div>
+        <div class="dash-card red"><div class="dash-icon">🚨</div><div class="dash-num" id="dash-desvios">—</div><div class="dash-label">Desvios no Período</div></div>
+        <div class="dash-card" style="border-top:3px solid var(--gerdau-blue);grid-column:span 2;"><div class="dash-icon">📊</div><div class="dash-num" id="dash-pct" style="color:var(--gerdau-blue);">—</div><div class="dash-label">% de Desvios no Período</div></div>
       </div>
 
       <!-- Tabs -->
@@ -952,11 +967,21 @@ async function registrarOrigem() {
     const emails = await getEmails();
     const msg = `✅ Saída registrada — Placa: ${placa} | Lacre: ${state.origem.lacreNumero} | ${state.origem.timestamp.toLocaleString('pt-BR')} | Local: ${state.origem.loc||'N/A'}`;
     await enviarEmailTodos(emails, `📍 Saída Registrada — ${placa}`, msg,
-      `Olá! A saída do veículo de placa <strong>${placa}</strong> foi registrada com sucesso.<br><br>
-      🔐 Lacre: <strong>${state.origem.lacreNumero}</strong><br>
-      📅 Data/Hora: <strong>${state.origem.timestamp.toLocaleString('pt-BR')}</strong><br>
-      📍 Localização: <strong>${state.origem.loc||'Não obtida'}</strong><br><br>
-      <em>🚛 Boa viagem! O processo será encerrado quando a foto do lacre for registrada no destino.</em>`
+      `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+         <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+           <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+           <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🚛 SAÍDA REGISTRADA</div>
+         </td></tr>
+         <tr><td style="background:#fff;padding:24px;">
+           <p style="margin:0 0 16px;font-size:14px;color:#333;">A saída do veículo <strong style="color:#1B3A6B;">${placa}</strong> foi registrada com sucesso.</p>
+           <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🔐 Lacre</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${state.origem.lacreNumero}</td></tr>
+             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Data/Hora</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${state.origem.timestamp.toLocaleString('pt-BR')}</td></tr>
+             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Localização</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.origem.loc||'Não obtida'}</td></tr>
+           </table>
+           <div style="background:#E8F7EE;border-left:4px solid #1A8C4E;padding:14px 16px;border-radius:0 6px 6px 0;font-size:14px;color:#1A8C4E;font-weight:700;text-align:center;">🚛 Boa viagem!<br><span style="font-size:12px;font-weight:400;color:#5A6A85;">O processo será encerrado quando a foto do lacre for registrada no destino.</span></div>
+         </td></tr>
+       </table>`
     );
 
     btn.textContent = '✅ Saída registrada!';
@@ -1075,27 +1100,47 @@ async function verificarDestino(resultDestino) {
     const obsDestino = resultDestino.observacao ? `<br>🔍 Observação do lacre no destino: <strong>${resultDestino.observacao}</strong>` : '';
     const obsOrigem = proc.lacreIntegro === false ? `<br>⚠️ Observação do lacre na origem: <strong>Lacre estava comprometido na saída</strong>` : '';
     const corpo = ok
-      ? `A chegada do veículo <strong>${placaDest}</strong> foi verificada com sucesso.<br><br>
-         🚛 Placa: <strong>${placaDest}</strong><br>
-         🔐 Lacre origem: <strong>${proc.lacreNumero}</strong><br>
-         🔐 Lacre destino: <strong>${resultDestino.numero}</strong><br>
-         ✅ Integridade: <strong>Íntegro</strong>${obsDestino}${obsOrigem}<br>
-         📍 Origem: <strong>${proc.locOrigem}</strong><br>
-         📍 Destino: <strong>${state.destino.loc||'N/A'}</strong><br>
-         📅 Saída: <strong>${tsOrigem}</strong><br>
-         📅 Chegada: <strong>${tsDest}</strong><br><br>
-         <span style="color:green">✅ Processo encerrado automaticamente.</span>`
-      : `<strong style="color:red">⚠️ ATENÇÃO — Desvio detectado!</strong><br><br>
-         🚛 Placa: <strong>${placaDest}</strong><br>
-         🔐 Lacre esperado: <strong>${proc.lacreNumero}</strong><br>
-         🔐 Lacre encontrado: <strong>${resultDestino.numero}</strong><br>
-         ${desvios.map(d=>`⚠️ ${d.replace(/<[^>]+>/g,'')}`).join('<br>')}<br>
-         ${obsDestino}${obsOrigem}<br>
-         📍 Origem: <strong>${proc.locOrigem}</strong><br>
-         📍 Destino: <strong>${state.destino.loc||'N/A'}</strong><br>
-         📅 Saída: <strong>${tsOrigem}</strong><br>
-         📅 Chegada: <strong>${tsDest}</strong><br><br>
-         <span style="color:orange">⏳ Processo aguarda confirmação manual no painel admin.</span>`;
+      ? `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+           <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+             <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+             <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">✅ LACRE APROVADO</div>
+           </td></tr>
+           <tr><td style="background:#fff;padding:24px;">
+             <p style="margin:0 0 16px;font-size:14px;color:#333;">A chegada do veículo <strong style="color:#1B3A6B;">${placaDest}</strong> foi verificada com sucesso.</p>
+             <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre origem</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${proc.lacreNumero}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre destino</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${resultDestino.numero}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🛡️ Integridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1A8C4E;border-top:1px solid #DDE3EE;">Íntegro${obsDestino}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.locOrigem}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Destino</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${state.destino.loc||'N/A'}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;">${tsOrigem}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Chegada</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${tsDest}</td></tr>
+             </table>
+             <div style="background:#E8F7EE;border-left:4px solid #1A8C4E;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#1A8C4E;font-weight:700;">✅ Processo encerrado automaticamente.</div>
+           </td></tr>
+         </table>`
+      : `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+           <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+             <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+             <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🚨 DESVIO DETECTADO</div>
+           </td></tr>
+           <tr><td style="background:#fff;padding:24px;">
+             <div style="background:#FDECEA;border-left:4px solid #C0392B;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;">
+               ${desvios.map(d=>`<div style="font-size:13px;color:#C0392B;font-weight:700;margin-bottom:4px;">⚠️ ${d.replace(/<[^>]+>/g,'')}</div>`).join('')}
+             </div>
+             <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre esperado</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${proc.lacreNumero}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre encontrado</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#C0392B;">${resultDestino.numero}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.locOrigem}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Destino</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.destino.loc||'N/A'}</td></tr>
+               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${tsOrigem}</td></tr>
+               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Chegada</td><td style="padding:10px 14px;font-size:13px;color:#333;">${tsDest}</td></tr>
+             </table>
+             <div style="background:#FEF3E2;border-left:4px solid #B7770D;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#B7770D;font-weight:700;">⏳ Processo aguarda confirmação manual no painel admin.</div>
+           </td></tr>
+         </table>`;
     await enviarEmailTodos(emails, assunto, assunto, corpo);
 
   } catch(err) {
@@ -1514,15 +1559,19 @@ async function loadHistorico() {
   if (!db) return;
   try {
     const [snapEnc, snapManual] = await Promise.all([
-      db.collection('processos').where('status','==','encerrado').orderBy('encerradoEm','desc').limit(25).get(),
-      db.collection('processos').where('status','==','encerrado_manual').orderBy('encerradoEm','desc').limit(25).get()
+      db.collection('processos').where('status','==','encerrado').get(),
+      db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
     const allEncDocs = [...snapEnc.docs,...snapManual.docs]
-      .sort((a,b)=>(b.data().encerradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||0))
-      .slice(0,50);
+      .sort((a,b)=>{
+        const ta = b.data().encerradoEm?.seconds || b.data().registradoEm?.seconds || 0;
+        const tb = a.data().encerradoEm?.seconds || a.data().registradoEm?.seconds || 0;
+        return ta - tb;
+      })
+      .slice(0,100);
     const snap = { docs: allEncDocs, empty: allEncDocs.length === 0 };
     const tbody = document.getElementById('historico-tbody');
-    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text2);text-align:center;">Nenhum processo encerrado</td></tr>'; return; }
+    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text2);text-align:center;padding:20px;">Nenhum processo encerrado</td></tr>'; return; }
     tbody.innerHTML = snap.docs.map(doc => {
       const d = doc.data();
       const tsOrigem = d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '—';
@@ -1701,11 +1750,11 @@ async function limparProcessosTeste() {
 async function exportarCSV() {
   try {
     const [snapEnc, snapManual] = await Promise.all([
-      db.collection('processos').where('status','==','encerrado').orderBy('encerradoEm','desc').get(),
-      db.collection('processos').where('status','==','encerrado_manual').orderBy('encerradoEm','desc').get()
+      db.collection('processos').where('status','==','encerrado').get(),
+      db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
     const docs = [...snapEnc.docs,...snapManual.docs]
-      .sort((a,b)=>(b.data().encerradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||0));
+      .sort((a,b)=>(b.data().encerradoEm?.seconds||b.data().registradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||a.data().registradoEm?.seconds||0));
 
     const header = ['Placa','Lacre Origem','Lacre Destino','Data Saída','Data Chegada','Resultado','Local Origem','Local Destino','Encerrado Por','Justificativa'];
     const rows = docs.map(doc => {
@@ -1911,7 +1960,19 @@ loadGeminiKey();
 async function loadDashboard() {
   if (!db) return;
   try {
-    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const mesEl = document.getElementById('dash-mes');
+    const anoEl = document.getElementById('dash-ano');
+    // Set default to current month/year
+    if (mesEl && !mesEl.dataset.init) {
+      mesEl.value = new Date().getMonth();
+      anoEl.value = new Date().getFullYear();
+      mesEl.dataset.init = '1';
+    }
+    const mes = parseInt(mesEl?.value ?? new Date().getMonth());
+    const ano = parseInt(anoEl?.value ?? new Date().getFullYear());
+    const inicioPeriodo = new Date(ano, mes, 1).toISOString();
+    const fimPeriodo = new Date(ano, mes + 1, 0, 23, 59, 59).toISOString();
+
     const [s1,s2,s3,sEnc,sEncManual] = await Promise.all([
       db.collection('processos').where('status','==','aberto').get(),
       db.collection('processos').where('status','==','aguardando_confirmacao').get(),
@@ -1920,12 +1981,23 @@ async function loadDashboard() {
       db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
     const todosEnc = [...sEnc.docs,...sEncManual.docs];
-    const encMes = todosEnc.filter(d=>(d.data().timestamp||'')>=inicioMes).length;
-    const desviosMes = todosEnc.filter(d=>d.data().resultado==='desvio'&&(d.data().timestamp||'')>=inicioMes).length;
+    const encPeriodo = todosEnc.filter(d=>{
+      const ts = d.data().timestamp||'';
+      return ts >= inicioPeriodo && ts <= fimPeriodo;
+    });
+    const desviosPeriodo = encPeriodo.filter(d=>d.data().resultado==='desvio').length;
+    const pct = encPeriodo.length > 0 ? ((desviosPeriodo/encPeriodo.length)*100).toFixed(1) : '0.0';
+
     document.getElementById('dash-abertos').textContent = s1.size;
     document.getElementById('dash-pendentes').textContent = s2.size + s3.size;
-    document.getElementById('dash-encerrados').textContent = encMes;
-    document.getElementById('dash-desvios').textContent = desviosMes;
+    document.getElementById('dash-encerrados').textContent = encPeriodo.length;
+    document.getElementById('dash-desvios').textContent = desviosPeriodo;
+    document.getElementById('dash-pct').textContent = pct + '%';
+    // Color % based on value
+    const pctEl = document.getElementById('dash-pct');
+    if (parseFloat(pct) === 0) pctEl.style.color = 'var(--success)';
+    else if (parseFloat(pct) < 10) pctEl.style.color = 'var(--warning)';
+    else pctEl.style.color = 'var(--danger)';
   } catch(e) { console.warn('Dashboard error:', e.message); }
 }
 
