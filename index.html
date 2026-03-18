@@ -219,6 +219,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div id="admin-body" style="display:none;">
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="adminTab('lacres')">Lacres</button>
+        <button class="admin-tab" onclick="adminTab('placas')">Placas</button>
         <button class="admin-tab" onclick="adminTab('processos')">Processos</button>
         <button class="admin-tab" onclick="adminTab('emails')">E-mails</button>
         <button class="admin-tab" onclick="adminTab('config')">Config</button>
@@ -247,6 +248,28 @@ tr:hover td{background:rgba(255,255,255,0.02);}
             <table>
               <thead><tr><th>Número</th><th>Status</th><th>Placa</th><th>Desde</th><th></th></tr></thead>
               <tbody id="lacres-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PLACAS -->
+        <div class="admin-section" id="atab-placas">
+          <div class="info-bar">Somente placas cadastradas aqui poderão usar o sistema.</div>
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="input-group">
+              <label>Placa</label>
+              <input type="text" id="nova-placa" placeholder="ABC-1234" maxlength="8" style="font-size:16px;letter-spacing:2px;">
+            </div>
+            <div class="input-group">
+              <label>Descrição (opcional)</label>
+              <input type="text" id="nova-placa-desc" placeholder="EX: CARRETA TANQUE" style="font-size:13px;letter-spacing:0;">
+            </div>
+            <button class="btn btn-primary btn-sm" style="padding:11px 16px;" onclick="adicionarPlaca()">+ Adicionar</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Placa</th><th>Descrição</th><th>Adicionada em</th><th></th></tr></thead>
+              <tbody id="placas-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -599,8 +622,12 @@ Retorne SOMENTE o JSON.`;
     if (data.error) throw new Error(`API: ${data.error.message}`);
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     let result;
-    try { result = JSON.parse(text.replace(/```json|```/g,'').trim()); }
-    catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,100)}`); }
+    try {
+      // Extract JSON from response (handles markdown blocks and thinking models)
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
+      result = JSON.parse(jsonMatch[0]);
+    } catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,100)}`); }
     document.getElementById(`loading-${lado}`).classList.remove('show');
     if (result.tipo === 'outro' || (result.tipo !== 'qrcode' && result.tipo !== 'barcode')) {
       const box = document.getElementById(`result-${lado}`);
@@ -657,6 +684,13 @@ async function registrarOrigem() {
   const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
   if (!reAntiga.test(placa) && !reMercosul.test(placa)) {
     alert('Placa inválida!\n\nFormatos aceitos:\n• Padrão antigo: ABC-1234\n• Mercosul: ABC1D23');
+    return;
+  }
+
+  // Validar se placa está cadastrada
+  const placaAutorizada = await validarPlacaCadastrada(placa);
+  if (!placaAutorizada) {
+    alert(`Placa ${placa} não está autorizada no sistema!\n\nEntre em contato com o administrador.`);
     return;
   }
 
@@ -727,6 +761,12 @@ async function verificarDestino(resultDestino) {
   const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
   if (!reAntiga.test(placaDest) && !reMercosul.test(placaDest)) {
     alert('Placa inválida!\n\nFormatos aceitos:\n• Padrão antigo: ABC-1234\n• Mercosul: ABC1D23');
+    return;
+  }
+
+  const placaAutorizada = await validarPlacaCadastrada(placaDest);
+  if (!placaAutorizada) {
+    alert(`Placa ${placaDest} não está autorizada no sistema!\n\nEntre em contato com o administrador.`);
     return;
   }
 
@@ -878,7 +918,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','processos','emails','config'];
+    const tabs = ['lacres','placas','processos','emails','config'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -886,6 +926,7 @@ function adminTab(tab) {
   if (tab==='processos') loadProcessos();
   if (tab==='emails') loadEmails();
   if (tab==='lacres') loadLacres();
+  if (tab==='placas') loadPlacas();
   if (tab==='config') loadConfig();
 }
 
@@ -947,6 +988,57 @@ async function removerLacre(id, emUso) {
   if (!confirm(`Remover lacre ${id}?`)) return;
   await db.collection('lacresValidos').doc(id).delete();
   loadLacres();
+}
+
+async function loadPlacas() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('placasAutorizadas').orderBy('placa').get();
+    const tbody = document.getElementById('placas-tbody');
+    tbody.innerHTML = snap.docs.map(doc=>{
+      const d = doc.data();
+      return `<tr>
+        <td><strong style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.placa}</strong></td>
+        <td style="color:var(--text2);font-size:12px">${d.descricao||'—'}</td>
+        <td style="font-size:11px;color:var(--text2)">${d.adicionadaEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerPlaca('${doc.id}')" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="color:var(--text2);text-align:center;">Nenhuma placa cadastrada</td></tr>';
+  } catch(e) { console.warn(e.message); }
+}
+
+async function adicionarPlaca() {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  const placa = document.getElementById('nova-placa').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const desc = document.getElementById('nova-placa-desc').value.trim().toUpperCase();
+  const reAntiga = /^[A-Z]{3}\d{4}$/;
+  const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+  if (!reAntiga.test(placa) && !reMercosul.test(placa)) {
+    alert('Placa inválida!\n\nFormatos aceitos:\n• Padrão antigo: ABC1234\n• Mercosul: ABC1D23');
+    return;
+  }
+  await db.collection('placasAutorizadas').doc(placa).set({
+    placa, descricao: desc,
+    adicionadaEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  document.getElementById('nova-placa').value = '';
+  document.getElementById('nova-placa-desc').value = '';
+  loadPlacas();
+}
+
+async function removerPlaca(id) {
+  if (!confirm(`Remover placa ${id}?`)) return;
+  await db.collection('placasAutorizadas').doc(id).delete();
+  loadPlacas();
+}
+
+async function validarPlacaCadastrada(placa) {
+  if (!db) return true; // Se Firebase não configurado, deixa passar
+  try {
+    const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
+    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
+    return doc.exists;
+  } catch(e) { return true; } // Em caso de erro, deixa passar
 }
 
 async function loadProcessos() {
