@@ -612,7 +612,7 @@ Retorne SOMENTE o JSON.`;
   try {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,{
       method:'POST', headers:{'Content-Type':'application/json','x-goog-api-key': GEMINI_API_KEY},
-      body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:256} })
+      body:JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:state[lado].photoBase64}}]}], generationConfig:{temperature:0.1,maxOutputTokens:512,thinkingConfig:{thinkingBudget:0}} })
     });
     if (!res.ok) {
       const errText = await res.text();
@@ -623,11 +623,15 @@ Retorne SOMENTE o JSON.`;
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     let result;
     try {
-      // Extract JSON from response (handles markdown blocks and thinking models)
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('JSON não encontrado na resposta');
-      result = JSON.parse(jsonMatch[0]);
-    } catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,100)}`); }
+      // Remove markdown fences and find JSON object
+      let cleaned = text.replace(/```json|```/g,'').trim();
+      // Find the outermost JSON object
+      const start = cleaned.indexOf('{');
+      const end = cleaned.lastIndexOf('}');
+      if (start === -1 || end === -1) throw new Error('JSON não encontrado');
+      cleaned = cleaned.substring(start, end + 1);
+      result = JSON.parse(cleaned);
+    } catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,120)}`); }
     document.getElementById(`loading-${lado}`).classList.remove('show');
     if (result.tipo === 'outro' || (result.tipo !== 'qrcode' && result.tipo !== 'barcode')) {
       const box = document.getElementById(`result-${lado}`);
