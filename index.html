@@ -159,6 +159,7 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .loc-badge{font-size:11px;color:var(--text2);margin-top:4px;font-weight:500;}
 .section{display:none;}
 .section.active{display:block;}
+@keyframes nfPromptIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 .info-bar{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gerdau-blue);border-radius:var(--radius);padding:11px 14px;font-size:12px;color:var(--text2);margin-bottom:14px;font-weight:500;}
 .danger-bar{background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:var(--radius);padding:11px 14px;font-size:12px;color:var(--danger);margin-bottom:14px;font-weight:500;}
 
@@ -294,34 +295,6 @@ tbody tr:hover{background:var(--surface2);}
           <textarea id="obs-origem" placeholder="OBSERVAÇÕES SOBRE O TRANSPORTE" rows="3" style="font-size:13px;letter-spacing:0;text-transform:none;resize:vertical;"></textarea>
         </div>
       </div>
-      <!-- NOTA FISCAL — ORIGEM -->
-      <div class="card" style="border-left:3px solid var(--gerdau-yellow);">
-        <div class="card-title">📋 NOTA FISCAL <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*obrigatório</span></div>
-        <div class="form-row" style="gap:10px;margin-bottom:8px;">
-          <div class="input-group" style="flex:1;margin-bottom:0;">
-            <label>Número da NF <span style="color:var(--danger);">*</span></label>
-            <input type="text" id="nf-numero-origem" placeholder="000000" style="letter-spacing:2px;font-size:15px;" required>
-          </div>
-          <div class="input-group" style="flex:2;margin-bottom:0;">
-            <label>Fornecedor <span style="color:var(--danger);">*</span> <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
-            <input type="text" id="fornecedor-origem" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;" required>
-          </div>
-        </div>
-        <div id="cam-nf-origem" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;">
-          <video id="video-nf-origem" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
-          <canvas id="canvas-nf-origem" style="display:none;"></canvas>
-          <img id="preview-nf-origem" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-origem" onclick="capturarFotoNF('origem')" style="flex:1;min-width:120px;">📷 Ler NF com Câmera</button>
-          <button class="btn btn-outline btn-sm" onclick="analisarNF('origem')" style="flex:1;min-width:120px;">🔍 Analisar com IA</button>
-        </div>
-        <div id="loading-nf-origem" class="loading" style="margin-top:6px;">
-          <div class="spinner"></div><div class="loading-text">Analisando NF com IA...</div>
-        </div>
-        <div id="result-nf-origem" class="status-box" style="display:none;margin-top:6px;"></div>
-      </div>
-
       <div class="card">
         <div class="card-title">Foto do Lacre — Origem</div>
         <div class="qr-guide">
@@ -353,6 +326,48 @@ tbody tr:hover{background:var(--surface2);}
         <div class="read-value" id="lacre-lido-origem"></div>
       </div>
       <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px">✅ Registrar Saída</button>
+
+      <!-- PASSO 2: NOTA FISCAL — aparece após leitura do lacre -->
+      <div id="nf-step-prompt" style="display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#1B3A6B,#2952A3);color:#fff;border-radius:12px;padding:14px 18px;margin-bottom:10px;box-shadow:0 4px 16px rgba(27,58,107,.35);animation:nfPromptIn .4s ease;">
+        <div style="font-size:28px;line-height:1;">📋</div>
+        <div style="flex:1;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;">PASSO 2 — NOTA FISCAL</div>
+          <div style="font-size:12px;opacity:.85;margin-top:2px;">Lacre registrado! Agora preencha o número da NF e o fornecedor abaixo.</div>
+        </div>
+        <div style="font-size:22px;">👇</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--gerdau-yellow);">
+        <div class="card-title">
+          📋 NOTA FISCAL
+          <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;margin-left:6px;">*obrigatório</span>
+        </div>
+        <div class="info-bar" style="margin-bottom:10px;background:#FFF8E7;border-left-color:#F5A623;color:#7A5800;">
+          Preencha o número da NF e o fornecedor, ou use a câmera para leitura automática.
+        </div>
+        <div class="form-row" style="gap:10px;margin-bottom:8px;">
+          <div class="input-group" style="flex:1;margin-bottom:0;">
+            <label>Número da NF <span style="color:var(--danger);">*</span></label>
+            <input type="text" id="nf-numero-origem" placeholder="000000" style="letter-spacing:2px;font-size:15px;">
+          </div>
+          <div class="input-group" style="flex:2;margin-bottom:0;">
+            <label>Fornecedor <span style="color:var(--danger);">*</span> <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
+            <input type="text" id="fornecedor-origem" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;">
+          </div>
+        </div>
+        <div id="cam-nf-origem" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;">
+          <video id="video-nf-origem" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
+          <canvas id="canvas-nf-origem" style="display:none;"></canvas>
+          <img id="preview-nf-origem" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-origem" onclick="capturarFotoNF('origem')" style="flex:1;min-width:120px;">📷 Ler NF com Câmera</button>
+          <button class="btn btn-outline btn-sm" onclick="analisarNF('origem')" style="flex:1;min-width:120px;">🔍 Analisar com IA</button>
+        </div>
+        <div id="loading-nf-origem" class="loading" style="margin-top:6px;">
+          <div class="spinner"></div><div class="loading-text">Analisando NF com IA...</div>
+        </div>
+        <div id="result-nf-origem" class="status-box" style="display:none;margin-top:6px;"></div>
+      </div>
 
     </div>
 
@@ -1115,6 +1130,9 @@ function retakePhoto(lado) {
   if (lado === 'origem') {
     document.getElementById('btn-registrar').style.display = 'none';
     document.getElementById('lacre-lido-origem').textContent = '';
+    // Oculta o prompt de NF ao tirar nova foto
+    const nfPrompt = document.getElementById('nf-step-prompt');
+    if (nfPrompt) nfPrompt.style.display = 'none';
   }
   setTimeout(() => startCamera(lado), 300);
 }
@@ -1356,6 +1374,20 @@ function mostrarResultadoOrigem(result) {
     showTopAlert('✅ Lacre íntegro — Registre a saída abaixo', 'ok');
   }
   document.getElementById('btn-registrar').style.display = 'block';
+
+  // Mostrar prompt para preencher a NF (próximo passo)
+  const nfPrompt = document.getElementById('nf-step-prompt');
+  if (nfPrompt) {
+    nfPrompt.style.display = 'flex';
+    // Scroll suave até o card da NF
+    setTimeout(() => {
+      const nfCard = document.getElementById('nf-numero-origem');
+      if (nfCard) {
+        nfCard.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nfCard.focus();
+      }
+    }, 600);
+  }
 }
 
 // ============================================================
@@ -1737,12 +1769,19 @@ function processarManual(lado) {
 }
 
 async function validarPlacaCadastrada(placa) {
-  if (!db) return true;
+  if (!db) {
+    alert('Firebase não conectado. Não foi possível validar a placa.');
+    return false;
+  }
+  const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
   try {
-    const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
     const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
     return doc.exists;
-  } catch(e) { return true; }
+  } catch(e) {
+    console.error('Erro ao validar placa:', e.message);
+    alert('Erro ao verificar placa no banco de dados: ' + e.message);
+    return false;
+  }
 }
 
 async function getEmails() {
