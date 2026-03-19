@@ -373,34 +373,6 @@ tbody tr:hover{background:var(--surface2);}
           <textarea id="obs-destino" placeholder="OBSERVAÇÕES SOBRE O RECEBIMENTO" rows="3" style="font-size:13px;letter-spacing:0;text-transform:none;resize:vertical;"></textarea>
         </div>
       </div>
-      <!-- NOTA FISCAL — DESTINO -->
-      <div class="card" style="border-left:3px solid var(--gerdau-yellow);">
-        <div class="card-title">📋 NOTA FISCAL — CONFERÊNCIA <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*obrigatório</span></div>
-        <div class="form-row" style="gap:10px;margin-bottom:8px;">
-          <div class="input-group" style="flex:1;margin-bottom:0;">
-            <label>Número da NF <span style="color:var(--danger);">*</span></label>
-            <input type="text" id="nf-numero-destino" placeholder="000000" style="letter-spacing:2px;font-size:15px;" required>
-          </div>
-          <div class="input-group" style="flex:2;margin-bottom:0;">
-            <label>Fornecedor <span style="color:var(--danger);">*</span> <span id="forn-badge-destino" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
-            <input type="text" id="fornecedor-destino" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;" required>
-          </div>
-        </div>
-        <div id="cam-nf-destino" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;">
-          <video id="video-nf-destino" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
-          <canvas id="canvas-nf-destino" style="display:none;"></canvas>
-          <img id="preview-nf-destino" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-destino" onclick="capturarFotoNF('destino')" style="flex:1;min-width:120px;">📷 Ler NF com Câmera</button>
-          <button class="btn btn-outline btn-sm" onclick="analisarNF('destino')" style="flex:1;min-width:120px;">🔍 Analisar com IA</button>
-        </div>
-        <div id="loading-nf-destino" class="loading" style="margin-top:6px;">
-          <div class="spinner"></div><div class="loading-text">Analisando NF com IA...</div>
-        </div>
-        <div id="result-nf-destino" class="status-box" style="display:none;margin-top:6px;"></div>
-      </div>
-
       <div class="card">
         <div class="card-title">Foto do Lacre — Destino</div>
         <div class="qr-guide">
@@ -1265,10 +1237,37 @@ Retorne SOMENTE o JSON.`;
         if (s !== -1 && e > s) result = JSON.parse(clean.substring(s, e+1));
         else throw new Error('campos não encontrados');
       }
-    } catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,120)}`); }
-    
+    } catch(pe) {
+      // Tenta extrair o texto da resposta para diagnóstico
+      let errMsg = pe.message || 'Erro desconhecido no parse';
+      // Se o texto parece um JSON válido mas faltam campos, mostra entrada manual
+      if (text && text.includes('"numero"')) {
+        errMsg = `Resposta incompleta da IA. Tente novamente ou insira manualmente.`;
+      } else {
+        errMsg = `Resposta inesperada da IA: ${text.substring(0,80)}`;
+      }
+      throw new Error(errMsg);
+    }
+
     document.getElementById(`loading-${lado}`).classList.remove('show');
-    
+
+    // Detectar lacre ilegível ANTES de qualquer processamento
+    const rawNumeroCheck = String(result.numero||'').trim().toUpperCase();
+    const isIlegivel = rawNumeroCheck === 'ILEGIVEL' || rawNumeroCheck === 'ILEGÍVEL' ||
+                       rawNumeroCheck === '' || rawNumeroCheck === 'NULL' ||
+                       rawNumeroCheck === 'UNDEFINED' ||
+                       !String(result.numero||'').replace(/\D/g,'');
+    if (isIlegivel) {
+      const box = document.getElementById(`result-${lado}`);
+      box.className = 'status-box error show';
+      box.innerHTML = `<div class="status-title">⚠️ Lacre não legível</div>
+        <div class="status-item">A câmera não conseguiu ler o número do lacre. Tente aproximar mais, melhorar a iluminação ou inserir o número manualmente.</div>`;
+      document.getElementById(`btn-refoto-${lado}`).style.display='block';
+      document.getElementById(`btn-foto-${lado}`).style.display='none';
+      mostrarEntradaManual(lado);
+      return;
+    }
+
     if (result.tipo === 'outro' || (result.tipo !== 'qrcode' && result.tipo !== 'barcode')) {
       const box = document.getElementById(`result-${lado}`);
       box.className = 'status-box error show';
@@ -1279,12 +1278,12 @@ Retorne SOMENTE o JSON.`;
       mostrarEntradaManual(lado);
       return;
     }
-    
+
     const rawNumero = String(result.numero||'').trim();
     const digitsOnly = rawNumero.replace(/\D/g,'');
-    if (digitsOnly && digitsOnly !== 'ILEGIVEL') {
+    if (digitsOnly) {
       result.numero = digitsOnly.padStart(5,'0');
-    } else if (!digitsOnly) {
+    } else {
       result.numero = rawNumero.toUpperCase();
     }
     
@@ -1505,11 +1504,6 @@ async function verificarDestino(resultDestino) {
   const motoristaDest = document.getElementById('motorista-destino').value.trim();
   const obsDest = document.getElementById('obs-destino').value.trim();
   
-  const nfNumeroDest = document.getElementById('nf-numero-destino')?.value.trim();
-  const fornecedorDest = document.getElementById('fornecedor-destino')?.value.trim();
-  if (!nfNumeroDest) { alert('Informe o número da Nota Fiscal antes de verificar.'); return; }
-  if (!fornecedorDest) { alert('Informe o fornecedor antes de verificar.'); return; }
-
   if (!placaDest) {
     const box = document.getElementById('result-destino');
     box.className = 'status-box error show';
@@ -1602,10 +1596,7 @@ async function verificarDestino(resultDestino) {
         fechadoPorEmpresa: currentOperador?.empresa||'',
         motorisDestino: motoristaDest || '',
         observacaoDestino: obsDest || '',
-        fotoDestinoURL: fotoDestinoURL || null,
-        numeroNFDestino: document.getElementById('nf-numero-destino')?.value.trim() || null,
-        fornecedorDestino: document.getElementById('fornecedor-destino')?.value.trim() || null,
-        cnpjFornecedorDestino: stateNF?.destino?.cnpjEmissor || null
+        fotoDestinoURL: fotoDestinoURL || null
       });
       await db.collection('lacresValidos').doc(proc.lacreNumero).update({
         emUso: false, inutilizado: true, placa: null, processId: null,
@@ -1660,10 +1651,7 @@ async function verificarDestino(resultDestino) {
         fechadoPorEmpresa: currentOperador?.empresa||'',
         motorisDestino: motoristaDest || '',
         observacaoDestino: obsDest || '',
-        fotoDestinoURL: fotoDestinoURLDesvio || null,
-        numeroNFDestino: document.getElementById('nf-numero-destino')?.value.trim() || null,
-        fornecedorDestino: document.getElementById('fornecedor-destino')?.value.trim() || null,
-        cnpjFornecedorDestino: stateNF?.destino?.cnpjEmissor || null
+        fotoDestinoURL: fotoDestinoURLDesvio || null
       });
       
       // E-mail de desvio
@@ -2836,35 +2824,57 @@ loadGeminiKey();
 <!-- Registrar Service Worker para PWA -->
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').then(reg => {
-      console.log('[SW] Registrado:', reg.scope);
-
-      // Verifica se já há uma atualização esperando
-      if (reg.waiting) {
-        reg.waiting.postMessage('SKIP_WAITING');
-      }
-
-      // Detecta quando uma nova versão termina de instalar
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        newSW.addEventListener('statechange', () => {
-          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            // Há uma nova versão instalada — recarregar automaticamente
-            console.log('[SW] Nova versão disponível. Recarregando...');
-            newSW.postMessage('SKIP_WAITING');
-          }
-        });
-      });
-    }).catch(err => console.warn('[SW] Erro ao registrar:', err));
-
-    // Quando o SW assume o controle, recarrega a página para pegar a versão nova
     let swRefreshing = false;
+
+    // Quando o SW assume o controle (nova versão ativada), recarrega a página
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (!swRefreshing) {
         swRefreshing = true;
+        console.log('[SW] Novo SW ativo — recarregando página...');
         window.location.reload();
       }
     });
+
+    navigator.serviceWorker.register('service-worker.js').then(reg => {
+      console.log('[SW] Registrado:', reg.scope);
+
+      // Função que aplica o SW em espera imediatamente
+      function applyUpdate(sw) {
+        sw.postMessage('SKIP_WAITING');
+      }
+
+      // Se já tem atualização esperando (app reaberto com SW novo instalado)
+      if (reg.waiting) {
+        console.log('[SW] Atualização já instalada, aplicando...');
+        applyUpdate(reg.waiting);
+      }
+
+      // Detecta nova instalação em andamento
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        console.log('[SW] Nova versão instalando...');
+        newSW.addEventListener('statechange', () => {
+          console.log('[SW] Estado:', newSW.state);
+          if (newSW.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              // Há um SW antigo controlando — aplica o novo
+              applyUpdate(newSW);
+            }
+            // Se não há controller, é a primeira instalação — não precisa recarregar
+          }
+        });
+      });
+
+      // CRÍTICO PARA PWA NA TELA INICIAL:
+      // Força verificação de atualização a cada abertura do app
+      // O browser instalado não faz isso automaticamente
+      reg.update().then(() => {
+        console.log('[SW] Verificação de atualização concluída');
+      }).catch(err => {
+        console.warn('[SW] Erro ao verificar atualização:', err);
+      });
+
+    }).catch(err => console.warn('[SW] Erro ao registrar:', err));
   }
 
 // ============================================================
@@ -3005,8 +3015,9 @@ async function analisarNF(lado = 'origem') {
   loading.classList.add('show');
   result.style.display = 'none';
   try {
-    const geminiKey = localStorage.getItem('geminiKey');
-    if (!geminiKey) throw new Error('Chave Gemini não configurada. Acesse o painel Admin.');
+    // Carrega a chave do Firestore (mesmo mecanismo do analisarLacre)
+    if (!GEMINI_API_KEY) await loadGeminiKey();
+    if (!GEMINI_API_KEY) throw new Error('Chave Gemini não configurada. Acesse o painel Admin → Config.');
 
     // Prompt solicita CNPJ do emissor (campo principal para cruzamento)
     const prompt = `Analise esta imagem de uma Nota Fiscal (NF) ou DANFE e extraia:
@@ -3020,7 +3031,7 @@ Responda APENAS com JSON no formato:
 Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, responda:
 {"numeroNF":null,"cnpjEmissor":null,"nomeEmissor":null,"confianca":0,"erro":"Descrição do problema"}`;
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + geminiKey, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: 'image/jpeg', data: stateNF[lado].photoBase64.split(',')[1] } }] }] })
