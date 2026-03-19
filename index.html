@@ -83,12 +83,12 @@ body{display:flex;flex-direction:column;align-items:center;}
 
 /* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
-.card-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gerdau-blue);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gerdau-blue);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .card-title::before{content:'';display:block;width:3px;height:14px;background:var(--gerdau-yellow);border-radius:2px;}
 
 /* INPUTS */
 .input-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
-label{font-size:11px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+label{font-size:12px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
 input[type="text"],input[type="number"],select,textarea{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;width:100%;text-transform:uppercase;outline:none;transition:border-color .2s;box-shadow:var(--shadow-sm);}
 input[type="email"],input[type="password"]{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;width:100%;text-transform:none;outline:none;transition:border-color .2s;box-shadow:var(--shadow-sm);}
 input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,input[type="number"]:focus,select:focus,textarea:focus{border-color:var(--gerdau-blue);box-shadow:0 0 0 3px rgba(27,58,107,0.1);}
@@ -124,7 +124,7 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .btn-danger{background:var(--danger);color:#fff;}
 .btn-yellow{background:var(--gerdau-yellow);color:var(--gerdau-blue);box-shadow:var(--shadow-md);}
 .btn-yellow:hover{background:var(--gerdau-yellow-dark);}
-.btn-sm{padding:7px 13px;font-size:12px;width:auto;margin-bottom:0;}
+.btn-sm{padding:9px 18px;font-size:14px;width:auto;margin-bottom:0;}
 
 /* STATUS BOXES */
 .status-box{border-radius:var(--radius-lg);padding:16px;margin-top:14px;display:none;animation:fadeIn .4s ease;}
@@ -139,7 +139,7 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .status-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:13px;color:var(--text2);}
 .status-item:last-child{border-bottom:none;}
 .status-item strong{color:var(--text);font-weight:600;}
-.read-value{background:var(--gerdau-blue);border-radius:8px;padding:10px 14px;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:4px;color:#fff;text-align:center;word-break:break-all;}
+.read-value{background:var(--gerdau-blue);border-radius:8px;padding:10px 14px;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;letter-spacing:4px;color:#fff;text-align:center;word-break:break-all;}
 
 /* LOADING */
 .loading{display:none;flex-direction:column;align-items:center;gap:12px;padding:20px;text-align:center;}
@@ -148,7 +148,7 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .loading-text{color:var(--text2);font-size:13px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
 
 /* BADGES */
-.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
+.badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;}
 .badge-ok{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);}
 .badge-err{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
 .badge-warn{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);}
@@ -160,7 +160,7 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .section{display:none;}
 .section.active{display:block;}
 @keyframes nfPromptIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
-.info-bar{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gerdau-blue);border-radius:var(--radius);padding:11px 14px;font-size:12px;color:var(--text2);margin-bottom:14px;font-weight:500;}
+.info-bar{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gerdau-blue);border-radius:var(--radius);padding:14px 18px;font-size:14px;color:var(--text2);margin-bottom:14px;font-weight:500;}
 .danger-bar{background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:var(--radius);padding:11px 14px;font-size:12px;color:var(--danger);margin-bottom:14px;font-weight:500;}
 
 /* ADMIN OVERLAY */
@@ -203,7 +203,7 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .admin-tab.active{color:var(--gerdau-blue);border-bottom-color:var(--gerdau-blue);background:rgba(27,58,107,.06);border-radius:8px 8px 0 0;}
 
 /* ADMIN CONTENT */
-.admin-content{padding:20px 24px;max-width:1600px;margin:0 auto;}
+.admin-content{padding:24px 28px;max-width:1600px;margin:0 auto;font-size:15px;}
 .admin-section{display:none;}
 .admin-section.active{display:block;}
 .form-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:flex-end;}
@@ -211,10 +211,10 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 
 /* TABLE */
 .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);}
-table{width:100%;border-collapse:collapse;font-size:13px;}
+table{width:100%;border-collapse:collapse;font-size:15px;}
 thead{background:var(--surface2);border-bottom:2px solid var(--border);}
-th{padding:12px;text-align:left;font-weight:700;color:var(--text);letter-spacing:1px;text-transform:uppercase;font-size:11px;}
-td{padding:12px;border-bottom:1px solid var(--border);}
+th{padding:14px 16px;text-align:left;font-weight:700;color:var(--text);letter-spacing:1px;text-transform:uppercase;font-size:12px;}
+td{padding:14px 16px;border-bottom:1px solid var(--border);}
 tbody tr:hover{background:var(--surface2);}
 
 /* MAP MODAL */
@@ -1396,8 +1396,8 @@ Retorne SOMENTE o JSON.`;
     const box = document.getElementById(`result-${lado}`);
     box.className = 'status-box error show';
     box.innerHTML = `<div class="status-title">❌ Erro na análise</div>
-      <div class="status-item"><span style="font-size:12px;word-break:break-all">${err.message}</span></div>
-      <div class="status-item" style="font-size:11px;color:var(--text2)">Verifique sua conexão ou insira o número manualmente.</div>`;
+      <div class="status-item"><span style="font-size:14px;word-break:break-all">${err.message}</span></div>
+      <div class="status-item" style="font-size:13px;color:var(--text2)">Verifique sua conexão ou insira o número manualmente.</div>`;
     document.getElementById(`btn-refoto-${lado}`).style.display='block';
     document.getElementById(`btn-foto-${lado}`).style.display='none';
     mostrarEntradaManual(lado);
@@ -1418,7 +1418,7 @@ function mostrarResultadoOrigem(result) {
     const placaStyle = result.placaValida 
       ? 'background:#E8F5E9;color:#2E7D32;border:1px solid #81C784;'
       : 'background:#FFEBEE;color:#C62828;border:1px solid #EF5350;';
-    placaHTML = `<div style="${placaStyle}border-radius:4px;padding:8px 12px;margin-top:8px;font-size:12px;font-weight:600;">
+    placaHTML = `<div style="${placaStyle}border-radius:4px;padding:8px 12px;margin-top:8px;font-size:14px;font-weight:600;">
       ${result.placaValida ? '✅' : '⚠️'} Placa: ${result.placa} ${result.placaEmpresa ? '(' + result.placaEmpresa + ')' : ''}
       ${result.aviso ? '<br><small>' + result.aviso + '</small>' : ''}
     </div>`;
@@ -1565,7 +1565,7 @@ async function registrarOrigem() {
     await enviarEmailTodos(emails, `📍 Saída Registrada — ${placa}`, msg,
       `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
          <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-           <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+           <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
            <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🚛 SAÍDA REGISTRADA</div>
          </td></tr>
          <tr><td style="background:#fff;padding:24px;">
@@ -1710,7 +1710,7 @@ async function verificarDestino(resultDestino) {
       const emails = await getEmails();
       const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
            <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-             <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+             <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
              <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">✅ LACRE APROVADO</div>
            </td></tr>
            <tr><td style="background:#fff;padding:24px;">
@@ -1762,7 +1762,7 @@ async function verificarDestino(resultDestino) {
       const emails = await getEmails();
       const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
            <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-             <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+             <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
              <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🚨 DESVIO DETECTADO</div>
            </td></tr>
            <tr><td style="background:#fff;padding:24px;">
@@ -1789,7 +1789,7 @@ async function verificarDestino(resultDestino) {
 
   } catch(err) {
     box.className = 'status-box error show';
-    box.innerHTML = `<div class="status-title">❌ Erro</div><p style="font-size:12px;color:var(--text2)">${err.message}</p>`;
+    box.innerHTML = `<div class="status-title">❌ Erro</div><p style="font-size:14px;color:var(--text2)">${err.message}</p>`;
   }
 }
 
@@ -1816,7 +1816,7 @@ function mostrarEntradaManual(lado) {
   manualDiv.style.cssText = 'background:var(--warning-bg);border:1.5px solid var(--warning-border);border-radius:12px;padding:16px;margin-top:12px;';
   manualDiv.innerHTML = `
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:10px;">⌨️ INSERÇÃO MANUAL DO LACRE</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Digite o número do lacre exatamente como está impresso:</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:10px;">Digite o número do lacre exatamente como está impresso:</div>
     <div style="display:flex;gap:8px;">
       <input type="text" id="manual-lacre-${lado}" placeholder="00000" maxlength="5" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;text-transform:uppercase;outline:none;">
       <button onclick="processarManual('${lado}')" class="btn btn-primary btn-sm" style="width:auto;padding:11px 16px;margin:0;">Confirmar</button>
@@ -2014,12 +2014,12 @@ async function loadUsuarios() {
         ? '<span class="badge badge-blue">Operador</span>'
         : '<span class="badge badge-ok">Operacional</span>';
       return `<tr>
-        <td style="font-size:12px">${d.email}</td>
-        <td style="font-size:12px">${d.nome || '—'}</td>
-        <td style="font-size:12px">${d.empresa || '—'}</td>
+        <td style="font-size:14px">${d.email}</td>
+        <td style="font-size:14px">${d.nome || '—'}</td>
+        <td style="font-size:14px">${d.empresa || '—'}</td>
         <td>${badge}</td>
-        <td style="font-size:11px;color:var(--text2)">${d.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerUsuario('${doc.id}','${d.email}')" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+        <td style="font-size:13px;color:var(--text2)">${d.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerUsuario('${doc.id}','${d.email}')" style="padding:5px 10px;font-size:13px;">Remover</button></td>
       </tr>`;
     }).join('') || '<tr><td colspan="6" style="color:var(--text2);text-align:center;">Nenhum usuário cadastrado</td></tr>';
   } catch(e) { console.warn(e.message); }
@@ -2082,8 +2082,8 @@ function renderLacres(lista) {
       <td><strong>${l.numero}</strong></td>
       <td>${l.inutilizado ? '<span class="badge badge-err">Inutilizado</span>' : l.emUso ? '<span class="badge badge-warn">Em uso</span>' : '<span class="badge badge-ok">Livre</span>'}</td>
       <td style="color:var(--text2)">${l.placa||'—'}</td>
-      <td style="color:var(--text2);font-size:11px">${l.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="removerLacre('${l.id}',${!!l.emUso})" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+      <td style="color:var(--text2);font-size:13px">${l.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removerLacre('${l.id}',${!!l.emUso})" style="padding:5px 10px;font-size:13px;">Remover</button></td>
     </tr>`).join('');
 }
 
@@ -2125,9 +2125,9 @@ async function loadPlacas() {
       const d = doc.data();
       return `<tr>
         <td><strong style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.placa}</strong></td>
-        <td style="color:var(--text2);font-size:12px">${d.descricao||'—'}</td>
-        <td style="font-size:11px;color:var(--text2)">${d.adicionadaEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerPlaca('${doc.id}')" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+        <td style="color:var(--text2);font-size:14px">${d.descricao||'—'}</td>
+        <td style="font-size:13px;color:var(--text2)">${d.adicionadaEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerPlaca('${doc.id}')" style="padding:5px 10px;font-size:13px;">Remover</button></td>
       </tr>`;
     }).join('') || '<tr><td colspan="4" style="color:var(--text2);text-align:center;">Nenhuma placa cadastrada</td></tr>';
   } catch(e) { console.warn(e.message); }
@@ -2184,34 +2184,34 @@ async function loadProcessos() {
       const locDest = d.locDestinoCoords || d.locDestino||'';
       const hasLoc = locOrig && locOrig.includes(',') && locOrig.match(/-?\d+\.\d+/);
       const mapBtn = hasLoc
-        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locOrig}','${locDest}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
-        : `<span style="font-size:11px;color:var(--text2)">—</span>`;
+        ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locOrig}','${locDest}','${d.placa}')" style="padding:5px 10px;font-size:13px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
+        : `<span style="font-size:13px;color:var(--text2)">—</span>`;
       const statusBadge = d.status === 'aberto'
         ? `<span class="badge badge-ok">Aberto</span>`
         : d.status === 'aguardando_confirmacao'
         ? `<span class="badge badge-warn">✅ Aguard. confirmação</span>`
         : `<span class="badge badge-err">🚨 Desvio — Aguard.</span>`;
       const confirmBtn = (d.status === 'aguardando_confirmacao' || d.status === 'aguardando_confirmacao_desvio')
-        ? `<button class="btn btn-success btn-sm" onclick="confirmarEncerramento('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;margin-bottom:4px;">✅ Confirmar</button><br>`
+        ? `<button class="btn btn-success btn-sm" onclick="confirmarEncerramento('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:13px;margin-bottom:4px;">✅ Confirmar</button><br>`
         : '';
       const fotosBtnsProc = [
-        d.fotoOrigemURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoOrigemURL}','Foto Origem — ${d.placa}')" style="padding:4px 8px;font-size:11px;margin-bottom:2px;">📷 Origem</button>` : '',
-        d.fotoDestinoURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoDestinoURL}','Foto Destino — ${d.placa}')" style="padding:4px 8px;font-size:11px;">📷 Destino</button>` : ''
-      ].filter(Boolean).join('<br>') || '<span style="font-size:11px;color:var(--text2)">—</span>';
+        d.fotoOrigemURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoOrigemURL}','Foto Origem — ${d.placa}')" style="padding:4px 8px;font-size:13px;margin-bottom:2px;">📷 Origem</button>` : '',
+        d.fotoDestinoURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoDestinoURL}','Foto Destino — ${d.placa}')" style="padding:4px 8px;font-size:13px;">📷 Destino</button>` : ''
+      ].filter(Boolean).join('<br>') || '<span style="font-size:13px;color:var(--text2)">—</span>';
       return `<tr>
         <td>
           <strong>${d.placa}</strong>
           ${d.transportadora ? `<br><small style="font-size:10px;color:var(--text2);font-weight:500;">${d.transportadora}</small>` : ''}
         </td>
-        <td style="font-size:12px;color:var(--text)">${d.motorista||'—'}</td>
+        <td style="font-size:14px;color:var(--text)">${d.motorista||'—'}</td>
         <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px">${d.lacreNumero}</td>
-        <td style="font-size:11px;color:var(--text2)">${new Date(d.timestamp).toLocaleString('pt-BR')}</td>
+        <td style="font-size:13px;color:var(--text2)">${new Date(d.timestamp).toLocaleString('pt-BR')}</td>
         <td>${expirado ? `<span class="badge badge-err">${h}h</span>` : `<span class="badge badge-ok">${h}h</span>`}</td>
-        <td style="font-size:11px;color:var(--text2)">${d.abertoPorNome||d.abertoPor||'—'}</td>
+        <td style="font-size:13px;color:var(--text2)">${d.abertoPorNome||d.abertoPor||'—'}</td>
         <td><small style="font-size:10px">${statusBadge}</small></td>
         <td>${fotosBtnsProc}</td>
         <td>${mapBtn}</td>
-        <td>${confirmBtn}<button class="btn btn-danger btn-sm" onclick="encerrarProcessoManual('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;">Encerrar</button></td>
+        <td>${confirmBtn}<button class="btn btn-danger btn-sm" onclick="encerrarProcessoManual('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:13px;">Encerrar</button></td>
       </tr>`;
     }).join('');
   } catch(e) { console.warn(e.message); }
@@ -2282,7 +2282,7 @@ function verNoMapa(locOrigem, locDestino, placa) {
   if (!infoBar) {
     infoBar = document.createElement('div');
     infoBar.id = 'map-info-bar';
-    infoBar.style.cssText = 'padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap;';
+    infoBar.style.cssText = 'padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:14px;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap;';
     iframe.parentNode.insertBefore(infoBar, iframe);
   }
   infoBar.innerHTML = `<span>🟢 <strong>Origem:</strong> ${orig.lat.toFixed(5)}, ${orig.lng.toFixed(5)}</span>`
@@ -2368,35 +2368,35 @@ function renderHistorico(lista) {
     const locD = d.locDestinoCoords || d.locDestino||'';
     const hasLoc = locO && locO.match(/-?\d+\.\d+/);
     const mapBtn = hasLoc
-      ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:11px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
-      : '<span style="font-size:11px;color:var(--text2)">—</span>';
+      ? `<button class="btn btn-outline btn-sm" onclick="verNoMapa('${locO}','${locD}','${d.placa}')" style="padding:5px 10px;font-size:13px;border-color:var(--gerdau-blue);color:var(--gerdau-blue);">📍 Ver</button>`
+      : '<span style="font-size:13px;color:var(--text2)">—</span>';
     const abertoPor = d.abertoPorNome||d.abertoPor||'—';
     const fechadoPor = d.fechadoPorNome||d.fechadoPor||d.encerradoPor||'Auto';
     const justif = d.justificativa
-      ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>`
-      : '<span style="font-size:11px;color:var(--text2)">—</span>';
+      ? `<span style="font-size:13px;color:var(--warning)">${d.justificativa}</span>`
+      : '<span style="font-size:13px;color:var(--text2)">—</span>';
     const fotoBtns = [
-      d.fotoOrigemURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoOrigemURL}','Foto Origem — ${d.placa}')" style="padding:4px 8px;font-size:11px;margin-bottom:2px;">📷 Origem</button>` : '',
-      d.fotoDestinoURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoDestinoURL}','Foto Destino — ${d.placa}')" style="padding:4px 8px;font-size:11px;">📷 Destino</button>` : ''
-    ].filter(Boolean).join('<br>') || '<span style="font-size:11px;color:var(--text2)">—</span>';
+      d.fotoOrigemURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoOrigemURL}','Foto Origem — ${d.placa}')" style="padding:4px 8px;font-size:13px;margin-bottom:2px;">📷 Origem</button>` : '',
+      d.fotoDestinoURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoDestinoURL}','Foto Destino — ${d.placa}')" style="padding:4px 8px;font-size:13px;">📷 Destino</button>` : ''
+    ].filter(Boolean).join('<br>') || '<span style="font-size:13px;color:var(--text2)">—</span>';
     return `<tr>
       <td>
         <strong>${d.placa}</strong>
         ${d.transportadora ? `<br><small style="font-size:10px;color:var(--text2);font-weight:500;">${d.transportadora}</small>` : ''}
       </td>
-      <td style="font-size:12px">${d.motorista||'—'}</td>
-      <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:12px">${d.lacreNumero}</td>
-      <td style="font-size:11px;color:var(--text2)">${tsOrigem}</td>
-      <td style="font-size:11px;color:var(--text2)">${tsDestino}</td>
+      <td style="font-size:14px">${d.motorista||'—'}</td>
+      <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:14px">${d.lacreNumero}</td>
+      <td style="font-size:13px;color:var(--text2)">${tsOrigem}</td>
+      <td style="font-size:13px;color:var(--text2)">${tsDestino}</td>
       <td>${res}</td>
-      <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
-      <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
+      <td style="font-size:13px;color:var(--text2)">${abertoPor}</td>
+      <td style="font-size:13px;color:var(--text2)">${fechadoPor}</td>
       <td>${justif}</td>
-      <td style="font-size:11px;">${
+      <td style="font-size:13px;">${
         (d.numeroNF || d.cnpjFornecedor || d.fornecedor)
           ? `<span style="display:block;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">NF: ${d.numeroNF||'—'}</span>
              <span style="display:block;color:var(--text2);font-size:10px;">${d.cnpjFornecedor ? formatarCNPJ(d.cnpjFornecedor) : ''}</span>
-             <span style="display:block;font-weight:600;font-size:11px;">${d.fornecedor||''}</span>`
+             <span style="display:block;font-weight:600;font-size:13px;">${d.fornecedor||''}</span>`
           : '<span style="color:var(--text2)">—</span>'
       }</td>
       <td>${fotoBtns}</td>
@@ -2447,7 +2447,7 @@ async function encerrarProcessoManual(id, lacreNum) {
     const emails = await getEmails();
     const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
          <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-           <div style="color:#F5A623;font-size:11px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+           <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
            <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">⏹️ PROCESSO ENCERRADO MANUALMENTE</div>
          </td></tr>
          <tr><td style="background:#fff;padding:24px;">
@@ -2481,8 +2481,8 @@ async function loadEmails() {
     const tbody = document.getElementById('emails-tbody');
     tbody.innerHTML = snap.docs.map(doc=>{
       const d = doc.data();
-      return `<tr><td>${d.email}</td><td style="font-size:11px;color:var(--text2)">${d.adicionadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerEmail('${doc.id}')" style="padding:5px 10px;font-size:11px;">Remover</button></td></tr>`;
+      return `<tr><td>${d.email}</td><td style="font-size:13px;color:var(--text2)">${d.adicionadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerEmail('${doc.id}')" style="padding:5px 10px;font-size:13px;">Remover</button></td></tr>`;
     }).join('') || '<tr><td colspan="3" style="color:var(--text2);text-align:center;">Nenhum e-mail cadastrado</td></tr>';
   } catch(e) { console.warn(e.message); }
 }
@@ -3219,8 +3219,8 @@ Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, respo
     // Build status message
     const cnpjFormatado = resultNF.cnpjEmissor ? formatarCNPJ(resultNF.cnpjEmissor) : 'Não lido';
     const origemNome = fornecedorCadastrado
-      ? `<span style="background:var(--success);color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:6px;">✓ CADASTRADO</span>`
-      : `<span style="background:var(--warning);color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:6px;">⚠ NÃO CADASTRADO</span>`;
+      ? `<span style="background:var(--success);color:#fff;border-radius:4px;padding:1px 7px;font-size:13px;margin-left:6px;">✓ CADASTRADO</span>`
+      : `<span style="background:var(--warning);color:#fff;border-radius:4px;padding:1px 7px;font-size:13px;margin-left:6px;">⚠ NÃO CADASTRADO</span>`;
 
     result.className = 'status-box ok show';
     result.innerHTML = `
@@ -3229,11 +3229,11 @@ Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, respo
       <div class="status-item"><strong>CNPJ Emissor:</strong> ${cnpjFormatado}</div>
       <div class="status-item"><strong>Fornecedor:</strong> ${nomeFornecedor} ${origemNome}</div>
       ${!fornecedorCadastrado && resultNF.cnpjEmissor ? `
-      <div class="status-item" style="font-size:11px;color:var(--warning);margin-top:4px;">
+      <div class="status-item" style="font-size:13px;color:var(--warning);margin-top:4px;">
         ⚠ CNPJ não encontrado no cadastro. Usando nome da própria NF como fallback.<br>
         <span style="color:var(--text2);">Cadastre o fornecedor na aba <strong>Fornecedores</strong> para identificação automática.</span>
       </div>` : ''}
-      <div class="status-item" style="font-size:11px;color:var(--text3);">Confiança da leitura: ${(resultNF.confianca*100).toFixed(0)}%</div>`;
+      <div class="status-item" style="font-size:13px;color:var(--text3);">Confiança da leitura: ${(resultNF.confianca*100).toFixed(0)}%</div>`;
     result.style.display = 'block';
 
     const alertMsg = fornecedorCadastrado
@@ -3246,7 +3246,7 @@ Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, respo
     result.className = 'status-box error show';
     result.innerHTML = `<div class="status-title">⚠️ Erro ao Ler NF</div>
       <div class="status-item">${err.message}</div>
-      <div class="status-item" style="font-size:12px;">Tente tirar uma foto mais clara da NF.</div>`;
+      <div class="status-item" style="font-size:14px;">Tente tirar uma foto mais clara da NF.</div>`;
     result.style.display = 'block';
   }
 }
@@ -3326,9 +3326,9 @@ async function loadFornecedores() {
       return `<tr>
         <td><strong style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:14px;">${cnpjFormatado}</strong></td>
         <td style="font-weight:600;">${d.nome || '—'}</td>
-        <td style="font-size:11px;color:var(--text2);">${d.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR') || '—'}</td>
-        <td style="font-size:11px;color:var(--text2);">${d.cadastradoPor || '—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerFornecedor('${doc.id}')" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+        <td style="font-size:13px;color:var(--text2);">${d.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR') || '—'}</td>
+        <td style="font-size:13px;color:var(--text2);">${d.cadastradoPor || '—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerFornecedor('${doc.id}')" style="padding:5px 10px;font-size:13px;">Remover</button></td>
       </tr>`;
     }).join('') || '<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:20px;">Nenhum fornecedor cadastrado</td></tr>';
   } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); }
