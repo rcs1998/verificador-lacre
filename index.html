@@ -294,6 +294,34 @@ tbody tr:hover{background:var(--surface2);}
           <textarea id="obs-origem" placeholder="OBSERVAÇÕES SOBRE O TRANSPORTE" rows="3" style="font-size:13px;letter-spacing:0;text-transform:none;resize:vertical;"></textarea>
         </div>
       </div>
+      <!-- NOTA FISCAL — ORIGEM -->
+      <div class="card" style="border-left:3px solid var(--gerdau-yellow);">
+        <div class="card-title">📋 NOTA FISCAL <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*obrigatório</span></div>
+        <div class="form-row" style="gap:10px;margin-bottom:8px;">
+          <div class="input-group" style="flex:1;margin-bottom:0;">
+            <label>Número da NF <span style="color:var(--danger);">*</span></label>
+            <input type="text" id="nf-numero-origem" placeholder="000000" style="letter-spacing:2px;font-size:15px;" required>
+          </div>
+          <div class="input-group" style="flex:2;margin-bottom:0;">
+            <label>Fornecedor <span style="color:var(--danger);">*</span> <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
+            <input type="text" id="fornecedor-origem" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;" required>
+          </div>
+        </div>
+        <div id="cam-nf-origem" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;">
+          <video id="video-nf-origem" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
+          <canvas id="canvas-nf-origem" style="display:none;"></canvas>
+          <img id="preview-nf-origem" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-origem" onclick="capturarFotoNF('origem')" style="flex:1;min-width:120px;">📷 Ler NF com Câmera</button>
+          <button class="btn btn-outline btn-sm" onclick="analisarNF('origem')" style="flex:1;min-width:120px;">🔍 Analisar com IA</button>
+        </div>
+        <div id="loading-nf-origem" class="loading" style="margin-top:6px;">
+          <div class="spinner"></div><div class="loading-text">Analisando NF com IA...</div>
+        </div>
+        <div id="result-nf-origem" class="status-box" style="display:none;margin-top:6px;"></div>
+      </div>
+
       <div class="card">
         <div class="card-title">Foto do Lacre — Origem</div>
         <div class="qr-guide">
@@ -326,34 +354,6 @@ tbody tr:hover{background:var(--surface2);}
       </div>
       <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px">✅ Registrar Saída</button>
 
-      <!-- NOTA FISCAL — ORIGEM -->
-      <div class="card">
-        <div class="card-title">📋 NOTA FISCAL</div>
-        <div class="form-row" style="gap:10px;">
-          <div class="input-group" style="flex:1;">
-            <label>Número da NF</label>
-            <input type="text" id="nf-numero-origem" placeholder="000000" style="letter-spacing:2px;font-size:15px;">
-          </div>
-          <div class="input-group" style="flex:2;">
-            <label>Fornecedor <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
-            <input type="text" id="fornecedor-origem" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;">
-          </div>
-        </div>
-        <div id="cam-nf-origem" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
-          <video id="video-nf-origem" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
-          <canvas id="canvas-nf-origem" style="display:none;"></canvas>
-          <img id="preview-nf-origem" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-origem" onclick="capturarFotoNF('origem')" style="flex:1;">📷 Foto da NF</button>
-          <button class="btn btn-outline btn-sm" onclick="analisarNF('origem')" style="flex:1;">🔍 Analisar com IA</button>
-        </div>
-        <div id="loading-nf-origem" class="loading" style="margin-top:6px;">
-          <div class="spinner"></div>
-          <div class="loading-text">Analisando NF com IA...</div>
-        </div>
-        <div id="result-nf-origem" class="status-box" style="display:none;margin-top:6px;"></div>
-      </div>
     </div>
 
     <!-- DESTINO -->
@@ -373,6 +373,34 @@ tbody tr:hover{background:var(--surface2);}
           <textarea id="obs-destino" placeholder="OBSERVAÇÕES SOBRE O RECEBIMENTO" rows="3" style="font-size:13px;letter-spacing:0;text-transform:none;resize:vertical;"></textarea>
         </div>
       </div>
+      <!-- NOTA FISCAL — DESTINO -->
+      <div class="card" style="border-left:3px solid var(--gerdau-yellow);">
+        <div class="card-title">📋 NOTA FISCAL — CONFERÊNCIA <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*obrigatório</span></div>
+        <div class="form-row" style="gap:10px;margin-bottom:8px;">
+          <div class="input-group" style="flex:1;margin-bottom:0;">
+            <label>Número da NF <span style="color:var(--danger);">*</span></label>
+            <input type="text" id="nf-numero-destino" placeholder="000000" style="letter-spacing:2px;font-size:15px;" required>
+          </div>
+          <div class="input-group" style="flex:2;margin-bottom:0;">
+            <label>Fornecedor <span style="color:var(--danger);">*</span> <span id="forn-badge-destino" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
+            <input type="text" id="fornecedor-destino" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;" required>
+          </div>
+        </div>
+        <div id="cam-nf-destino" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;">
+          <video id="video-nf-destino" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
+          <canvas id="canvas-nf-destino" style="display:none;"></canvas>
+          <img id="preview-nf-destino" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-destino" onclick="capturarFotoNF('destino')" style="flex:1;min-width:120px;">📷 Ler NF com Câmera</button>
+          <button class="btn btn-outline btn-sm" onclick="analisarNF('destino')" style="flex:1;min-width:120px;">🔍 Analisar com IA</button>
+        </div>
+        <div id="loading-nf-destino" class="loading" style="margin-top:6px;">
+          <div class="spinner"></div><div class="loading-text">Analisando NF com IA...</div>
+        </div>
+        <div id="result-nf-destino" class="status-box" style="display:none;margin-top:6px;"></div>
+      </div>
+
       <div class="card">
         <div class="card-title">Foto do Lacre — Destino</div>
         <div class="qr-guide">
@@ -400,34 +428,6 @@ tbody tr:hover{background:var(--surface2);}
       <div class="loading" id="loading-destino"><div class="spinner"></div><div class="loading-text">Verificando e comparando dados...</div></div>
       <div class="status-box" id="result-destino"></div>
 
-      <!-- NOTA FISCAL — DESTINO -->
-      <div class="card">
-        <div class="card-title">📋 NOTA FISCAL — CONFERÊNCIA</div>
-        <div class="form-row" style="gap:10px;">
-          <div class="input-group" style="flex:1;">
-            <label>Número da NF</label>
-            <input type="text" id="nf-numero-destino" placeholder="000000" style="letter-spacing:2px;font-size:15px;">
-          </div>
-          <div class="input-group" style="flex:2;">
-            <label>Fornecedor <span id="forn-badge-destino" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:6px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
-            <input type="text" id="fornecedor-destino" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;">
-          </div>
-        </div>
-        <div id="cam-nf-destino" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
-          <video id="video-nf-destino" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
-          <canvas id="canvas-nf-destino" style="display:none;"></canvas>
-          <img id="preview-nf-destino" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-          <button class="btn btn-outline btn-sm" id="btn-capturar-nf-destino" onclick="capturarFotoNF('destino')" style="flex:1;">📷 Foto da NF</button>
-          <button class="btn btn-outline btn-sm" onclick="analisarNF('destino')" style="flex:1;">🔍 Analisar com IA</button>
-        </div>
-        <div id="loading-nf-destino" class="loading" style="margin-top:6px;">
-          <div class="spinner"></div>
-          <div class="loading-text">Analisando NF com IA...</div>
-        </div>
-        <div id="result-nf-destino" class="status-box" style="display:none;margin-top:6px;"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -1398,6 +1398,11 @@ async function registrarOrigem() {
     }
   } catch(e) { console.warn('Erro ao verificar processos:', e.message); }
 
+  const nfNumeroOrig = document.getElementById('nf-numero-origem')?.value.trim();
+  const fornecedorOrig = document.getElementById('fornecedor-origem')?.value.trim();
+  if (!nfNumeroOrig) { alert('Informe o número da Nota Fiscal antes de registrar.'); return; }
+  if (!fornecedorOrig) { alert('Informe o fornecedor antes de registrar.'); return; }
+
   if (!state.origem.lacreNumero) { alert('Tire a foto do lacre primeiro.'); return; }
   if (!db) { alert('Firebase não configurado. Configure no painel admin.'); return; }
 
@@ -1500,6 +1505,11 @@ async function verificarDestino(resultDestino) {
   const motoristaDest = document.getElementById('motorista-destino').value.trim();
   const obsDest = document.getElementById('obs-destino').value.trim();
   
+  const nfNumeroDest = document.getElementById('nf-numero-destino')?.value.trim();
+  const fornecedorDest = document.getElementById('fornecedor-destino')?.value.trim();
+  if (!nfNumeroDest) { alert('Informe o número da Nota Fiscal antes de verificar.'); return; }
+  if (!fornecedorDest) { alert('Informe o fornecedor antes de verificar.'); return; }
+
   if (!placaDest) {
     const box = document.getElementById('result-destino');
     box.className = 'status-box error show';
@@ -3121,21 +3131,18 @@ function formatarCNPJ(v) {
 
 function validarCNPJ(cnpj) {
   cnpj = cnpj.replace(/\D/g, '');
-  if (cnpj.length !== 14) return false;
-  // Rejeita CNPJs com todos os dígitos iguais (ex: 00000000000000)
-  if (/^(\d)\1+$/.test(cnpj)) return false;
-  // Algoritmo oficial dos dígitos verificadores
-  const calcDigit = (cnpj, len) => {
-    let sum = 0, pos = len - 7;
-    for (let i = len; i >= 1; i--) {
-      sum += parseInt(cnpj.charAt(len - i)) * pos--;
+  if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+  // Algoritmo oficial CNPJ
+  const calc = (cnpj, n) => {
+    let sum = 0, pos = n - 7;
+    for (let i = 0; i < n; i++) {
+      sum += parseInt(cnpj[i]) * pos--;
       if (pos < 2) pos = 9;
     }
     const r = sum % 11;
     return r < 2 ? 0 : 11 - r;
   };
-  return calcDigit(cnpj, 12) === parseInt(cnpj.charAt(12)) &&
-         calcDigit(cnpj, 13) === parseInt(cnpj.charAt(13));
+  return calc(cnpj, 12) === parseInt(cnpj[12]) && calc(cnpj, 13) === parseInt(cnpj[13]);
 }
 
 async function loadFornecedores() {
