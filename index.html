@@ -2836,9 +2836,35 @@ loadGeminiKey();
 <!-- Registrar Service Worker para PWA -->
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(reg => console.log('Service Worker registrado:', reg))
-      .catch(err => console.log('Erro ao registrar Service Worker:', err));
+    navigator.serviceWorker.register('service-worker.js').then(reg => {
+      console.log('[SW] Registrado:', reg.scope);
+
+      // Verifica se já há uma atualização esperando
+      if (reg.waiting) {
+        reg.waiting.postMessage('SKIP_WAITING');
+      }
+
+      // Detecta quando uma nova versão termina de instalar
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            // Há uma nova versão instalada — recarregar automaticamente
+            console.log('[SW] Nova versão disponível. Recarregando...');
+            newSW.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    }).catch(err => console.warn('[SW] Erro ao registrar:', err));
+
+    // Quando o SW assume o controle, recarrega a página para pegar a versão nova
+    let swRefreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!swRefreshing) {
+        swRefreshing = true;
+        window.location.reload();
+      }
+    });
   }
 
 // ============================================================
