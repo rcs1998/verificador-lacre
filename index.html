@@ -1128,12 +1128,25 @@ Retorne SOMENTE o JSON.`;
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     let result;
     try {
-      let cleaned = text.replace(/```json|```/g,'').trim();
-      const start = cleaned.indexOf('{');
-      const end = cleaned.lastIndexOf('}');
-      if (start === -1 || end === -1) throw new Error('JSON não encontrado');
-      cleaned = cleaned.substring(start, end + 1);
-      result = JSON.parse(cleaned);
+      // Extract fields via regex — works even if JSON is truncated
+      const tipoMatch = text.match(/"tipo"\s*:\s*"([^"]+)"/);
+      const numeroMatch = text.match(/"numero"\s*:\s*"([^"]+)"/);
+      const integroMatch = text.match(/"integro"\s*:\s*(true|false)/i);
+      const obsMatch = text.match(/"observacao"\s*:\s*"([^"]+)"/);
+      if (tipoMatch && numeroMatch) {
+        result = {
+          tipo: tipoMatch[1].toLowerCase(),
+          numero: numeroMatch[1],
+          integro: integroMatch ? integroMatch[1].toLowerCase() === 'true' : true,
+          observacao: obsMatch ? obsMatch[1] : 'Lacre analisado'
+        };
+      } else {
+        // Fallback: try full JSON parse
+        let clean = text.replace(/```json|```/g,'').trim();
+        const s = clean.indexOf('{'), e = clean.lastIndexOf('}');
+        if (s !== -1 && e > s) result = JSON.parse(clean.substring(s, e+1));
+        else throw new Error('campos não encontrados');
+      }
     } catch(pe) { throw new Error(`Resposta inesperada da IA: ${text.substring(0,120)}`); }
     
     document.getElementById(`loading-${lado}`).classList.remove('show');
