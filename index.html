@@ -520,7 +520,13 @@ tbody tr:hover{background:var(--surface2);}
           <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
             <button class="btn btn-outline btn-sm" onclick="loadHistorico()">🔄 Atualizar</button>
             <button class="btn btn-success btn-sm" onclick="exportarCSV()" style="width:auto;">📥 Exportar CSV</button>
-            <input type="text" id="hist-filtro-op" placeholder="FILTRAR POR OPERADOR" oninput="filtrarHistorico()" style="font-size:13px;letter-spacing:0;text-transform:none;padding:7px 12px;height:auto;width:200px;">
+            <input type="text" id="hist-filtro-op" placeholder="FILTRAR POR OPERADOR/MOTORISTA" oninput="filtrarHistorico()" style="font-size:13px;letter-spacing:0;text-transform:none;padding:7px 12px;height:auto;width:220px;">
+            <select id="hist-filtro-resultado" onchange="filtrarHistorico()" style="font-size:13px;letter-spacing:0;text-transform:none;padding:7px 12px;height:auto;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer;">
+              <option value="">Todos os resultados</option>
+              <option value="ok">✅ Aprovados</option>
+              <option value="desvio">🚨 Desvios</option>
+              <option value="manual">⌨️ Manual</option>
+            </select>
           </div>
           <div class="table-wrap">
             <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Aberto por</th><th>Fechado por</th><th>Justificativa</th><th>Mapa</th></tr></thead>
@@ -866,6 +872,30 @@ async function detectQRCode(lado) {
       ctx.drawImage(video, 0, 0);
       try {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        // Image quality check - sample brightness
+        let brightness = 0;
+        const sample = 500;
+        const step = Math.floor(imageData.data.length / (4 * sample));
+        for (let i = 0; i < imageData.data.length; i += 4 * step) {
+          brightness += (imageData.data[i] * 0.299 + imageData.data[i+1] * 0.587 + imageData.data[i+2] * 0.114);
+        }
+        brightness = brightness / sample;
+
+        if (brightness < 40) {
+          if (indicator) {
+            indicator.textContent = '🌑 AMBIENTE ESCURO — ILUMINE O LACRE';
+            indicator.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-family:Barlow Condensed,sans-serif;text-transform:uppercase;color:#ff3d3d;background:rgba(0,0,0,0.5);padding:5px;';
+          }
+          requestAnimationFrame(detectFrame);
+          return;
+        } else if (brightness > 230) {
+          if (indicator) {
+            indicator.textContent = '☀️ MUITO CLARO — REDUZA O BRILHO';
+            indicator.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-family:Barlow Condensed,sans-serif;text-transform:uppercase;color:#ffb300;background:rgba(0,0,0,0.5);padding:5px;';
+          }
+        }
+
         const code = jsQR(imageData.data, imageData.width, imageData.height);
         if (code) {
           // Check plate is filled before capturing
@@ -873,18 +903,24 @@ async function detectQRCode(lado) {
           const reAntiga = /^[A-Z]{3}-?\d{4}$/;
           const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
           if (!placa || (!reAntiga.test(placa) && !reMercosul.test(placa))) {
-            if (indicator) { indicator.textContent = '⚠️ Digite a placa antes!'; indicator.style.color = '#B7770D'; }
+            if (indicator) {
+            indicator.textContent = '⚠️ DIGITE A PLACA ANTES!';
+            indicator.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:13px;font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8);font-family:Barlow Condensed,sans-serif;text-transform:uppercase;color:#ff3d3d;background:rgba(0,0,0,0.35);padding:5px;';
+          }
           } else {
-            if (indicator) { indicator.textContent = '✅ QR CODE DETECTADO! CAPTURANDO...'; indicator.style.color = '#1A8C4E'; }
-            _qrCaptured[lado] = true; // Mark as captured BEFORE timeout
+            if (indicator) {
+              indicator.textContent = '✅ QR CODE DETECTADO! CAPTURANDO...';
+              indicator.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:14px;font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8);font-family:Barlow Condensed,sans-serif;text-transform:uppercase;color:#00e676;background:rgba(0,0,0,0.4);padding:6px;';
+            }
+            _qrCaptured[lado] = true;
             setTimeout(() => { if (!state[lado].photoBase64) takePhoto(lado); }, 400);
-            return; // Stop loop
+            return;
           }
         } else {
           const placa = document.getElementById(`placa-${lado}`)?.value.trim() || '';
           if (indicator) {
-            indicator.textContent = placa ? '🔍 Procurando QR Code...' : '⚠️ Digite a placa primeiro...';
-            indicator.style.color = '#B7770D';
+            indicator.textContent = placa ? '🔍 PROCURANDO QR CODE...' : '⚠️ DIGITE A PLACA PRIMEIRO';
+            indicator.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:13px;font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8);font-family:Barlow Condensed,sans-serif;text-transform:uppercase;color:#ffb300;background:rgba(0,0,0,0.35);padding:5px;';
           }
         }
       } catch(e) {}
@@ -1349,7 +1385,14 @@ async function verificarDestino(resultDestino) {
   if (!db) { alert('Firebase não configurado.'); return; }
   const box = document.getElementById('result-destino');
   try {
-    const snap = await db.collection('processos').where('placa','==',placaDest).where('status','==','aberto').orderBy('registradoEm','desc').limit(1).get();
+    // Search across all open statuses
+    const [s1,s2,s3] = await Promise.all([
+      db.collection('processos').where('placa','==',placaDest).where('status','==','aberto').orderBy('registradoEm','desc').limit(1).get(),
+      db.collection('processos').where('placa','==',placaDest).where('status','==','aguardando_confirmacao').orderBy('registradoEm','desc').limit(1).get(),
+      db.collection('processos').where('placa','==',placaDest).where('status','==','aguardando_confirmacao_desvio').orderBy('registradoEm','desc').limit(1).get()
+    ]);
+    const allSnap = [...s1.docs,...s2.docs,...s3.docs].sort((a,b)=>(b.data().registradoEm?.seconds||0)-(a.data().registradoEm?.seconds||0));
+    const snap = { docs: allSnap, empty: allSnap.length === 0 };
     if (snap.empty) {
       box.className = 'status-box error show';
       box.innerHTML = `<div class="status-title">❌ Processo não encontrado</div><div class="status-item">Nenhum processo aberto para a placa <strong>${placaDest}</strong>.</div>`;
@@ -1966,11 +2009,24 @@ let _historicoCache = [];
 
 function filtrarHistorico() {
   const q = document.getElementById('hist-filtro-op')?.value.trim().toLowerCase() || '';
-  const filtrado = q ? _historicoCache.filter(d =>
-    (d.abertoPorNome||d.abertoPor||'').toLowerCase().includes(q) ||
-    (d.fechadoPorNome||d.fechadoPor||'').toLowerCase().includes(q) ||
-    (d.motorista||'').toLowerCase().includes(q)
-  ) : _historicoCache;
+  const res = document.getElementById('hist-filtro-resultado')?.value || '';
+  let filtrado = _historicoCache;
+  if (q) {
+    filtrado = filtrado.filter(d =>
+      (d.abertoPorNome||d.abertoPor||'').toLowerCase().includes(q) ||
+      (d.fechadoPorNome||d.fechadoPor||'').toLowerCase().includes(q) ||
+      (d.motorista||'').toLowerCase().includes(q) ||
+      (d.placa||'').toLowerCase().includes(q)
+    );
+  }
+  if (res) {
+    filtrado = filtrado.filter(d => {
+      if (res === 'ok') return d.resultado === 'ok';
+      if (res === 'desvio') return d.resultado === 'desvio';
+      if (res === 'manual') return d.status === 'encerrado_manual';
+      return true;
+    });
+  }
   renderHistorico(filtrado);
 }
 
