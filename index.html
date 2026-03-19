@@ -250,7 +250,7 @@ tbody tr:hover{background:var(--surface2);}
         <label>Senha</label>
         <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;">
       </div>
-      <button class="btn btn-primary" onclick="doAppLogin()">Entrar</button>
+      <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
   </div>
@@ -265,7 +265,7 @@ tbody tr:hover{background:var(--surface2);}
     </div>
     <div class="header-buttons">
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
-      <button class="admin-btn" onclick="doAppLogout()">🚪 Sair</button>
+      <button class="admin-btn" onclick="doAppLogoutComOffline()">🚪 Sair</button>
     </div>
   </div>
 
@@ -327,6 +327,33 @@ tbody tr:hover{background:var(--surface2);}
       <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px">✅ Registrar Saída</button>
     </div>
 
+
+      <!-- NOTA FISCAL -->
+      <div class="card">
+        <div class="card-title">📋 NOTA FISCAL</div>
+        <div class="input-group">
+          <label>Número da NF</label>
+          <input type="text" id="nf-numero-origem" placeholder="000000" style="letter-spacing:2px;">
+        </div>
+        <div class="input-group">
+          <label>Fornecedor</label>
+          <input type="text" id="fornecedor-origem" placeholder="NOME DA EMPRESA" style="font-size:13px;letter-spacing:0;text-transform:none;">
+        </div>
+        <div id="cam-nf-origem" style="display:none;margin-bottom:10px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
+          <video id="video-nf-origem" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
+          <canvas id="canvas-nf-origem" style="display:none;"></canvas>
+          <img id="preview-nf-origem" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline" id="btn-capturar-nf-origem" onclick="capturarFotoNF('origem')" style="flex:1;">📷 Capturar Foto da NF</button>
+          <button class="btn btn-outline" onclick="analisarNF('origem')" style="flex:1;">🔍 Analisar NF</button>
+        </div>
+        <div id="loading-nf-origem" class="loading" style="margin-top:8px;">
+          <div class="spinner"></div>
+          <div class="loading-text">Analisando NF com IA...</div>
+        </div>
+        <div id="result-nf-origem" class="status-box" style="display:none;margin-top:8px;"></div>
+      </div>
     <!-- DESTINO -->
     <div class="section" id="section-destino">
       <div class="card">
@@ -438,6 +465,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('historico')">Histórico</button>
           <button class="admin-tab" onclick="adminTab('emails')">E-mails</button>
           <button class="admin-tab" onclick="adminTab('usuarios')">Usuários</button>
+          <button class="admin-tab" onclick="adminTab('fornecedores')">Fornecedores</button>
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
         </div>
       </div>
@@ -510,7 +538,7 @@ tbody tr:hover{background:var(--surface2);}
             <button class="btn btn-danger btn-sm" onclick="limparProcessosTeste()" style="width:auto;">🗑️ Limpar Testes</button>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Aberto por</th><th>Status</th><th>Mapa</th><th>Ações</th></tr></thead>
+            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Tempo</th><th>Aberto por</th><th>Status</th><th>Fotos</th><th>Mapa</th><th>Ações</th></tr></thead>
             <tbody id="processos-tbody"></tbody></table>
           </div>
         </div>
@@ -530,8 +558,44 @@ tbody tr:hover{background:var(--surface2);}
             </select>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Aberto por</th><th>Fechado por</th><th>Justificativa</th><th>Fotos</th><th>Mapa</th></tr></thead>
+            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Aberto por</th><th>Fechado por</th><th>Justificativa</th><th>NF / Fornecedor</th><th>Fotos</th><th>Mapa</th></tr></thead>
             <tbody id="historico-tbody"></tbody></table>
+          </div>
+        </div>
+
+
+        <!-- FORNECEDORES -->
+        <div class="admin-section" id="atab-fornecedores">
+          <div class="info-bar">Cadastre fornecedores com CNPJ. Ao ler uma NF com IA, o sistema cruzará o CNPJ do emissor com os cadastrados e usará o nome que você definir.</div>
+
+          <div class="form-row" style="margin-bottom:12px;align-items:flex-end;">
+            <div class="input-group" style="flex:1.2;">
+              <label>CNPJ do Fornecedor</label>
+              <input type="text" id="novo-forn-cnpj" placeholder="00.000.000/0000-00" maxlength="18"
+                oninput="this.value=formatarCNPJ(this.value)"
+                style="font-size:15px;letter-spacing:1px;">
+            </div>
+            <div class="input-group" style="flex:2;">
+              <label>Nome Cadastrado (como vai aparecer no sistema)</label>
+              <input type="text" id="novo-forn-nome" placeholder="EX: ACME DISTRIBUIDORA"
+                style="font-size:14px;letter-spacing:0;text-transform:uppercase;">
+            </div>
+            <button class="btn btn-primary btn-sm" style="padding:11px 16px;white-space:nowrap;" onclick="adicionarFornecedor()">+ Cadastrar</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>CNPJ</th>
+                  <th>Nome Cadastrado</th>
+                  <th>Cadastrado em</th>
+                  <th>Cadastrado por</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="fornecedores-tbody"></tbody>
+            </table>
           </div>
         </div>
 
@@ -881,6 +945,14 @@ async function detectQRCode(lado) {
   const detectFrame = () => {
     // Stop if stream ended, photo already taken, or already captured
     if (!state[lado].stream || state[lado].photoBase64 || _qrCaptured[lado]) return;
+
+    // Pause QR scan when user is typing in any input/textarea/select
+    const active = document.activeElement;
+    const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT');
+    if (isTyping) {
+      setTimeout(() => requestAnimationFrame(detectFrame), 500);
+      return;
+    }
 
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
       canvas.width = video.videoWidth;
@@ -1340,6 +1412,9 @@ async function registrarOrigem() {
       status: 'aberto',
       registradoEm: firebase.firestore.FieldValue.serverTimestamp(),
       fotoOrigemURL: fotoURL || null,
+      numeroNF: document.getElementById('nf-numero-origem')?.value.trim() || null,
+      fornecedor: document.getElementById('fornecedor-origem')?.value.trim() || null,
+      cnpjFornecedor: stateNF?.cnpjEmissor || null,
       placaDetectada: state.origem.placaDetectada || null,
       empresaDetectada: state.origem.empresaDetectada || null
     };
@@ -1467,6 +1542,11 @@ async function verificarDestino(resultDestino) {
 
     if (ok) {
       // Encerrar automaticamente
+      // Salvar foto do destino no Firebase Storage
+      let fotoDestinoURL = null;
+      if (state.destino.photoBase64 && storage) {
+        fotoDestinoURL = await salvarFotoNoFirebase(state.destino.photoBase64, proc.processId, 'destino');
+      }
       await db.collection('processos').doc(proc.processId).update({
         status: 'encerrado',
         lacreDestino: resultDestino.numero,
@@ -1480,7 +1560,8 @@ async function verificarDestino(resultDestino) {
         fechadoPorNome: currentOperador?.nome||'',
         fechadoPorEmpresa: currentOperador?.empresa||'',
         motorisDestino: motoristaDest || '',
-        observacaoDestino: obsDest || ''
+        observacaoDestino: obsDest || '',
+        fotoDestinoURL: fotoDestinoURL || null
       });
       await db.collection('lacresValidos').doc(proc.lacreNumero).update({
         emUso: false, inutilizado: true, placa: null, processId: null,
@@ -1809,7 +1890,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
+    const tabs = ['lacres','placas','processos','historico','emails','usuarios','fornecedores','config'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -1821,6 +1902,7 @@ function adminTab(tab) {
   if (tab==='config') loadConfig();
   if (tab==='usuarios') loadUsuarios();
   if (tab==='historico') loadHistorico();
+  if (tab==='fornecedores') loadFornecedores();
 }
 
 // ============================================================
@@ -1938,7 +2020,7 @@ async function loadProcessos() {
       .sort((a,b) => (b.data().registradoEm?.seconds||0) - (a.data().registradoEm?.seconds||0));
     const snap = { docs: allDocs, empty: allDocs.length === 0 };
     const tbody = document.getElementById('processos-tbody');
-    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text2);text-align:center;">Nenhum processo em aberto</td></tr>'; return; }
+    if (snap.empty) { tbody.innerHTML = '<tr><td colspan="10" style="color:var(--text2);text-align:center;">Nenhum processo em aberto</td></tr>'; return; }
     const agora = Date.now();
     tbody.innerHTML = snap.docs.map(doc=>{
       const d = doc.data();
@@ -1959,13 +2041,19 @@ async function loadProcessos() {
       const confirmBtn = (d.status === 'aguardando_confirmacao' || d.status === 'aguardando_confirmacao_desvio')
         ? `<button class="btn btn-success btn-sm" onclick="confirmarEncerramento('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;margin-bottom:4px;">✅ Confirmar</button><br>`
         : '';
+      const fotosBtnsProc = [
+        d.fotoOrigemURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoOrigemURL}','Foto Origem — ${d.placa}')" style="padding:4px 8px;font-size:11px;margin-bottom:2px;">📷 Origem</button>` : '',
+        d.fotoDestinoURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoDestinoURL}','Foto Destino — ${d.placa}')" style="padding:4px 8px;font-size:11px;">📷 Destino</button>` : ''
+      ].filter(Boolean).join('<br>') || '<span style="font-size:11px;color:var(--text2)">—</span>';
       return `<tr>
-        <td><strong>${d.placa}</strong><br><small style="font-size:10px">${statusBadge}</small></td>
+        <td><strong>${d.placa}</strong></td>
         <td style="font-size:12px;color:var(--text)">${d.motorista||'—'}</td>
         <td style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px">${d.lacreNumero}</td>
         <td style="font-size:11px;color:var(--text2)">${new Date(d.timestamp).toLocaleString('pt-BR')}</td>
         <td>${expirado ? `<span class="badge badge-err">${h}h</span>` : `<span class="badge badge-ok">${h}h</span>`}</td>
         <td style="font-size:11px;color:var(--text2)">${d.abertoPorNome||d.abertoPor||'—'}</td>
+        <td><small style="font-size:10px">${statusBadge}</small></td>
+        <td>${fotosBtnsProc}</td>
         <td>${mapBtn}</td>
         <td>${confirmBtn}<button class="btn btn-danger btn-sm" onclick="encerrarProcessoManual('${doc.id}','${d.lacreNumero}')" style="padding:5px 10px;font-size:11px;">Encerrar</button></td>
       </tr>`;
@@ -1996,26 +2084,42 @@ function verNoMapa(locOrigem, locDestino, placa) {
     ? `https://www.google.com/maps/dir/?api=1&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&travelmode=driving`
     : `https://www.google.com/maps?q=${orig.lat},${orig.lng}&z=15`;
 
-  // OpenStreetMap embed (free, no API key)
-  let embedUrl;
-  if (orig && dest) {
-    // Show both markers with route hint
-    const midLat = (orig.lat + dest.lat) / 2;
-    const midLng = (orig.lng + dest.lng) / 2;
-    const latDiff = Math.abs(orig.lat - dest.lat);
-    const lngDiff = Math.abs(orig.lng - dest.lng);
-    const zoom = latDiff > 1 || lngDiff > 1 ? 8 : latDiff > 0.1 || lngDiff > 0.1 ? 11 : 13;
-    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${midLng-lngDiff*1.5},${midLat-latDiff*1.5},${midLng+lngDiff*1.5},${midLat+latDiff*1.5}&layer=mapnik&marker=${orig.lat},${orig.lng}`;
-  } else {
-    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${orig.lng-0.01},${orig.lat-0.01},${orig.lng+0.01},${orig.lat+0.01}&layer=mapnik&marker=${orig.lat},${orig.lng}`;
-  }
-
   const modal = document.getElementById('map-modal');
   document.getElementById('map-modal-title').textContent = `📍 Localização — Placa ${placa}`;
   document.getElementById('map-link').href = gmUrl;
 
-  // Show coordinates info
+  // Build Leaflet map HTML
+  const destLine = dest
+    ? `L.marker([${dest.lat}, ${dest.lng}], {icon: redIcon}).addTo(map).bindPopup('<b>🔴 Destino</b><br>${dest.lat.toFixed(5)}, ${dest.lng.toFixed(5)}').openPopup();
+       L.polyline([[${orig.lat},${orig.lng}],[${dest.lat},${dest.lng}]], {color:'#1B3A6B',weight:3,dashArray:'6,8',opacity:0.8}).addTo(map);
+       map.fitBounds([[${orig.lat},${orig.lng}],[${dest.lat},${dest.lng}]], {padding:[40,40]});`
+    : `map.setView([${orig.lat}, ${orig.lng}], 15);`;
+
+  const mapHtml = `<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+    <style>html,body,#map{margin:0;padding:0;width:100%;height:100%;}</style>
+  </head><body>
+    <div id="map"></div>
+    <script>
+      var map = L.map('map');
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+      var greenIcon = L.icon({iconUrl:'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',shadowUrl:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34]});
+      var redIcon = L.icon({iconUrl:'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',shadowUrl:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34]});
+      L.marker([${orig.lat}, ${orig.lng}], {icon: greenIcon}).addTo(map).bindPopup('<b>🟢 Origem</b><br>${orig.lat.toFixed(5)}, ${orig.lng.toFixed(5)}').openPopup();
+      ${destLine}
+    <\/script>
+  </body></html>`;
+
+  const blob = new Blob([mapHtml], {type: 'text/html'});
+  const blobUrl = URL.createObjectURL(blob);
+
   const iframe = document.getElementById('map-iframe');
+  // Revoke previous blob URL
+  if (iframe._blobUrl) URL.revokeObjectURL(iframe._blobUrl);
+  iframe._blobUrl = blobUrl;
+  iframe.src = blobUrl;
 
   // Add info bar above iframe
   let infoBar = document.getElementById('map-info-bar');
@@ -2028,7 +2132,6 @@ function verNoMapa(locOrigem, locDestino, placa) {
   infoBar.innerHTML = `<span>🟢 <strong>Origem:</strong> ${orig.lat.toFixed(5)}, ${orig.lng.toFixed(5)}</span>`
     + (dest ? `<span>🔴 <strong>Destino:</strong> ${dest.lat.toFixed(5)}, ${dest.lng.toFixed(5)}</span>` : '');
 
-  iframe.src = embedUrl;
   modal.style.display = 'flex';
 }
 
@@ -2116,6 +2219,10 @@ function renderHistorico(lista) {
     const justif = d.justificativa
       ? `<span style="font-size:11px;color:var(--warning)">${d.justificativa}</span>`
       : '<span style="font-size:11px;color:var(--text2)">—</span>';
+    const fotoBtns = [
+      d.fotoOrigemURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoOrigemURL}','Foto Origem — ${d.placa}')" style="padding:4px 8px;font-size:11px;margin-bottom:2px;">📷 Origem</button>` : '',
+      d.fotoDestinoURL ? `<button class="btn btn-outline btn-sm" onclick="verFoto('${d.fotoDestinoURL}','Foto Destino — ${d.placa}')" style="padding:4px 8px;font-size:11px;">📷 Destino</button>` : ''
+    ].filter(Boolean).join('<br>') || '<span style="font-size:11px;color:var(--text2)">—</span>';
     return `<tr>
       <td><strong>${d.placa}</strong></td>
       <td style="font-size:12px">${d.motorista||'—'}</td>
@@ -2126,6 +2233,14 @@ function renderHistorico(lista) {
       <td style="font-size:11px;color:var(--text2)">${abertoPor}</td>
       <td style="font-size:11px;color:var(--text2)">${fechadoPor}</td>
       <td>${justif}</td>
+      <td style="font-size:11px;">${
+        (d.numeroNF || d.cnpjFornecedor || d.fornecedor)
+          ? `<span style="display:block;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">NF: ${d.numeroNF||'—'}</span>
+             <span style="display:block;color:var(--text2);font-size:10px;">${d.cnpjFornecedor ? formatarCNPJ(d.cnpjFornecedor) : ''}</span>
+             <span style="display:block;font-weight:600;font-size:11px;">${d.fornecedor||''}</span>`
+          : '<span style="color:var(--text2)">—</span>'
+      }</td>
+      <td>${fotoBtns}</td>
       <td>${mapBtn}</td>
     </tr>`;
   }).join('');
@@ -2438,42 +2553,78 @@ function baixarModeloPlacas() {
 // EXPORTAR CSV
 // ============================================================
 async function exportarCSV() {
+  if (!db) { alert('Banco de dados não conectado.'); return; }
   try {
+    const btn = document.querySelector('[onclick="exportarCSV()"]');
+    if (btn) btn.disabled = true;
+
     const [snapEnc, snapManual] = await Promise.all([
-      db.collection('processos').where('status','==','encerrado').get(),
-      db.collection('processos').where('status','==','encerrado_manual').get()
+      db.collection('processos').where('status','==','encerrado').orderBy('registradoEm','desc').get(),
+      db.collection('processos').where('status','==','encerrado_manual').orderBy('registradoEm','desc').get()
     ]);
-    const docs = [...snapEnc.docs,...snapManual.docs]
+    const docs = [...snapEnc.docs, ...snapManual.docs]
       .sort((a,b)=>(b.data().encerradoEm?.seconds||b.data().registradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||a.data().registradoEm?.seconds||0));
 
-    const header = ['Placa','Lacre Origem','Lacre Destino','Data Saída','Data Chegada','Resultado','Local Origem','Local Destino','Aberto Por','Fechado Por','Encerrado Por','Justificativa'];
+    if (!docs.length) {
+      alert('Nenhum processo para exportar.');
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    const headers = [
+      'ID do Processo','Data/Hora Abertura','Data/Hora Fechamento',
+      'Placa do Veículo','Motorista','Lacre Número','Lacre Íntegro',
+      'Operador Abertura','Empresa Abertura','Operador Fechamento','Empresa Fechamento',
+      'Local Origem','Local Destino','Observação Abertura','Observação Fechamento',
+      'Número NF','CNPJ Fornecedor','Fornecedor','Status','Duração (horas)'
+    ];
+
     const rows = docs.map(doc => {
       const d = doc.data();
+      let duracao = 'N/A';
+      if (d.timestamp && d.tsDestino) {
+        const diff = new Date(d.tsDestino) - new Date(d.timestamp);
+        duracao = (diff / 3600000).toFixed(2);
+      }
       return [
-        d.placa||'',
-        d.lacreNumero||'',
-        d.lacreDestino||'',
+        d.processId||'',
         d.timestamp ? new Date(d.timestamp).toLocaleString('pt-BR') : '',
         d.tsDestino ? new Date(d.tsDestino).toLocaleString('pt-BR') : '',
+        d.placa||'',
+        d.motorista||'',
+        d.lacreNumero||'',
+        d.lacreIntegro ? 'Sim' : 'Não',
+        d.abertoPorNome||'',
+        d.abertoPorEmpresa||'',
+        d.fechadoPorNome||d.encerradoPor||'',
+        d.fechadoPorEmpresa||'',
+        d.locOrigem||'',
+        d.locDestino||'',
+        d.observacaoOrigem||'',
+        d.observacaoDestino||'',
+        d.numeroNF||'',
+        d.cnpjFornecedor ? formatarCNPJ(d.cnpjFornecedor) : '',
+        d.fornecedor||'',
         d.resultado === 'ok' ? 'OK' : d.status === 'encerrado_manual' ? 'Manual' : 'Desvio',
-        (d.locOrigem||'').replace(/,/g,' '),
-        (d.locDestino||'').replace(/,/g,' '),
-        d.abertoPorNome||d.abertoPor||'',
-        d.fechadoPorNome||d.fechadoPor||'',
-        d.encerradoPor||'',
-        (d.justificativa||'').replace(/,/g,' ')
-      ].map(v => `"${v}"`).join(',');
+        duracao
+      ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(';');
     });
 
-    const csv = [header.join(','), ...rows].join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const csv = '﻿' + headers.map(h=>`"${h}"`).join(';') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `historico_lacres_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  } catch(e) { alert('Erro ao exportar: ' + e.message); }
+    alert(`✅ Exportação concluída! ${docs.length} processos exportados.`);
+    if (btn) btn.disabled = false;
+  } catch(e) {
+    alert('Erro ao exportar: ' + e.message);
+    const btn = document.querySelector('[onclick="exportarCSV()"]');
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ============================================================
@@ -2636,6 +2787,374 @@ loadGeminiKey();
       .then(reg => console.log('Service Worker registrado:', reg))
       .catch(err => console.log('Erro ao registrar Service Worker:', err));
   }
+
+// ============================================================
+// LOGIN OFFLINE - PERSISTÊNCIA DE SESSÃO
+// ============================================================
+async function salvarLoginOffline(user, operadorData) {
+  try {
+    const offlineData = {
+      uid: user.uid,
+      email: user.email,
+      nome: operadorData.nome,
+      empresa: operadorData.empresa,
+      perfil: operadorData.perfil,
+      timestamp: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    localStorage.setItem('offlineOperador', JSON.stringify(offlineData));
+  } catch (err) {
+    console.warn('Erro ao salvar login offline:', err);
+  }
+}
+
+function restaurarLoginOffline() {
+  try {
+    const offlineData = localStorage.getItem('offlineOperador');
+    if (!offlineData) return null;
+    const data = JSON.parse(offlineData);
+    if (new Date(data.expiresAt) < new Date()) {
+      localStorage.removeItem('offlineOperador');
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.warn('Erro ao restaurar login offline:', err);
+    return null;
+  }
+}
+
+async function doAppLoginComOffline() {
+  if (!navigator.onLine) {
+    const email = document.getElementById('op-email').value.trim();
+    const errEl = document.getElementById('app-login-err');
+    const offlineData = restaurarLoginOffline();
+    if (offlineData && offlineData.email === email) {
+      currentOperador = { uid: offlineData.uid, email: offlineData.email, nome: offlineData.nome, empresa: offlineData.empresa, perfil: offlineData.perfil };
+      document.getElementById('op-nome-display').textContent = offlineData.nome;
+      document.getElementById('app-login-screen').style.display = 'none';
+      document.getElementById('app-main').style.display = 'block';
+      applyRolePermissions(offlineData.perfil);
+      initSessionTimeout();
+      setTimeout(() => startCamera('origem'), 300);
+      showTopAlert('⚠️ Modo Offline — Dados podem estar desatualizados', 'warning');
+      return;
+    } else {
+      errEl.textContent = 'Sem internet. Nenhum login anterior salvo para este e-mail.';
+      errEl.style.display = 'block';
+      return;
+    }
+  }
+  // Online: login normal + salvar para offline
+  if (!auth) { alert('Firebase não configurado.'); return; }
+  const email = document.getElementById('op-email').value.trim();
+  const pass = document.getElementById('op-pass').value;
+  const errEl = document.getElementById('app-login-err');
+  errEl.style.display = 'none';
+  try {
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+    const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
+    const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
+    const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
+    const empresa = userDoc.exists ? (userDoc.data().empresa || '') : '';
+    currentOperador = { email, nome, uid: cred.user.uid, perfil, empresa };
+    // Salvar para offline
+    await salvarLoginOffline(cred.user, { nome, empresa, perfil });
+    document.getElementById('op-nome-display').textContent = nome;
+    document.getElementById('app-login-screen').style.display = 'none';
+    document.getElementById('app-main').style.display = 'block';
+    const adminBtn = document.querySelector('.admin-btn');
+    if (adminBtn) {
+      adminBtn.style.display = (perfil === 'admin' || perfil === 'operador') ? 'block' : 'none';
+      adminBtn.style.visibility = 'visible';
+    }
+    applyRolePermissions(perfil);
+    initSessionTimeout();
+    setTimeout(() => startCamera('origem'), 300);
+  } catch(e) {
+    console.error('App login error:', e.code, e.message);
+    errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential'
+      ? 'E-mail ou senha incorretos.'
+      : e.code === 'auth/too-many-requests'
+      ? 'Muitas tentativas. Aguarde alguns minutos.'
+      : 'Erro ao conectar. Verifique a internet.';
+    errEl.style.display = 'block';
+  }
+}
+
+function doAppLogoutComOffline() {
+  if (!confirm('Deseja sair?')) return;
+  if (auth) auth.signOut();
+  localStorage.removeItem('offlineOperador');
+  currentOperador = null;
+  document.getElementById('app-login-screen').style.display = 'block';
+  document.getElementById('app-main').style.display = 'none';
+  document.getElementById('op-email').value = '';
+  document.getElementById('op-pass').value = '';
+  const adminBtn = document.querySelector('.admin-btn');
+  if (adminBtn) adminBtn.style.display = 'block';
+  ['origem','destino'].forEach(lado => {
+    if (state[lado].stream) state[lado].stream.getTracks().forEach(t => t.stop());
+    state[lado].stream = null;
+    state[lado].photoBase64 = null;
+  });
+  if (window._sessionTimer) clearTimeout(window._sessionTimer);
+  showTopAlert('Logout realizado', 'ok');
+}
+
+window.addEventListener('online', () => {
+  showTopAlert('✅ Conexão restaurada', 'ok');
+});
+window.addEventListener('offline', () => {
+  showTopAlert('⚠️ Sem conexão — Modo offline ativado', 'warning');
+});
+
+// ============================================================
+// LEITURA DE NF COM IA (GEMINI)
+// ============================================================
+const stateNF = { photoBase64: null, nfNumero: null, fornecedor: null };
+
+async function analisarNF(lado = 'origem') {
+  const loading = document.getElementById(`loading-nf-${lado}`);
+  const result = document.getElementById(`result-nf-${lado}`);
+  if (!loading || !result) return;
+  if (!stateNF.photoBase64) { alert('Tire uma foto da NF antes de analisar.'); return; }
+  loading.classList.add('show');
+  result.style.display = 'none';
+  try {
+    const geminiKey = localStorage.getItem('geminiKey');
+    if (!geminiKey) throw new Error('Chave Gemini não configurada. Acesse o painel Admin.');
+
+    // Prompt solicita CNPJ do emissor (campo principal para cruzamento)
+    const prompt = `Analise esta imagem de uma Nota Fiscal (NF) ou DANFE e extraia:
+1. NÚMERO DA NF (apenas os dígitos, ex: "123456")
+2. CNPJ DO EMISSOR (empresa que EMITIU a nota — campo "EMITENTE" ou "CNPJ:" no topo). Formato: apenas 14 dígitos, sem pontuação.
+3. NOME DO EMISSOR conforme consta na NF (fallback caso CNPJ não seja legível)
+
+Responda APENAS com JSON no formato:
+{"numeroNF":"123456","cnpjEmissor":"12345678000195","nomeEmissor":"NOME DA EMPRESA LTDA","confianca":0.95}
+
+Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, responda:
+{"numeroNF":null,"cnpjEmissor":null,"nomeEmissor":null,"confianca":0,"erro":"Descrição do problema"}`;
+
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + geminiKey, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: 'image/jpeg', data: stateNF.photoBase64.split(',')[1] } }] }] })
+    });
+    if (!response.ok) throw new Error(`Erro da API: ${response.status}`);
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Resposta inválida da IA');
+    const resultNF = JSON.parse(jsonMatch[0]);
+
+    if (!resultNF.numeroNF && !resultNF.cnpjEmissor) {
+      throw new Error(resultNF.erro || 'Não foi possível ler a NF');
+    }
+
+    // Cruzar CNPJ com banco de dados de fornecedores cadastrados
+    let nomeFornecedor = null;
+    let cnpjEncontrado = false;
+    let fornecedorCadastrado = false;
+
+    if (resultNF.cnpjEmissor) {
+      const fornecedor = await buscarFornecedorPorCNPJ(resultNF.cnpjEmissor);
+      if (fornecedor) {
+        nomeFornecedor = fornecedor.nome;
+        cnpjEncontrado = true;
+        fornecedorCadastrado = true;
+      }
+    }
+
+    // Fallback: usar nome da NF se CNPJ não estiver cadastrado
+    if (!nomeFornecedor) {
+      nomeFornecedor = resultNF.nomeEmissor || '—';
+    }
+
+    loading.classList.remove('show');
+
+    stateNF.nfNumero = resultNF.numeroNF;
+    stateNF.fornecedor = nomeFornecedor;
+    stateNF.cnpjEmissor = resultNF.cnpjEmissor;
+
+    const nfInput = document.getElementById(`nf-numero-${lado}`);
+    const fornecedorInput = document.getElementById(`fornecedor-${lado}`);
+    if (nfInput) nfInput.value = resultNF.numeroNF || '';
+    if (fornecedorInput) fornecedorInput.value = nomeFornecedor;
+
+    // Build status message
+    const cnpjFormatado = resultNF.cnpjEmissor ? formatarCNPJ(resultNF.cnpjEmissor) : 'Não lido';
+    const origemNome = fornecedorCadastrado
+      ? `<span style="background:var(--success);color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:6px;">✓ CADASTRADO</span>`
+      : `<span style="background:var(--warning);color:#fff;border-radius:4px;padding:1px 7px;font-size:11px;margin-left:6px;">⚠ NÃO CADASTRADO</span>`;
+
+    result.className = 'status-box ok show';
+    result.innerHTML = `
+      <div class="status-title">✅ NF Lida com Sucesso</div>
+      <div class="status-item"><strong>NF Nº:</strong> ${resultNF.numeroNF || '—'}</div>
+      <div class="status-item"><strong>CNPJ Emissor:</strong> ${cnpjFormatado}</div>
+      <div class="status-item"><strong>Fornecedor:</strong> ${nomeFornecedor} ${origemNome}</div>
+      ${!fornecedorCadastrado && resultNF.cnpjEmissor ? `
+      <div class="status-item" style="font-size:11px;color:var(--warning);margin-top:4px;">
+        ⚠ CNPJ não encontrado no cadastro. Usando nome da própria NF como fallback.<br>
+        <span style="color:var(--text2);">Cadastre o fornecedor na aba <strong>Fornecedores</strong> para identificação automática.</span>
+      </div>` : ''}
+      <div class="status-item" style="font-size:11px;color:var(--text3);">Confiança da leitura: ${(resultNF.confianca*100).toFixed(0)}%</div>`;
+    result.style.display = 'block';
+
+    const alertMsg = fornecedorCadastrado
+      ? `✅ Fornecedor identificado: ${nomeFornecedor}`
+      : `✅ NF lida — fornecedor não cadastrado, usando nome da NF`;
+    showTopAlert(alertMsg, fornecedorCadastrado ? 'ok' : 'warning');
+
+  } catch (err) {
+    loading.classList.remove('show');
+    result.className = 'status-box error show';
+    result.innerHTML = `<div class="status-title">⚠️ Erro ao Ler NF</div>
+      <div class="status-item">${err.message}</div>
+      <div class="status-item" style="font-size:12px;">Tente tirar uma foto mais clara da NF.</div>`;
+    result.style.display = 'block';
+  }
+}
+
+async function capturarFotoNF(lado = 'origem') {
+  const video = document.getElementById(`video-nf-${lado}`);
+  const canvas = document.getElementById(`canvas-nf-${lado}`);
+  const preview = document.getElementById(`preview-nf-${lado}`);
+  const camArea = document.getElementById(`cam-nf-${lado}`);
+  if (!video || !canvas) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
+    video.srcObject = stream;
+    video.play();
+    if (camArea) camArea.style.display = 'block';
+    video.style.display = 'block';
+    preview.style.display = 'none';
+    const captureBtn = document.getElementById(`btn-capturar-nf-${lado}`);
+    if (captureBtn) {
+      captureBtn.textContent = '📸 Capturar Foto';
+      captureBtn.onclick = () => {
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        stateNF.photoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        preview.src = stateNF.photoBase64;
+        preview.style.display = 'block';
+        video.style.display = 'none';
+        stream.getTracks().forEach(t => t.stop());
+        captureBtn.textContent = '📷 Nova Foto da NF';
+        captureBtn.onclick = () => capturarFotoNF(lado);
+        analisarNF(lado);
+      };
+    }
+  } catch (err) {
+    alert('Não foi possível acessar a câmera. Verifique as permissões.');
+  }
+}
+
+// ============================================================
+// FORNECEDORES — CRUD
+// ============================================================
+function formatarCNPJ(v) {
+  v = v.replace(/\D/g, '').slice(0, 14);
+  if (v.length <= 2)  return v;
+  if (v.length <= 5)  return v.slice(0,2)+'.'+v.slice(2);
+  if (v.length <= 8)  return v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5);
+  if (v.length <= 12) return v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5,8)+'/'+v.slice(8);
+  return v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5,8)+'/'+v.slice(8,12)+'-'+v.slice(12,14);
+}
+
+function validarCNPJ(cnpj) {
+  cnpj = cnpj.replace(/\D/g, '');
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+  const calc = (n) => {
+    let sum = 0, len = n + 2;
+    for (let i = 0; i < n; i++) sum += parseInt(cnpj[i]) * (len - i);
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(12) === parseInt(cnpj[12]) && calc(13) === parseInt(cnpj[13]);
+}
+
+async function loadFornecedores() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('fornecedores').orderBy('nome').get();
+    const tbody = document.getElementById('fornecedores-tbody');
+    tbody.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const cnpjFormatado = formatarCNPJ(d.cnpj || '');
+      return `<tr>
+        <td><strong style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:14px;">${cnpjFormatado}</strong></td>
+        <td style="font-weight:600;">${d.nome || '—'}</td>
+        <td style="font-size:11px;color:var(--text2);">${d.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR') || '—'}</td>
+        <td style="font-size:11px;color:var(--text2);">${d.cadastradoPor || '—'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerFornecedor('${doc.id}')" style="padding:5px 10px;font-size:11px;">Remover</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:20px;">Nenhum fornecedor cadastrado</td></tr>';
+  } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); }
+}
+
+async function adicionarFornecedor() {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  const cnpjRaw = document.getElementById('novo-forn-cnpj').value.replace(/\D/g, '');
+  const nome = document.getElementById('novo-forn-nome').value.trim().toUpperCase();
+
+  if (!cnpjRaw || cnpjRaw.length !== 14) {
+    alert('CNPJ inválido. Digite os 14 dígitos.');
+    return;
+  }
+  if (!validarCNPJ(cnpjRaw)) {
+    alert('CNPJ inválido. Verifique os dígitos verificadores.');
+    return;
+  }
+  if (!nome) {
+    alert('Informe o nome do fornecedor.');
+    return;
+  }
+
+  // Check if CNPJ already exists
+  const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
+  if (existing.exists) {
+    if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".\nDeseja atualizar o nome para "${nome}"?`)) return;
+  }
+
+  await db.collection('fornecedores').doc(cnpjRaw).set({
+    cnpj: cnpjRaw,
+    nome,
+    cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    cadastradoPor: currentOperador?.nome || currentOperador?.email || 'Admin'
+  });
+
+  await registrarLog('cadastro_fornecedor', `Fornecedor cadastrado: CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`);
+  document.getElementById('novo-forn-cnpj').value = '';
+  document.getElementById('novo-forn-nome').value = '';
+  showTopAlert(`✅ Fornecedor "${nome}" cadastrado com sucesso`, 'ok');
+  loadFornecedores();
+}
+
+async function removerFornecedor(cnpj) {
+  if (!confirm(`Remover fornecedor com CNPJ ${formatarCNPJ(cnpj)}?`)) return;
+  await db.collection('fornecedores').doc(cnpj).delete();
+  await registrarLog('remocao_fornecedor', `Fornecedor removido: CNPJ ${formatarCNPJ(cnpj)}`);
+  loadFornecedores();
+}
+
+async function buscarFornecedorPorCNPJ(cnpj) {
+  if (!db || !cnpj) return null;
+  const cnpjLimpo = cnpj.replace(/\D/g, '');
+  if (cnpjLimpo.length !== 14) return null;
+  try {
+    const doc = await db.collection('fornecedores').doc(cnpjLimpo).get();
+    return doc.exists ? doc.data() : null;
+  } catch(e) {
+    console.warn('Erro ao buscar fornecedor:', e.message);
+    return null;
+  }
+}
 </script>
 </body>
 </html>
