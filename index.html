@@ -280,13 +280,13 @@ tbody tr:hover{background:var(--surface2);}
     <!-- ORIGEM -->
     <div class="section active" id="section-origem">
       <div class="card">
-        <div class="card-title">Dados do Veículo</div>
+        <div class="card-title">Dados do Veículo <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*campos obrigatórios</span></div>
         <div class="input-group">
-          <label>Placa do Veículo</label>
+          <label>Placa do Veículo <span style="color:var(--danger);">*</span></label>
           <input type="text" id="placa-origem" placeholder="ABC-1234" maxlength="8">
         </div>
         <div class="input-group">
-          <label>Motorista</label>
+          <label>Motorista <span style="color:var(--danger);">*</span></label>
           <input type="text" id="motorista-origem" placeholder="NOME DO MOTORISTA" style="font-size:14px;letter-spacing:0;text-transform:none;">
         </div>
         <div class="input-group">
@@ -359,13 +359,13 @@ tbody tr:hover{background:var(--surface2);}
     <!-- DESTINO -->
     <div class="section" id="section-destino">
       <div class="card">
-        <div class="card-title">Dados do Veículo</div>
+        <div class="card-title">Dados do Veículo <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*campos obrigatórios</span></div>
         <div class="input-group">
-          <label>Placa do Veículo</label>
+          <label>Placa do Veículo <span style="color:var(--danger);">*</span></label>
           <input type="text" id="placa-destino" placeholder="ABC-1234" maxlength="8">
         </div>
         <div class="input-group">
-          <label>Motorista</label>
+          <label>Motorista <span style="color:var(--danger);">*</span></label>
           <input type="text" id="motorista-destino" placeholder="NOME DO MOTORISTA" style="font-size:14px;letter-spacing:0;text-transform:none;">
         </div>
         <div class="input-group">
@@ -597,7 +597,7 @@ tbody tr:hover{background:var(--surface2);}
 
         <!-- FORNECEDORES -->
         <div class="admin-section" id="atab-fornecedores">
-          <div class="info-bar">Cadastre fornecedores com CNPJ. Ao ler uma NF com IA, o sistema cruzará o CNPJ do emissor com os cadastrados e usará o nome que você definir.</div>
+          <div class="info-bar">Cadastre fornecedores com CNPJ. Ao ler uma NF com IA, o sistema cruzará o CNPJ do emissor com os cadastrados e usará o nome definido aqui. <strong>Importante:</strong> certifique-se que as regras do Firestore permitem leitura/escrita na coleção <code style="background:rgba(0,0,0,.07);padding:1px 5px;border-radius:3px;">fornecedores</code>.</div>
 
           <div class="form-row" style="margin-bottom:12px;align-items:flex-end;">
             <div class="input-group" style="flex:1.2;">
@@ -3165,41 +3165,55 @@ async function loadFornecedores() {
 }
 
 async function adicionarFornecedor() {
-  if (!db) { alert('Firebase não configurado.'); return; }
+  if (!db) { alert('Firebase não configurado. Configure o Firebase no painel Admin → Config.'); return; }
+
   const cnpjRaw = document.getElementById('novo-forn-cnpj').value.replace(/\D/g, '');
   const nome = document.getElementById('novo-forn-nome').value.trim().toUpperCase();
 
-  if (!cnpjRaw || cnpjRaw.length !== 14) {
-    alert('CNPJ inválido. Digite os 14 dígitos.');
+  if (!nome) { alert('Informe o nome do fornecedor.'); return; }
+  if (!cnpjRaw) { alert('Informe o CNPJ do fornecedor.'); return; }
+  if (cnpjRaw.length !== 14) {
+    alert(`CNPJ incompleto: ${cnpjRaw.length} dígitos digitados, esperado 14.\nDigite os 14 dígitos numéricos.`);
     return;
   }
   if (!validarCNPJ(cnpjRaw)) {
-    alert('CNPJ inválido. Verifique os dígitos verificadores.');
-    return;
-  }
-  if (!nome) {
-    alert('Informe o nome do fornecedor.');
-    return;
+    const resp = confirm(`O CNPJ ${formatarCNPJ(cnpjRaw)} parece inválido (dígito verificador incorreto).\n\nDeseja cadastrar mesmo assim?`);
+    if (!resp) return;
   }
 
-  // Check if CNPJ already exists
-  const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
-  if (existing.exists) {
-    if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".\nDeseja atualizar o nome para "${nome}"?`)) return;
+  const btn = document.querySelector('[onclick="adicionarFornecedor()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+
+  try {
+    const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
+    if (existing.exists) {
+      if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".\nDeseja atualizar o nome para "${nome}"?`)) {
+        if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
+        return;
+      }
+    }
+
+    const cadastradoPor = currentOperador?.nome || currentOperador?.email
+      || auth?.currentUser?.email || 'Admin';
+
+    await db.collection('fornecedores').doc(cnpjRaw).set({
+      cnpj: cnpjRaw,
+      nome,
+      cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+      cadastradoPor
+    });
+
+    document.getElementById('novo-forn-cnpj').value = '';
+    document.getElementById('novo-forn-nome').value = '';
+    showTopAlert(`✅ Fornecedor "${nome}" cadastrado com sucesso`, 'ok');
+    loadFornecedores();
+    try { await registrarLog('cadastro_fornecedor', `CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`); } catch(_) {}
+  } catch(e) {
+    console.error('Erro ao cadastrar fornecedor:', e);
+    alert(`❌ Erro ao salvar fornecedor:\n\n${e.message}\n\nVerifique se as regras do Firestore permitem escrita na coleção "fornecedores".`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
   }
-
-  await db.collection('fornecedores').doc(cnpjRaw).set({
-    cnpj: cnpjRaw,
-    nome,
-    cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
-    cadastradoPor: currentOperador?.nome || currentOperador?.email || 'Admin'
-  });
-
-  await registrarLog('cadastro_fornecedor', `Fornecedor cadastrado: CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`);
-  document.getElementById('novo-forn-cnpj').value = '';
-  document.getElementById('novo-forn-nome').value = '';
-  showTopAlert(`✅ Fornecedor "${nome}" cadastrado com sucesso`, 'ok');
-  loadFornecedores();
 }
 
 async function removerFornecedor(cnpj) {
