@@ -530,7 +530,7 @@ tbody tr:hover{background:var(--surface2);}
             </select>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Aberto por</th><th>Fechado por</th><th>Justificativa</th><th>Mapa</th></tr></thead>
+            <table><thead><tr><th>Placa</th><th>Motorista</th><th>Lacre</th><th>Saída</th><th>Chegada</th><th>Resultado</th><th>Aberto por</th><th>Fechado por</th><th>Justificativa</th><th>Fotos</th><th>Mapa</th></tr></thead>
             <tbody id="historico-tbody"></tbody></table>
           </div>
         </div>
@@ -614,6 +614,21 @@ tbody tr:hover{background:var(--surface2);}
         </div>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOTO MODAL -->
+<div id="foto-modal" style="position:fixed;inset:0;background:rgba(10,20,40,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeFotoModal()">
+  <div style="background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:500px;overflow:hidden;box-shadow:var(--shadow-lg);">
+    <div style="background:var(--gerdau-blue);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);">
+      <span id="foto-modal-title" style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#fff;letter-spacing:1px;"></span>
+      <button onclick="closeFotoModal()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;">✕</button>
+    </div>
+    <img id="foto-modal-img" src="" alt="Foto do lacre" style="width:100%;max-height:70vh;object-fit:contain;display:block;background:#000;">
+    <div style="padding:10px 16px;text-align:right;">
+      <a id="foto-download" href="" download="lacre.jpg" onclick="this.href=document.getElementById('foto-modal-img').src"
+        style="font-size:12px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;letter-spacing:1px;">⬇ BAIXAR FOTO</a>
     </div>
   </div>
 </div>
@@ -2022,6 +2037,16 @@ function closeMapModal() {
   document.getElementById('map-iframe').src = '';
 }
 
+function verFoto(url, titulo) {
+  document.getElementById('foto-modal-title').textContent = titulo;
+  document.getElementById('foto-modal-img').src = url;
+  document.getElementById('foto-modal').style.display = 'flex';
+}
+function closeFotoModal() {
+  document.getElementById('foto-modal').style.display = 'none';
+  document.getElementById('foto-modal-img').src = '';
+}
+
 let _historicoCache = [];
 
 function filtrarHistorico() {
@@ -2531,6 +2556,66 @@ async function checkProcessosExpirados() {
 }
 
 setTimeout(checkProcessosExpirados, 3000);
+// ============================================================
+// LIMPEZA AUTOMÁTICA DE FOTOS (5 meses)
+// ============================================================
+async function limparFotosAntigas() {
+  if (!storage || !db) return;
+  try {
+    const cincoMesesAtras = new Date();
+    cincoMesesAtras.setMonth(cincoMesesAtras.getMonth() - 5);
+    const limiteISO = cincoMesesAtras.toISOString();
+
+    const snap = await db.collection('processos')
+      .where('status', 'in', ['encerrado', 'encerrado_manual'])
+      .get();
+
+    let deletados = 0;
+    for (const doc of snap.docs) {
+      const d = doc.data();
+      if ((d.timestamp || '') < limiteISO) {
+        // Delete origem photo
+        if (d.fotoOrigemURL) {
+          try {
+            await storage.refFromURL(d.fotoOrigemURL).delete();
+            deletados++;
+          } catch(e) {}
+        }
+        // Delete destino photo
+        if (d.fotoDestinoURL) {
+          try {
+            await storage.refFromURL(d.fotoDestinoURL).delete();
+            deletados++;
+          } catch(e) {}
+        }
+        // Remove photo URLs from process record
+        if (d.fotoOrigemURL || d.fotoDestinoURL) {
+          await db.collection('processos').doc(doc.id).update({
+            fotoOrigemURL: null,
+            fotoDestinoURL: null,
+            fotosExcluidas: true,
+            fotosExcluidasEm: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      }
+    }
+    if (deletados > 0) {
+      await registrarLog('limpeza_fotos', `${deletados} fotos excluídas automaticamente (processos com mais de 5 meses)`);
+      console.log(`Limpeza: ${deletados} fotos removidas`);
+    }
+  } catch(e) { console.warn('Erro na limpeza de fotos:', e.message); }
+}
+
+// Run cleanup on load (once per day)
+setTimeout(() => {
+  const ultimaLimpeza = getCfg('ultima_limpeza_fotos', '');
+  const hoje = new Date().toDateString();
+  if (ultimaLimpeza !== hoje) {
+    limparFotosAntigas();
+    setCfg('ultima_limpeza_fotos', hoje);
+  }
+}, 10000);
+
 async function seedEmailPadrao() {
   if (!db) return;
   try {
