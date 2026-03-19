@@ -284,7 +284,10 @@ tbody tr:hover{background:var(--surface2);}
         <div class="card-title">Dados do Veículo <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*campos obrigatórios</span></div>
         <div class="input-group">
           <label>Placa do Veículo <span style="color:var(--danger);">*</span></label>
-          <input type="text" id="placa-origem" placeholder="ABC-1234" maxlength="8">
+          <input type="text" id="placa-origem" placeholder="ABC-1234" maxlength="8"
+            oninput="this.value=this.value.toUpperCase()"
+            onblur="validarPlacaInline('origem')">
+          <small id="placa-origem-status" style="font-size:11px;margin-top:2px;display:none;"></small>
         </div>
         <div class="input-group">
           <label>Motorista <span style="color:var(--danger);">*</span></label>
@@ -325,24 +328,21 @@ tbody tr:hover{background:var(--surface2);}
         <div id="result-origem-body"></div>
         <div class="read-value" id="lacre-lido-origem"></div>
       </div>
-      <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px">✅ Registrar Saída</button>
-
-      <!-- PASSO 2: NOTA FISCAL — aparece após leitura do lacre -->
+      <!-- PASSO 2: NOTA FISCAL — banner aparece após leitura do lacre -->
       <div id="nf-step-prompt" style="display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#1B3A6B,#2952A3);color:#fff;border-radius:12px;padding:14px 18px;margin-bottom:10px;box-shadow:0 4px 16px rgba(27,58,107,.35);animation:nfPromptIn .4s ease;">
         <div style="font-size:28px;line-height:1;">📋</div>
         <div style="flex:1;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;">PASSO 2 — NOTA FISCAL</div>
-          <div style="font-size:12px;opacity:.85;margin-top:2px;">Lacre registrado! Agora preencha o número da NF e o fornecedor abaixo.</div>
+          <div style="font-size:12px;opacity:.85;margin-top:2px;">Lacre verificado! Preencha os dados da NF abaixo e clique em Registrar Saída.</div>
         </div>
         <div style="font-size:22px;">👇</div>
       </div>
+
+      <!-- CARD NOTA FISCAL -->
       <div class="card" style="border-left:3px solid var(--gerdau-yellow);">
         <div class="card-title">
           📋 NOTA FISCAL
           <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;margin-left:6px;">*obrigatório</span>
-        </div>
-        <div class="info-bar" style="margin-bottom:10px;background:#FFF8E7;border-left-color:#F5A623;color:#7A5800;">
-          Preencha o número da NF e o fornecedor, ou use a câmera para leitura automática.
         </div>
         <div class="form-row" style="gap:10px;margin-bottom:8px;">
           <div class="input-group" style="flex:1;margin-bottom:0;">
@@ -350,15 +350,21 @@ tbody tr:hover{background:var(--surface2);}
             <input type="text" id="nf-numero-origem" placeholder="000000" style="letter-spacing:2px;font-size:15px;">
           </div>
           <div class="input-group" style="flex:2;margin-bottom:0;">
-            <label>Fornecedor <span style="color:var(--danger);">*</span> <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span></label>
+            <label>Fornecedor <span style="color:var(--danger);">*</span>
+              <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span>
+            </label>
             <input type="text" id="fornecedor-origem" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;">
           </div>
         </div>
-        <div id="cam-nf-origem" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;">
-          <video id="video-nf-origem" style="display:none;width:100%;border-radius:10px;" autoplay playsinline></video>
+
+        <!-- Câmera da NF com detecção automática de documento -->
+        <div id="cam-nf-origem" style="display:none;margin-bottom:8px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
+          <video id="video-nf-origem" style="width:100%;border-radius:10px;" autoplay playsinline></video>
           <canvas id="canvas-nf-origem" style="display:none;"></canvas>
           <img id="preview-nf-origem" style="display:none;width:100%;border-radius:10px;" alt="Prévia NF">
+          <div id="nf-doc-indicator" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;font-weight:700;color:#fff;background:rgba(0,0,0,.45);padding:5px 0;letter-spacing:1px;">📄 APONTE PARA A NF</div>
         </div>
+
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" id="btn-capturar-nf-origem" onclick="capturarFotoNF('origem')" style="flex:1;min-width:120px;">📷 Ler NF com Câmera</button>
           <button class="btn btn-outline btn-sm" onclick="analisarNF('origem')" style="flex:1;min-width:120px;">🔍 Analisar com IA</button>
@@ -369,6 +375,9 @@ tbody tr:hover{background:var(--surface2);}
         <div id="result-nf-origem" class="status-box" style="display:none;margin-top:6px;"></div>
       </div>
 
+      <!-- BOTÃO REGISTRAR SAÍDA — aparece após lacre + NF preenchida -->
+      <button class="btn btn-yellow" id="btn-registrar" onclick="registrarOrigem()" style="display:none;margin-top:8px;">✅ Registrar Saída</button>
+
     </div>
 
     <!-- DESTINO -->
@@ -377,7 +386,10 @@ tbody tr:hover{background:var(--surface2);}
         <div class="card-title">Dados do Veículo <span style="font-size:11px;font-weight:500;color:var(--danger);letter-spacing:0;">*campos obrigatórios</span></div>
         <div class="input-group">
           <label>Placa do Veículo <span style="color:var(--danger);">*</span></label>
-          <input type="text" id="placa-destino" placeholder="ABC-1234" maxlength="8">
+          <input type="text" id="placa-destino" placeholder="ABC-1234" maxlength="8"
+            oninput="this.value=this.value.toUpperCase()"
+            onblur="validarPlacaInline('destino')">
+          <small id="placa-destino-status" style="font-size:11px;margin-top:2px;display:none;"></small>
         </div>
         <div class="input-group">
           <label>Motorista <span style="color:var(--danger);">*</span></label>
@@ -3310,6 +3322,209 @@ async function buscarFornecedorPorCNPJ(cnpj) {
     console.warn('Erro ao buscar fornecedor:', e.message);
     return null;
   }
+}
+
+// ──────────────────────────────────────────────────────────
+// VALIDAÇÃO INLINE DE PLACA (feedback imediato no campo)
+// ──────────────────────────────────────────────────────────
+async function validarPlacaInline(lado) {
+  const input  = document.getElementById(`placa-${lado}`);
+  const status = document.getElementById(`placa-${lado}-status`);
+  if (!input || !status) return;
+
+  const placa = input.value.trim().toUpperCase();
+  const reAntiga   = /^[A-Z]{3}-?\d{4}$/;
+  const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+
+  if (!placa) { status.style.display = 'none'; return; }
+
+  if (!reAntiga.test(placa) && !reMercosul.test(placa)) {
+    status.style.cssText = 'display:block;color:var(--danger);';
+    status.textContent = '⚠️ Formato inválido (ex: ABC-1234 ou ABC1D23)';
+    return;
+  }
+
+  if (!db) return;
+  status.style.cssText = 'display:block;color:var(--text2);';
+  status.textContent = '⏳ Verificando...';
+  try {
+    const placaLimpa = placa.replace(/[^A-Z0-9]/g, '');
+    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
+    if (doc.exists) {
+      const desc = doc.data().descricao ? ` — ${doc.data().descricao}` : '';
+      status.style.cssText = 'display:block;color:var(--success);font-weight:600;';
+      status.textContent = `✅ Placa autorizada${desc}`;
+    } else {
+      status.style.cssText = 'display:block;color:var(--danger);font-weight:600;';
+      status.textContent = '❌ Placa não autorizada — contate o administrador';
+    }
+  } catch(e) {
+    status.style.cssText = 'display:block;color:var(--text2);';
+    status.textContent = 'Não foi possível verificar agora';
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// CÂMERA DA NF COM DETECÇÃO AUTOMÁTICA DE DOCUMENTO
+// ──────────────────────────────────────────────────────────
+let _nfStream = null;
+let _nfCaptured = false;
+
+async function capturarFotoNF(lado = 'origem') {
+  const video     = document.getElementById(`video-nf-${lado}`);
+  const canvas    = document.getElementById(`canvas-nf-${lado}`);
+  const preview   = document.getElementById(`preview-nf-${lado}`);
+  const camArea   = document.getElementById(`cam-nf-${lado}`);
+  const indicator = document.getElementById('nf-doc-indicator');
+  const captBtn   = document.getElementById(`btn-capturar-nf-${lado}`);
+
+  if (!video || !canvas || !camArea) return;
+
+  // Se já tem preview, resetar para nova foto
+  if (!video.style.display || video.style.display === 'none') {
+    preview.style.display = 'none';
+    preview.src = '';
+    stateNF[lado].photoBase64 = null;
+    _nfCaptured = false;
+  }
+
+  try {
+    if (_nfStream) { _nfStream.getTracks().forEach(t => t.stop()); _nfStream = null; }
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+    });
+    _nfStream = stream;
+    video.srcObject = stream;
+    video.style.display = 'block';
+    preview.style.display = 'none';
+    camArea.style.display = 'block';
+
+    if (captBtn) {
+      captBtn.textContent = '📸 Capturar Agora';
+      captBtn.onclick = () => _tirarFotoNF(lado);
+    }
+    if (indicator) {
+      indicator.style.display = 'block';
+      indicator.textContent = '📄 APONTE PARA A NF/DANFE';
+    }
+
+    await video.play();
+    _detectarDocumentoNF(lado);
+
+  } catch(err) {
+    alert('Não foi possível acessar a câmera. Verifique as permissões.');
+    console.error(err);
+  }
+}
+
+function _detectarDocumentoNF(lado) {
+  const video     = document.getElementById(`video-nf-${lado}`);
+  const canvas    = document.getElementById(`canvas-nf-${lado}`);
+  const indicator = document.getElementById('nf-doc-indicator');
+  if (!video || !canvas || _nfCaptured) return;
+  if (video.style.display === 'none') return; // preview já mostrado
+
+  const ctx = canvas.getContext('2d');
+  let docFrames = 0; // contagem de frames com documento detectado
+
+  const tick = () => {
+    if (_nfCaptured || video.style.display === 'none') return;
+
+    if (video.readyState >= 2) {
+      canvas.width  = video.videoWidth  || 640;
+      canvas.height = video.videoHeight || 480;
+      ctx.drawImage(video, 0, 0);
+
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        const total = data.length / 4;
+
+        // Calcular brilho médio do centro (área da NF)
+        const cx = Math.floor(canvas.width  * 0.2);
+        const cy = Math.floor(canvas.height * 0.2);
+        const cw = Math.floor(canvas.width  * 0.6);
+        const ch = Math.floor(canvas.height * 0.6);
+
+        let brightSum = 0, brightCount = 0;
+        let darkPixels = 0;
+        for (let y = cy; y < cy + ch; y += 4) {
+          for (let x = cx; x < cx + cw; x += 4) {
+            const i = (y * canvas.width + x) * 4;
+            const lum = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
+            brightSum += lum;
+            brightCount++;
+            if (lum < 80) darkPixels++;
+          }
+        }
+        const avgBright  = brightCount > 0 ? brightSum / brightCount : 0;
+        const darkRatio  = brightCount > 0 ? darkPixels / brightCount : 0;
+
+        // Documento detectado: centro claro (papel branco) com algum texto (pixels escuros = ~5-40%)
+        const documentoDetectado = avgBright > 160 && darkRatio > 0.03 && darkRatio < 0.55;
+
+        if (documentoDetectado) {
+          docFrames++;
+          if (indicator) {
+            indicator.style.background = 'rgba(26,140,78,.75)';
+            indicator.textContent = `✅ DOCUMENTO DETECTADO — MANTENDO FIRME... (${docFrames}/8)`;
+          }
+          if (docFrames >= 8) {
+            // 8 frames consecutivos com documento → capturar automaticamente
+            _tirarFotoNF(lado);
+            return;
+          }
+        } else {
+          docFrames = 0;
+          if (indicator) {
+            indicator.style.background = 'rgba(0,0,0,.45)';
+            const msg = avgBright < 80  ? '🌑 MUITO ESCURO — ILUMINE A NF'
+                      : avgBright > 230 ? '☀️ MUITO CLARO — REDUZA O BRILHO'
+                      : '📄 APONTE PARA A NF/DANFE';
+            indicator.textContent = msg;
+          }
+        }
+      } catch(e) {}
+    }
+    setTimeout(() => requestAnimationFrame(tick), 120); // ~8fps — não interfere no QR
+  };
+
+  requestAnimationFrame(tick);
+}
+
+function _tirarFotoNF(lado) {
+  if (_nfCaptured) return;
+  _nfCaptured = true;
+
+  const video   = document.getElementById(`video-nf-${lado}`);
+  const canvas  = document.getElementById(`canvas-nf-${lado}`);
+  const preview = document.getElementById(`preview-nf-${lado}`);
+  const captBtn = document.getElementById(`btn-capturar-nf-${lado}`);
+  const indicator = document.getElementById('nf-doc-indicator');
+
+  if (!video || !canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  ctx.drawImage(video, 0, 0);
+
+  stateNF[lado].photoBase64 = canvas.toDataURL('image/jpeg', 0.9);
+  preview.src = stateNF[lado].photoBase64;
+  preview.style.display = 'block';
+  video.style.display   = 'none';
+  if (indicator) indicator.style.display = 'none';
+
+  if (_nfStream) { _nfStream.getTracks().forEach(t => t.stop()); _nfStream = null; }
+
+  if (captBtn) {
+    captBtn.textContent = '🔄 Nova Foto da NF';
+    captBtn.onclick = () => { _nfCaptured = false; capturarFotoNF(lado); };
+  }
+
+  // Analisar automaticamente
+  analisarNF(lado);
 }
 </script>
 </body>
