@@ -846,37 +846,52 @@ async function startCamera(lado) {
   }
 }
 
+const _qrCaptured = { origem: false, destino: false };
+
 async function detectQRCode(lado) {
   if (!state[lado].stream) return;
+  _qrCaptured[lado] = false;
   const video = document.getElementById(`video-${lado}`);
   const canvas = document.getElementById(`canvas-${lado}`);
   const ctx = canvas.getContext('2d');
   const indicator = document.getElementById(`qr-indicator-${lado}`);
-  
-  const detectFrame = async () => {
-    if (!state[lado].stream) return;
+
+  const detectFrame = () => {
+    // Stop if stream ended, photo already taken, or already captured
+    if (!state[lado].stream || state[lado].photoBase64 || _qrCaptured[lado]) return;
+
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
-      if (code) {
-        indicator.textContent = '✅ QR CODE DETECTADO';
-        indicator.style.color = '#1A8C4E';
-        if (!window._qrDetected) {
-          window._qrDetected = true;
-          setTimeout(() => takePhoto(lado), 500);
+      try {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code) {
+          // Check plate is filled before capturing
+          const placa = document.getElementById(`placa-${lado}`)?.value.trim().toUpperCase() || '';
+          const reAntiga = /^[A-Z]{3}-?\d{4}$/;
+          const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+          if (!placa || (!reAntiga.test(placa) && !reMercosul.test(placa))) {
+            if (indicator) { indicator.textContent = '⚠️ Digite a placa antes!'; indicator.style.color = '#B7770D'; }
+          } else {
+            if (indicator) { indicator.textContent = '✅ QR CODE DETECTADO! CAPTURANDO...'; indicator.style.color = '#1A8C4E'; }
+            _qrCaptured[lado] = true; // Mark as captured BEFORE timeout
+            setTimeout(() => { if (!state[lado].photoBase64) takePhoto(lado); }, 400);
+            return; // Stop loop
+          }
+        } else {
+          const placa = document.getElementById(`placa-${lado}`)?.value.trim() || '';
+          if (indicator) {
+            indicator.textContent = placa ? '🔍 Procurando QR Code...' : '⚠️ Digite a placa primeiro...';
+            indicator.style.color = '#B7770D';
+          }
         }
-      } else {
-        indicator.textContent = '🔍 Procurando QR Code...';
-        indicator.style.color = '#B7770D';
-        window._qrDetected = false;
-      }
+      } catch(e) {}
     }
     requestAnimationFrame(detectFrame);
   };
-  detectFrame();
+  requestAnimationFrame(detectFrame);
 }
 
 async function takePhoto(lado) {
@@ -900,14 +915,43 @@ async function takePhoto(lado) {
       document.getElementById(`btn-refoto-${lado}`).style.display = 'block';
       document.getElementById(`ts-${lado}`).textContent = new Date().toLocaleString('pt-BR');
       
-      // Capturar localização
+      // Capturar localização com reverse geocoding
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
+        navigator.geolocation.getCurrentPosition(async pos => {
           const { latitude, longitude } = pos.coords;
-          state[lado].locCoords = `${latitude},${longitude}`;
-          state[lado].loc = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          const coords = `${latitude},${longitude}`;
+          state[lado].locCoords = coords;
+          state[lado].loc = coords;
+          document.getElementById(`loc-${lado}`).textContent = `📍 Obtendo endereço...`;
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=pt-BR`,
+              { headers: { 'User-Agent': 'VerificaLacre-Gerdau/1.0' } }
+            );
+            const data = await res.json();
+            if (data && data.address) {
+              const city = data.address.city || data.address.town || data.address.village || data.address.municipality || '';
+              const state_ = data.address.state || '';
+              if (city && state_) {
+                state[lado].loc = `${city}, ${state_}`;
+              } else if (state_) {
+                state[lado].loc = state_;
+              } else {
+                state[lado].loc = coords;
+              }
+            }
+          } catch(e) { state[lado].loc = coords; }
           document.getElementById(`loc-${lado}`).textContent = `📍 ${state[lado].loc}`;
-        }, err => console.warn('Geolocation error:', err));
+        }, err => {
+          console.warn('Geolocation error:', err);
+          // Fallback via IP
+          fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(d => {
+              state[lado].loc = `${d.city||''}, ${d.region||''} (aprox.)`.trim().replace(/^,\s*/, '');
+              document.getElementById(`loc-${lado}`).textContent = `📍 ${state[lado].loc}`;
+            }).catch(() => {});
+        }, { timeout: 10000, enableHighAccuracy: true });
       }
       
       state[lado].timestamp = new Date();
@@ -918,18 +962,34 @@ async function takePhoto(lado) {
 }
 
 function retakePhoto(lado) {
+  _qrCaptured[lado] = false; // Reset capture flag
   const video = document.getElementById(`video-${lado}`);
   const preview = document.getElementById(`preview-${lado}`);
   preview.classList.remove('active');
-  video.classList.add('active');
+  preview.src = '';
   document.getElementById(`btn-refoto-${lado}`).style.display = 'none';
   document.getElementById(`btn-foto-${lado}`).style.display = 'block';
   document.getElementById(`ts-${lado}`).textContent = '';
   document.getElementById(`loc-${lado}`).textContent = '';
   document.getElementById(`result-${lado}`).className = 'status-box';
+  document.getElementById(`manual-entry-${lado}`)?.remove();
+  hideTopAlert();
   state[lado].photoBase64 = null;
   state[lado].lacreNumero = null;
   state[lado].locCoords = null;
+  // Restart camera
+  if (state[lado].stream) {
+    state[lado].stream.getTracks().forEach(t => t.stop());
+    state[lado].stream = null;
+  }
+  video.srcObject = null;
+  video.classList.remove('active');
+  document.getElementById(`placeholder-${lado}`).style.display = 'flex';
+  if (lado === 'origem') {
+    document.getElementById('btn-registrar').style.display = 'none';
+    document.getElementById('lacre-lido-origem').textContent = '';
+  }
+  setTimeout(() => startCamera(lado), 300);
 }
 
 // ============================================================
@@ -1152,6 +1212,20 @@ async function registrarOrigem() {
     alert(`Placa ${placa} não está autorizada no sistema!\n\nEntre em contato com o administrador.`);
     return;
   }
+
+  // Verificar se já existe processo aberto para essa placa
+  try {
+    const snapAberto = await db.collection('processos')
+      .where('placa','==',placa)
+      .where('status','in',['aberto','aguardando_confirmacao','aguardando_confirmacao_desvio'])
+      .get();
+    if (!snapAberto.empty) {
+      const proc = snapAberto.docs[0].data();
+      const dataAbertura = proc.timestamp ? new Date(proc.timestamp).toLocaleString('pt-BR') : '—';
+      alert(`⚠️ Já existe um processo aberto para a placa ${placa}!\n\nAberto em: ${dataAbertura}\nLacre: ${proc.lacreNumero}\n\nO processo anterior deve ser encerrado antes de abrir um novo.`);
+      return;
+    }
+  } catch(e) { console.warn('Erro ao verificar processos:', e.message); }
 
   if (!state.origem.lacreNumero) { alert('Tire a foto do lacre primeiro.'); return; }
   if (!db) { alert('Firebase não configurado. Configure no painel admin.'); return; }
@@ -1837,30 +1911,48 @@ function verNoMapa(locOrigem, locDestino, placa) {
   const orig = parseCoord(locOrigem);
   const dest = parseCoord(locDestino);
 
-  let url;
-  if (orig && dest) {
-    url = `https://www.google.com/maps/dir/?api=1&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&travelmode=driving`;
-  } else if (orig) {
-    url = `https://www.google.com/maps?q=${orig.lat},${orig.lng}&z=15&markers=${orig.lat},${orig.lng}`;
-  } else {
-    alert('Coordenadas não disponíveis para este registro.');
+  if (!orig) {
+    alert('Coordenadas de origem não disponíveis para este registro.');
     return;
   }
 
-  const modal = document.getElementById('map-modal');
-  const title = document.getElementById('map-modal-title');
-  const iframe = document.getElementById('map-iframe');
+  // Google Maps link for "Abrir no Maps"
+  const gmUrl = orig && dest
+    ? `https://www.google.com/maps/dir/?api=1&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&travelmode=driving`
+    : `https://www.google.com/maps?q=${orig.lat},${orig.lng}&z=15`;
 
-  title.textContent = `📍 Localização — Placa ${placa}`;
-
+  // OpenStreetMap embed (free, no API key)
   let embedUrl;
   if (orig && dest) {
-    embedUrl = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&origin=${orig.lat},${orig.lng}&destination=${dest.lat},${dest.lng}&mode=driving`;
-  } else if (orig) {
-    embedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA&q=${orig.lat},${orig.lng}&zoom=15`;
+    // Show both markers with route hint
+    const midLat = (orig.lat + dest.lat) / 2;
+    const midLng = (orig.lng + dest.lng) / 2;
+    const latDiff = Math.abs(orig.lat - dest.lat);
+    const lngDiff = Math.abs(orig.lng - dest.lng);
+    const zoom = latDiff > 1 || lngDiff > 1 ? 8 : latDiff > 0.1 || lngDiff > 0.1 ? 11 : 13;
+    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${midLng-lngDiff*1.5},${midLat-latDiff*1.5},${midLng+lngDiff*1.5},${midLat+latDiff*1.5}&layer=mapnik&marker=${orig.lat},${orig.lng}`;
+  } else {
+    embedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${orig.lng-0.01},${orig.lat-0.01},${orig.lng+0.01},${orig.lat+0.01}&layer=mapnik&marker=${orig.lat},${orig.lng}`;
   }
 
-  document.getElementById('map-link').href = url;
+  const modal = document.getElementById('map-modal');
+  document.getElementById('map-modal-title').textContent = `📍 Localização — Placa ${placa}`;
+  document.getElementById('map-link').href = gmUrl;
+
+  // Show coordinates info
+  const iframe = document.getElementById('map-iframe');
+
+  // Add info bar above iframe
+  let infoBar = document.getElementById('map-info-bar');
+  if (!infoBar) {
+    infoBar = document.createElement('div');
+    infoBar.id = 'map-info-bar';
+    infoBar.style.cssText = 'padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);display:flex;gap:16px;flex-wrap:wrap;';
+    iframe.parentNode.insertBefore(infoBar, iframe);
+  }
+  infoBar.innerHTML = `<span>🟢 <strong>Origem:</strong> ${orig.lat.toFixed(5)}, ${orig.lng.toFixed(5)}</span>`
+    + (dest ? `<span>🔴 <strong>Destino:</strong> ${dest.lat.toFixed(5)}, ${dest.lng.toFixed(5)}</span>` : '');
+
   iframe.src = embedUrl;
   modal.style.display = 'flex';
 }
