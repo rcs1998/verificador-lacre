@@ -557,6 +557,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('fornecedores')">Fornecedores</button>
           <button class="admin-tab" onclick="adminTab('logs')">Logs</button>
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
+          <button class="admin-tab" onclick="adminTab('config-avancada')">Config Avançada</button>
         </div>
       </div>
 
@@ -753,6 +754,25 @@ tbody tr:hover{background:var(--surface2);}
             </div>
 
           </div>
+
+          <!-- CRIAR NOVO PERFIL (apenas admin) -->
+          <div class="card" style="margin-top:20px;border-left:3px solid var(--gerdau-yellow);" id="criar-perfil-card">
+            <div class="card-title">➕ Criar Novo Perfil Customizado</div>
+            <div class="info-bar" style="margin-bottom:12px;">Crie perfis além dos três padrão. O novo perfil aparecerá como opção ao criar usuários e poderá ter suas abas configuradas acima.</div>
+            <div class="form-row" style="gap:10px;align-items:flex-end;">
+              <div class="input-group" style="flex:1;margin-bottom:0;">
+                <label>ID do Perfil <small style="color:var(--text2);text-transform:none;letter-spacing:0;">(sem espaços, ex: supervisor)</small></label>
+                <input type="text" id="novo-perfil-id" placeholder="supervisor" style="font-size:15px;letter-spacing:0;text-transform:none;"
+                  oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'')">
+              </div>
+              <div class="input-group" style="flex:1.5;margin-bottom:0;">
+                <label>Nome de Exibição</label>
+                <input type="text" id="novo-perfil-nome" placeholder="Supervisor" style="font-size:15px;letter-spacing:0;text-transform:none;">
+              </div>
+              <button class="btn btn-primary btn-sm" style="padding:11px 16px;white-space:nowrap;" onclick="criarNovoPerfil()">+ Criar Perfil</button>
+            </div>
+            <div id="perfis-customizados-lista" style="margin-top:16px;"></div>
+          </div>
         </div>
 
         <!-- USUÁRIOS -->
@@ -812,10 +832,10 @@ tbody tr:hover{background:var(--surface2);}
           </div>
         </div>
 
-        <!-- CONFIG -->
+        <!-- CONFIG (simples) -->
         <div class="admin-section" id="atab-config">
           <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">Tempo máximo de processo aberto</div>
+            <div class="card-title">⏰ Tempo máximo de processo aberto</div>
             <div class="input-group">
               <label>Horas até alerta de processo expirado</label>
               <input type="number" id="config-horas" value="96" min="1" max="720" style="font-size:18px;width:120px;letter-spacing:2px;">
@@ -823,33 +843,38 @@ tbody tr:hover{background:var(--surface2);}
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarConfig()">Salvar</button>
           </div>
           <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">Timeout de Sessão (Logout Automático)</div>
+            <div class="card-title">🔐 Timeout de Sessão (Logout Automático)</div>
             <div class="input-group">
               <label>Horas de inatividade até logout automático</label>
               <input type="number" id="config-timeout" value="5" min="1" max="24" style="font-size:18px;width:120px;letter-spacing:2px;">
             </div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarTimeoutConfig()">Salvar</button>
           </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:14px;width:auto;" onclick="doLogout()">Sair do Painel</button>
+        </div>
+
+        <!-- CONFIG AVANÇADA -->
+        <div class="admin-section" id="atab-config-avancada">
+          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
           <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">Gemini API Key</div>
+            <div class="card-title">🤖 Gemini API Key</div>
             <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
           </div>
           <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">EmailJS — Configuração</div>
+            <div class="card-title">📧 EmailJS — Configuração</div>
             <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
             <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
             <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
           </div>
           <div class="card">
-            <div class="card-title">Firebase — Configuração</div>
+            <div class="card-title">🔥 Firebase — Configuração</div>
             <div class="input-group"><label>Firebase Config (JSON)</label>
             <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
           </div>
           <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
-          <button class="btn btn-outline btn-sm" style="margin-top:14px;width:auto;" onclick="doLogout()">Sair do Painel</button>
         </div>
 
       </div>
@@ -2121,13 +2146,13 @@ async function doLogin() {
 const DEFAULT_PERMS = {
   operacional: [],  // No admin access
   operador:    ['lacres','placas','processos','historico'],
-  admin:       ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config']
+  admin:       ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada']
 };
-const ALL_TABS = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config'];
+const ALL_TABS = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'];
 const TAB_LABELS = {
   lacres:'Lacres', placas:'Placas', processos:'Processos', historico:'Histórico',
   emails:'E-mails', perfis:'Perfis', usuarios:'Usuários', fornecedores:'Fornecedores',
-  logs:'Logs', config:'Config'
+  logs:'Logs', config:'Config', 'config-avancada':'Config Avançada'
 };
 let _cachedPerms = null;
 
@@ -2218,6 +2243,12 @@ async function criarUsuario() {
   
   if (!nome || !email || !senha) { alert('Preencha nome, e-mail e senha.'); return; }
   if (senha.length < 6) { alert('Senha deve ter no mínimo 6 caracteres.'); return; }
+  
+  // Apenas admin pode criar outros admins
+  if (perfil === 'admin' && currentUserRole !== 'admin') {
+    alert('Apenas administradores podem criar usuários com perfil Admin.');
+    return;
+  }
   
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, senha);
@@ -2326,7 +2357,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config'];
+    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -2341,6 +2372,7 @@ function adminTab(tab) {
   if (tab==='fornecedores') { loadFornecedores(); _fornecedoresCache = null; popularFornecedoresDatalist(); }
   if (tab==='logs') loadLogs();
   if (tab==='perfis') loadPerfis();
+  if (tab==='config-avancada') loadConfig();
 }
 
 // ============================================================
@@ -3315,6 +3347,7 @@ async function loadAdminData() {
   loadLacres();
   loadDashboard();
   seedEmailPadrao(); // runs after auth, safe
+  atualizarSelectPerfis(); // populate user creation dropdown
 }
 
 // ============================================================
@@ -4409,6 +4442,135 @@ function verificarFornecedorSelecionado(lado, valor) {
 // Populate on app load + after fornecedores tab is loaded
 // popularFornecedoresDatalist is called post-login instead of on page load
 // (fornecedores now requires auth to read)
+
+// ─── GESTÃO DE PERFIS CUSTOMIZADOS ───────────────────────
+async function criarNovoPerfil() {
+  const id   = document.getElementById('novo-perfil-id')?.value.trim();
+  const nome = document.getElementById('novo-perfil-nome')?.value.trim();
+  if (!id)   { showTopAlert('❌ Informe o ID do perfil', 'error'); return; }
+  if (!nome) { showTopAlert('❌ Informe o nome de exibição', 'error'); return; }
+  if (['admin','operador','operacional'].includes(id)) {
+    showTopAlert('❌ Esse ID já é um perfil padrão do sistema', 'error'); return;
+  }
+  try {
+    // Salva o perfil na coleção config/perfis-customizados
+    await db.collection('config').doc('perfis-customizados').set(
+      { [id]: nome }, { merge: true }
+    );
+    // Inicializa permissões vazias para o novo perfil
+    await db.collection('config').doc('permissoes').set(
+      { [id]: [] }, { merge: true }
+    );
+    _cachedPerms = null;
+    document.getElementById('novo-perfil-id').value = '';
+    document.getElementById('novo-perfil-nome').value = '';
+    showTopAlert(`✅ Perfil "${nome}" criado! Configure as abas acima.`, 'ok');
+    await registrarLog('criar_perfil', `Perfil customizado criado: ${id} = ${nome}`);
+    loadPerfis(); // refresh
+    atualizarSelectPerfis(); // refresh user creation dropdown
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function removerPerfilCustomizado(id, nome) {
+  if (!confirm(`Remover perfil "${nome}"?
+
+Usuários com esse perfil perderão acesso ao admin.`)) return;
+  try {
+    // Remove from perfis-customizados
+    await db.collection('config').doc('perfis-customizados').update(
+      { [id]: firebase.firestore.FieldValue.delete() }
+    );
+    await db.collection('config').doc('permissoes').update(
+      { [id]: firebase.firestore.FieldValue.delete() }
+    );
+    _cachedPerms = null;
+    showTopAlert(`🚫 Perfil "${nome}" removido`, 'warning');
+    loadPerfis();
+    atualizarSelectPerfis();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function getPerfisCustomizados() {
+  try {
+    const doc = await db.collection('config').doc('perfis-customizados').get();
+    return doc.exists ? doc.data() : {};
+  } catch(e) { return {}; }
+}
+
+// Update loadPerfis to also show custom profiles
+const _loadPerfisOriginal = loadPerfis;
+loadPerfis = async function() {
+  await _loadPerfisOriginal();
+
+  // Load and display custom profiles
+  const customPerfis = await getPerfisCustomizados();
+  const perms = await getPermissoes();
+  const lista = document.getElementById('perfis-customizados-lista');
+  if (!lista) return;
+
+  const entries = Object.entries(customPerfis);
+  if (!entries.length) {
+    lista.innerHTML = '<div style="font-size:13px;color:var(--text2);">Nenhum perfil customizado criado ainda.</div>';
+    return;
+  }
+
+  lista.innerHTML = `
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">Perfis criados:</div>
+    ${entries.map(([id, nome]) => {
+      const allowed = perms[id] || [];
+      return `
+        <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">${nome}</span>
+              <span style="font-size:12px;color:var(--text2);margin-left:8px;">ID: ${id}</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="removerPerfilCustomizado('${id}','${nome}')"
+              style="border-color:var(--danger);color:var(--danger);font-size:12px;">🗑 Remover</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
+            ${ALL_TABS.map(t => `
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:13px;background:var(--surface);">
+                <input type="checkbox" id="perm-${id}-${t}" ${allowed.includes(t) ? 'checked' : ''}
+                  style="width:15px;height:15px;cursor:pointer;accent-color:var(--gerdau-blue);">
+                ${TAB_LABELS[t]}
+              </label>`).join('')}
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="salvarPermissoesPerfil('${id}')" style="width:100%;">
+            💾 Salvar Permissões de "${nome}"
+          </button>
+        </div>`;
+    }).join('')}`;
+};
+
+// Update criarUsuario dropdown dynamically based on who is logged in
+async function atualizarSelectPerfis() {
+  const select = document.getElementById('novo-user-perfil');
+  if (!select) return;
+
+  const customPerfis = await getPerfisCustomizados();
+  const isAdmin = currentUserRole === 'admin';
+
+  // Perfis sempre disponíveis para operador: operacional, operador
+  let options = [
+    { value: 'operacional', label: 'Operacional — somente abertura/fechamento de processos' },
+    { value: 'operador',    label: 'Operador — Dashboard + abas configuradas' },
+  ];
+
+  // Perfis customizados (sempre disponíveis para quem pode criar usuários)
+  Object.entries(customPerfis).forEach(([id, nome]) => {
+    options.push({ value: id, label: `${nome} — perfil customizado` });
+  });
+
+  // Apenas admin pode criar outros admins
+  if (isAdmin) {
+    options.push({ value: 'admin', label: 'Admin — acesso total' });
+  }
+
+  select.innerHTML = options.map(o =>
+    `<option value="${o.value}">${o.label}</option>`
+  ).join('');
+}
 </script>
 </body>
 </html>
