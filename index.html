@@ -256,11 +256,11 @@ tbody tr:hover{background:var(--surface2);}
       <div class="login-title">Verifica Lacre</div>
       <div class="input-group">
         <label>E-mail</label>
-        <input type="email" id="op-email" placeholder="SEU@EMAIL.COM" style="letter-spacing:0;font-size:15px;">
+        <input type="email" id="op-email" placeholder="SEU@EMAIL.COM" style="letter-spacing:0;font-size:15px;" onkeydown="if(event.key==='Enter') doAppLoginComOffline()">
       </div>
       <div class="input-group" style="margin-bottom:18px;">
         <label>Senha</label>
-        <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;">
+        <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;" onkeydown="if(event.key==='Enter') doAppLoginComOffline()">
       </div>
       <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
       <div style="text-align:center;margin-top:12px;">
