@@ -1689,7 +1689,7 @@ async function registrarOrigem() {
          </td></tr>
        </table>`);
 
-    alert('Saída registrada com sucesso!');
+    showTopAlert('✅ Saída registrada com sucesso!', 'ok');
     btn.disabled = false;
     btn.textContent = '✅ Registrar Saída';
     // Reset
@@ -2228,7 +2228,7 @@ async function criarUsuario() {
     document.getElementById('novo-user-empresa').value = '';
     document.getElementById('novo-user-email').value = '';
     document.getElementById('novo-user-senha').value = '';
-    alert(`Usuário ${email} criado com perfil ${perfil}!`);
+    showTopAlert(`✅ Usuário ${email} criado com perfil ${perfil}!`, 'ok');
     loadUsuarios();
   } catch(e) {
     alert('Erro: ' + e.message);
@@ -2451,7 +2451,7 @@ async function adicionarLacres() {
   await batch.commit();
   const msg = `Lacres ${de} a ${ate}: ${adicionados} adicionados, ${reativados} reativados, ${duplicados} já existentes ignorados.`;
   await registrarLog('cadastro_lacres', msg + ` Por: ${operador.nome}`);
-  alert(`✅ ${msg}`);
+  showTopAlert(`✅ ${msg}`, 'ok');
   loadLacres();
 }
 
@@ -2568,6 +2568,7 @@ async function adicionarPlaca() {
   await registrarLog('cadastro_placa', `Placa ${placa} cadastrada. Descrição: ${desc||'—'}. Por: ${operador.nome}`);
   document.getElementById('nova-placa').value = '';
   document.getElementById('nova-placa-desc').value = '';
+  showTopAlert(`✅ Placa ${placa} cadastrada com sucesso!`, 'ok');
   loadPlacas();
 }
 
@@ -2970,7 +2971,7 @@ async function salvarGeminiKey() {
   try {
     await db.collection('config').doc('gemini').set({ key });
     GEMINI_API_KEY = key;
-    alert('API Key salva com sucesso! Todos os dispositivos usarão a nova chave.');
+    showTopAlert('✅ API Key Gemini salva com sucesso!', 'ok');
   } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
@@ -2987,7 +2988,7 @@ async function salvarConfig() {
     }, { merge: true });
   }
   sessionTimeoutMs = parseInt(timeout) * 60 * 60 * 1000;
-  alert('✅ Configurações salvas e sincronizadas em todos os dispositivos!');
+  showTopAlert('✅ Configurações salvas e sincronizadas em todos os dispositivos!', 'ok');
 }
 
 async function salvarTimeoutConfig() {
@@ -3000,7 +3001,7 @@ async function salvarTimeoutConfig() {
       atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
   }
-  alert('✅ Timeout atualizado para ' + timeout + ' horas!');
+  showTopAlert('✅ Timeout de sessão atualizado para ' + timeout + ' horas!', 'ok');
 }
 
 function salvarEmailJS() {
@@ -3008,7 +3009,7 @@ function salvarEmailJS() {
   setCfg('ejs_svc', document.getElementById('cfg-ejs-svc').value.trim());
   setCfg('ejs_tpl', document.getElementById('cfg-ejs-tpl').value.trim());
   initEmailJS();
-  alert('EmailJS salvo!');
+  showTopAlert('✅ EmailJS configurado com sucesso!', 'ok');
 }
 
 function salvarFirebase() {
@@ -3016,8 +3017,8 @@ function salvarFirebase() {
     const raw = document.getElementById('cfg-firebase').value.trim();
     JSON.parse(raw);
     setCfg('firebase_config', raw);
-    alert('Firebase salvo! A página será recarregada.');
-    location.reload();
+    showTopAlert('✅ Firebase salvo! Recarregando em 2 segundos...', 'ok');
+    setTimeout(() => location.reload(), 2000);
   } catch(e) { alert('JSON inválido: ' + e.message); }
 }
 
@@ -3243,7 +3244,7 @@ async function exportarCSV() {
     a.download = `historico_lacres_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    alert(`✅ Exportação concluída! ${docs.length} processos exportados.`);
+    showTopAlert(`✅ ${docs.length} processos exportados com sucesso!`, 'ok');
     if (btn) btn.disabled = false;
   } catch(e) {
     alert('Erro ao exportar: ' + e.message);
@@ -3919,7 +3920,7 @@ async function adicionarFornecedor() {
 
     document.getElementById('novo-forn-cnpj').value = '';
     document.getElementById('novo-forn-nome').value = '';
-    showTopAlert(`✅ Fornecedor "${nome}" cadastrado com sucesso`, 'ok');
+    showTopAlert(`✅ Fornecedor "${nome}" cadastrado!`, 'ok');
     loadFornecedores();
     try { await registrarLog('cadastro_fornecedor', `CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`); } catch(_) {}
   } catch(e) {
