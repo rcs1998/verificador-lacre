@@ -3314,6 +3314,7 @@ async function loadDashboard() {
 async function loadAdminData() {
   loadLacres();
   loadDashboard();
+  seedEmailPadrao(); // runs after auth, safe
 }
 
 // ============================================================
@@ -3415,8 +3416,8 @@ async function seedEmailPadrao() {
     }
   } catch(e) {}
 }
-seedEmailPadrao();
-loadGeminiKey();
+// seedEmailPadrao is now called post-login
+loadGeminiKey(); // config read - still public
 </script>
 
 <!-- Registrar Service Worker para PWA -->
@@ -3573,6 +3574,15 @@ async function doAppLoginComOffline() {
     currentOperador = { email, nome, uid: cred.user.uid, perfil, empresa };
     // Salvar para offline
     await salvarLoginOffline(cred.user, { nome, empresa, perfil });
+    // Log de auditoria: registrar device e timestamp
+    try {
+      await db.collection('logs').add({
+        acao: 'login',
+        detalhe: `Login: ${nome} (${perfil}) — ${navigator.userAgent.substring(0,80)}`,
+        usuario: email,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch(_) {}
     document.getElementById('op-nome-display').textContent = nome;
     document.getElementById('app-login-screen').style.display = 'none';
     document.getElementById('app-main').style.display = 'block';
@@ -4397,10 +4407,8 @@ function verificarFornecedorSelecionado(lado, valor) {
 }
 
 // Populate on app load + after fornecedores tab is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  // Populate after a short delay to allow Firebase to init
-  setTimeout(popularFornecedoresDatalist, 2000);
-});
+// popularFornecedoresDatalist is called post-login instead of on page load
+// (fornecedores now requires auth to read)
 </script>
 </body>
 </html>
