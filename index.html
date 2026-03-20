@@ -546,6 +546,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('emails')">E-mails</button>
           <button class="admin-tab" onclick="adminTab('usuarios')">Usuários</button>
           <button class="admin-tab" onclick="adminTab('fornecedores')">Fornecedores</button>
+          <button class="admin-tab" onclick="adminTab('logs')">Logs</button>
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
         </div>
       </div>
@@ -555,6 +556,12 @@ tbody tr:hover{background:var(--surface2);}
         <!-- LACRES -->
         <div class="admin-section active" id="atab-lacres">
           <div class="info-bar">Cadastre a sequência de lacres válidos. Cada lacre só pode ser usado em um único processo completo — após o fechamento correto no destino, o lacre é inutilizado e não pode ser reutilizado.</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;">EXIBIR:</span>
+            <button id="btn-lacres-ativos" class="btn btn-primary btn-sm" onclick="filtroLacresStatus('ativos')">✅ Ativos</button>
+            <button id="btn-lacres-inativos" class="btn btn-outline btn-sm" onclick="filtroLacresStatus('inativos')">🚫 Inativados</button>
+            <button id="btn-lacres-todos" class="btn btn-outline btn-sm" onclick="filtroLacresStatus('todos')">📋 Todos</button>
+          </div>
           <div class="form-row" style="margin-bottom:12px;">
             <div class="input-group"><label>De (número inicial)</label><input type="number" id="lacre-de" placeholder="00001" style="font-size:15px;letter-spacing:1px;"></div>
             <div class="input-group"><label>Até (número final)</label><input type="number" id="lacre-ate" placeholder="00100" style="font-size:15px;letter-spacing:1px;"></div>
@@ -578,7 +585,7 @@ tbody tr:hover{background:var(--surface2);}
           </div>
           <div id="lacres-stats" style="font-size:12px;color:var(--text2);margin-bottom:10px;font-weight:600;"></div>
           <div class="table-wrap">
-            <table><thead><tr><th>Número</th><th>Status</th><th>Placa</th><th>Cadastrado em</th><th></th></tr></thead>
+            <table><thead><tr><th>Número</th><th>Status</th><th>Placa em uso</th><th>Cadastrado em</th><th>Por</th><th></th></tr></thead>
             <tbody id="lacres-tbody"></tbody></table>
           </div>
         </div>
@@ -586,6 +593,12 @@ tbody tr:hover{background:var(--surface2);}
         <!-- PLACAS -->
         <div class="admin-section" id="atab-placas">
           <div class="info-bar">Somente placas cadastradas aqui poderão usar o sistema.</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;">EXIBIR:</span>
+            <button id="btn-placas-ativas" class="btn btn-primary btn-sm" onclick="filtroPlacasStatus('ativas')">✅ Ativas</button>
+            <button id="btn-placas-inativas" class="btn btn-outline btn-sm" onclick="filtroPlacasStatus('inativas')">🚫 Inativadas</button>
+            <button id="btn-placas-todas" class="btn btn-outline btn-sm" onclick="filtroPlacasStatus('todas')">📋 Todas</button>
+          </div>
           <div class="form-row" style="margin-bottom:12px;">
             <div class="input-group"><label>Placa</label><input type="text" id="nova-placa" placeholder="ABC-1234" maxlength="8" style="font-size:16px;letter-spacing:2px;"></div>
             <div class="input-group"><label>Descrição (opcional)</label><input type="text" id="nova-placa-desc" placeholder="EX: CARRETA TANQUE" style="font-size:13px;letter-spacing:0;text-transform:uppercase;"></div>
@@ -605,7 +618,7 @@ tbody tr:hover{background:var(--surface2);}
           </div>
           <div id="placa-import-status" style="font-size:12px;color:var(--text2);margin-bottom:12px;display:none;"></div>
           <div class="table-wrap">
-            <table><thead><tr><th>Placa</th><th>Descrição</th><th>Adicionada em</th><th></th></tr></thead>
+            <table><thead><tr><th>Placa</th><th>Status</th><th>Transportadora/Desc.</th><th>Adicionada em</th><th>Por</th><th></th></tr></thead>
             <tbody id="placas-tbody"></tbody></table>
           </div>
         </div>
@@ -695,6 +708,12 @@ tbody tr:hover{background:var(--surface2);}
         <!-- USUÁRIOS -->
         <div class="admin-section" id="atab-usuarios">
           <div class="info-bar">Perfis: <strong>Operacional</strong> → só abre/fecha processos | <strong>Operador</strong> → Dashboard + Lacres, Placas, Processos e Histórico | <strong>Admin</strong> → acesso total</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;">EXIBIR:</span>
+            <button id="btn-usuarios-ativos" class="btn btn-primary btn-sm" onclick="filtroUsuariosStatus('ativos')">✅ Ativos</button>
+            <button id="btn-usuarios-inativos" class="btn btn-outline btn-sm" onclick="filtroUsuariosStatus('inativos')">🚫 Inativados</button>
+            <button id="btn-usuarios-todos" class="btn btn-outline btn-sm" onclick="filtroUsuariosStatus('todos')">📋 Todos</button>
+          </div>
           <div class="card" style="margin-bottom:14px;">
             <div class="card-title">Criar novo usuário</div>
             <div class="input-group"><label>Nome completo</label><input type="text" id="novo-user-nome" placeholder="NOME DO OPERADOR" style="font-size:14px;letter-spacing:0;text-transform:none;"></div>
@@ -712,8 +731,34 @@ tbody tr:hover{background:var(--surface2);}
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:12px;" onclick="criarUsuario()">+ Criar Usuário</button>
           </div>
           <div class="table-wrap">
-            <table><thead><tr><th>E-mail</th><th>Nome</th><th>Empresa</th><th>Perfil</th><th>Criado em</th><th></th></tr></thead>
+            <table><thead><tr><th>E-mail</th><th>Nome</th><th>Empresa</th><th>Perfil</th><th>Status</th><th>Criado em</th><th></th></tr></thead>
             <tbody id="usuarios-tbody"></tbody></table>
+          </div>
+        </div>
+
+        <!-- LOGS -->
+        <div class="admin-section" id="atab-logs">
+          <div class="info-bar">Registro de todas as ações realizadas no sistema: cadastros, remoções, inativações, logins e eventos de lacres.</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="loadLogs()">🔄 Atualizar</button>
+            <select id="logs-filtro-acao" onchange="filtrarLogs()" style="font-size:14px;padding:8px 12px;height:auto;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
+              <option value="">Todas as ações</option>
+              <option value="cadastro_lacres">Cadastro de lacres</option>
+              <option value="inativar_lacre">Inativação de lacre</option>
+              <option value="reativar_lacre">Reativação de lacre</option>
+              <option value="cadastro_placa">Cadastro de placa</option>
+              <option value="inativar_placa">Inativação de placa</option>
+              <option value="reativar_placa">Reativação de placa</option>
+              <option value="cadastro_fornecedor">Cadastro de fornecedor</option>
+              <option value="inativar_usuario">Inativação de usuário</option>
+              <option value="reativar_usuario">Reativação de usuário</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Data/Hora</th><th>Ação</th><th>Detalhe</th><th>Usuário</th></tr></thead>
+              <tbody id="logs-tbody"><tr><td colspan="4" style="color:var(--text2);text-align:center;padding:20px;">Carregando...</td></tr></tbody>
+            </table>
           </div>
         </div>
 
@@ -1849,7 +1894,7 @@ async function validarPlacaCadastrada(placa) {
   const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
   try {
     const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
-    return doc.exists;
+    return doc.exists && !doc.data().inativa;
   } catch(e) {
     console.error('Erro ao validar placa:', e.message);
     alert('Erro ao verificar placa no banco de dados: ' + e.message);
@@ -2001,33 +2046,78 @@ async function criarUsuario() {
   }
 }
 
+let _todosUsuarios = [];
+let _filtroUsuarios = 'ativos';
+function filtroUsuariosStatus(f) {
+  _filtroUsuarios = f;
+  ['ativos','inativos','todos'].forEach(s => {
+    const el = document.getElementById(`btn-usuarios-${s}`);
+    if (el) el.className = `btn btn-sm ${f===s ? 'btn-primary' : 'btn-outline'}`;
+  });
+  const lista = f === 'ativos'   ? _todosUsuarios.filter(u=>!u.inativo)
+              : f === 'inativos' ? _todosUsuarios.filter(u=>u.inativo)
+              : _todosUsuarios;
+  renderUsuarios(lista);
+}
+function renderUsuarios(lista) {
+  const tbody = document.getElementById('usuarios-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">Nenhum usuário nesta categoria</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(u => {
+    const perfilBadge = u.perfil === 'admin'
+      ? '<span class="badge badge-warn">Admin</span>'
+      : u.perfil === 'operador'
+      ? '<span class="badge badge-blue">Operador</span>'
+      : '<span class="badge badge-ok">Operacional</span>';
+    const statusBadge = u.inativo
+      ? '<span class="badge badge-err">Inativo</span>'
+      : '<span class="badge" style="background:var(--success);color:#fff;">Ativo</span>';
+    const btn = u.inativo
+      ? `<button class="btn btn-outline btn-sm" onclick="reativarUsuario('${u.id}','${u.email}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
+      : `<button class="btn btn-outline btn-sm" onclick="inativarUsuario('${u.id}','${u.email}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>`;
+    return `<tr style="${u.inativo ? 'opacity:.6;' : ''}">
+      <td>${u.email}</td>
+      <td>${u.nome||'—'}</td>
+      <td>${u.empresa||'—'}</td>
+      <td>${perfilBadge}</td>
+      <td>${statusBadge}</td>
+      <td style="color:var(--text2)">${u.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+      <td>${btn}</td>
+    </tr>`;
+  }).join('');
+}
 async function loadUsuarios() {
   if (!db) return;
   try {
     const snap = await db.collection('usuarios').orderBy('criadoEm','desc').get();
-    const tbody = document.getElementById('usuarios-tbody');
-    tbody.innerHTML = snap.docs.map(doc=>{
-      const d = doc.data();
-      const badge = d.perfil === 'admin'
-        ? '<span class="badge badge-warn">Admin</span>'
-        : d.perfil === 'operador'
-        ? '<span class="badge badge-blue">Operador</span>'
-        : '<span class="badge badge-ok">Operacional</span>';
-      return `<tr>
-        <td style="font-size:14px">${d.email}</td>
-        <td style="font-size:14px">${d.nome || '—'}</td>
-        <td style="font-size:14px">${d.empresa || '—'}</td>
-        <td>${badge}</td>
-        <td style="font-size:13px;color:var(--text2)">${d.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerUsuario('${doc.id}','${d.email}')" style="padding:5px 10px;font-size:13px;">Remover</button></td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="6" style="color:var(--text2);text-align:center;">Nenhum usuário cadastrado</td></tr>';
+    _todosUsuarios = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filtroUsuariosStatus(_filtroUsuarios || 'ativos');
   } catch(e) { console.warn(e.message); }
 }
 
-async function removerUsuario(uid, email) {
-  if (!confirm(`Remover usuário ${email}?\n\nAtenção: isso remove apenas o registro. Para bloquear o acesso completamente, desative também no Firebase Authentication.`)) return;
-  await db.collection('usuarios').doc(uid).delete();
+async function inativarUsuario(uid, email) {
+  if (!confirm(`Inativar usuário ${email}?\n\nO usuário não conseguirá fazer login. Poderá ser reativado.`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('usuarios').doc(uid).update({
+    inativo: true,
+    inativadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    inativadoPor: operador.email || '',
+    inativadoPorNome: operador.nome || 'Admin'
+  });
+  await registrarLog('inativar_usuario', `Usuário ${email} inativado por ${operador.nome}`);
+  showTopAlert(`🚫 Usuário ${email} inativado`, 'warning');
+  loadUsuarios();
+}
+async function reativarUsuario(uid, email) {
+  if (!confirm(`Reativar usuário ${email}?`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('usuarios').doc(uid).update({
+    inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null
+  });
+  await registrarLog('reativar_usuario', `Usuário ${email} reativado por ${operador.nome}`);
+  showTopAlert(`✅ Usuário ${email} reativado`, 'ok');
   loadUsuarios();
 }
 
@@ -2043,7 +2133,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','usuarios','fornecedores','config'];
+    const tabs = ['lacres','placas','processos','historico','emails','usuarios','fornecedores','logs','config'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -2056,6 +2146,7 @@ function adminTab(tab) {
   if (tab==='usuarios') loadUsuarios();
   if (tab==='historico') loadHistorico();
   if (tab==='fornecedores') loadFornecedores();
+  if (tab==='logs') loadLogs();
 }
 
 // ============================================================
@@ -2068,23 +2159,53 @@ async function loadLacres() {
   try {
     const snap = await db.collection('lacresValidos').orderBy('numero').get();
     todosLacres = snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderLacres(todosLacres);
+    filtroLacresStatus(_filtroLacres || 'ativos');
   } catch(e) { console.warn(e.message); }
 }
 
+let _filtroLacres = 'ativos';
+function filtroLacresStatus(f) {
+  _filtroLacres = f;
+  ['ativos','inativos','todos'].forEach(s => {
+    const el = document.getElementById(`btn-lacres-${s}`);
+    if (el) el.className = `btn btn-sm ${f===s ? 'btn-primary' : 'btn-outline'}`;
+  });
+  const lista = _filtroLacres === 'ativos'   ? todosLacres.filter(l=>!l.inativo)
+              : _filtroLacres === 'inativos' ? todosLacres.filter(l=>l.inativo)
+              : todosLacres;
+  renderLacres(lista);
+}
 function renderLacres(lista) {
   const tbody = document.getElementById('lacres-tbody');
-  const total = todosLacres.length;
-  const emUso = todosLacres.filter(l=>l.emUso).length;
-  document.getElementById('lacres-stats').textContent = `Total: ${total} lacres | Em uso: ${emUso} | Disponíveis: ${total-emUso}`;
-  tbody.innerHTML = lista.map(l=>`
-    <tr>
+  const ativos = todosLacres.filter(l=>!l.inativo);
+  const emUso  = ativos.filter(l=>l.emUso).length;
+  document.getElementById('lacres-stats').textContent =
+    `Ativos: ${ativos.length} | Em uso: ${emUso} | Disponíveis: ${ativos.length-emUso} | Inativados: ${todosLacres.filter(l=>l.inativo).length}`;
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text2);text-align:center;padding:20px;">Nenhum lacre nesta categoria</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(l => {
+    const statusBadge = l.inativo
+      ? '<span class="badge badge-err">Inativo</span>'
+      : l.inutilizado ? '<span class="badge badge-err">Inutilizado</span>'
+      : l.emUso ? '<span class="badge badge-warn">Em uso</span>'
+      : '<span class="badge badge-ok">Livre</span>';
+    const btn = l.inativo
+      ? `<button class="btn btn-outline btn-sm" onclick="reativarLacre('${l.id}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
+      : (l.emUso
+        ? `<span style="font-size:13px;color:var(--text2);">Em uso</span>`
+        : `<button class="btn btn-outline btn-sm" onclick="inativarLacre('${l.id}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>`);
+    const inativadoPor = l.inativo && l.inativadoPorNome ? `<br><small style="font-size:11px;color:var(--text3);">por ${l.inativadoPorNome}</small>` : '';
+    return `<tr style="${l.inativo ? 'opacity:.6;' : ''}">
       <td><strong>${l.numero}</strong></td>
-      <td>${l.inutilizado ? '<span class="badge badge-err">Inutilizado</span>' : l.emUso ? '<span class="badge badge-warn">Em uso</span>' : '<span class="badge badge-ok">Livre</span>'}</td>
+      <td>${statusBadge}${inativadoPor}</td>
       <td style="color:var(--text2)">${l.placa||'—'}</td>
-      <td style="color:var(--text2);font-size:13px">${l.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="removerLacre('${l.id}',${!!l.emUso})" style="padding:5px 10px;font-size:13px;">Remover</button></td>
-    </tr>`).join('');
+      <td style="color:var(--text2)">${l.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR')||l.cadastradoEm||'—'}</td>
+      <td style="color:var(--text3);font-size:13px;">${l.cadastradoPorNome||l.cadastradoPor||'—'}</td>
+      <td>${btn}</td>
+    </tr>`;
+  }).join('');
 }
 
 function filtrarLacres() {
@@ -2098,38 +2219,118 @@ async function adicionarLacres() {
   const ate = parseInt(document.getElementById('lacre-ate').value);
   if (isNaN(de)||isNaN(ate)||de>ate) { alert('Informe um intervalo válido.'); return; }
   if (ate-de > 9999) { alert('Máximo de 10.000 lacres por vez.'); return; }
+
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  let adicionados = 0, reativados = 0, duplicados = 0;
+
+  // Verificar duplicatas antes de gravar
+  const numeros = [];
+  for (let i = de; i <= ate; i++) numeros.push(String(i).padStart(5,'0'));
+
+  // Buscar existentes (em lotes de 10 pelo Firestore)
+  const existentes = {};
+  for (let i = 0; i < numeros.length; i += 10) {
+    const chunk = numeros.slice(i, i + 10);
+    const snaps = await Promise.all(chunk.map(n => db.collection('lacresValidos').doc(n).get()));
+    snaps.forEach(s => { if (s.exists) existentes[s.id] = s.data(); });
+  }
+
   const batch = db.batch();
-  for (let i=de; i<=ate; i++) {
-    const num = String(i).padStart(5,'0');
+  for (const num of numeros) {
     const ref = db.collection('lacresValidos').doc(num);
-    batch.set(ref,{ numero:num, emUso:false, placa:null, processId:null, cadastradoEm:firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
+    if (existentes[num]) {
+      if (!existentes[num].inativo) { duplicados++; continue; }
+      // Reativar inativo
+      batch.update(ref, { inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null });
+      reativados++;
+    } else {
+      batch.set(ref, {
+        numero: num, emUso: false, inutilizado: false, inativo: false,
+        placa: null, processId: null,
+        cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        cadastradoPor: operador.email || '',
+        cadastradoPorNome: operador.nome || 'Admin'
+      });
+      adicionados++;
+    }
   }
   await batch.commit();
-  await registrarLog('cadastro_lacres', `Lacres ${de} a ${ate} cadastrados`);
+  const msg = `Lacres ${de} a ${ate}: ${adicionados} adicionados, ${reativados} reativados, ${duplicados} já existentes ignorados.`;
+  await registrarLog('cadastro_lacres', msg + ` Por: ${operador.nome}`);
+  alert(`✅ ${msg}`);
   loadLacres();
 }
 
-async function removerLacre(id, emUso) {
-  if (emUso) { alert('Não é possível remover um lacre em uso.'); return; }
-  if (!confirm(`Remover lacre ${id}?`)) return;
-  await db.collection('lacresValidos').doc(id).delete();
+async function inativarLacre(id) {
+  const lacre = todosLacres.find(l => l.id === id);
+  if (!lacre) return;
+  if (lacre.emUso) { alert('Não é possível inativar um lacre em uso.'); return; }
+  if (!confirm(`Inativar lacre ${id}?\n\nO lacre ficará indisponível mas poderá ser reativado.`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('lacresValidos').doc(id).update({
+    inativo: true,
+    inativadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    inativadoPor: operador.email || '',
+    inativadoPorNome: operador.nome || 'Admin'
+  });
+  await registrarLog('inativar_lacre', `Lacre ${id} inativado por ${operador.nome}`);
+  showTopAlert(`🚫 Lacre ${id} inativado`, 'warning');
+  loadLacres();
+}
+async function reativarLacre(id) {
+  if (!confirm(`Reativar lacre ${id}?`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('lacresValidos').doc(id).update({
+    inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null
+  });
+  await registrarLog('reativar_lacre', `Lacre ${id} reativado por ${operador.nome}`);
+  showTopAlert(`✅ Lacre ${id} reativado`, 'ok');
   loadLacres();
 }
 
+let _todasPlacas = [];
+let _filtroPlacas = 'ativas';
+function filtroPlacasStatus(f) {
+  _filtroPlacas = f;
+  ['ativas','inativas','todas'].forEach(s => {
+    const el = document.getElementById(`btn-placas-${s}`);
+    if (el) el.className = `btn btn-sm ${f===s ? 'btn-primary' : 'btn-outline'}`;
+  });
+  const lista = f === 'ativas'   ? _todasPlacas.filter(p=>!p.inativa)
+              : f === 'inativas' ? _todasPlacas.filter(p=>p.inativa)
+              : _todasPlacas;
+  renderPlacas(lista);
+}
+function renderPlacas(lista) {
+  const tbody = document.getElementById('placas-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text2);text-align:center;padding:20px;">Nenhuma placa nesta categoria</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(d => {
+    const statusBadge = d.inativa
+      ? '<span class="badge badge-err">Inativa</span>'
+      : '<span class="badge badge-ok">Ativa</span>';
+    const btn = d.inativa
+      ? `<button class="btn btn-outline btn-sm" onclick="reativarPlaca('${d.placa}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
+      : `<button class="btn btn-outline btn-sm" onclick="inativarPlaca('${d.placa}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>`;
+    const inativadoPor = d.inativa && d.inativadaPorNome ? `<br><small style="font-size:11px;color:var(--text3);">por ${d.inativadaPorNome}</small>` : '';
+    return `<tr style="${d.inativa ? 'opacity:.6;' : ''}">
+      <td><strong style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.placa}</strong></td>
+      <td>${statusBadge}${inativadoPor}</td>
+      <td style="color:var(--text2)">${d.descricao||'—'}</td>
+      <td style="color:var(--text2)">${d.adicionadaEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+      <td style="color:var(--text3);font-size:13px;">${d.cadastradoPorNome||d.cadastradoPor||'—'}</td>
+      <td>${btn}</td>
+    </tr>`;
+  }).join('');
+}
 async function loadPlacas() {
   if (!db) return;
   try {
     const snap = await db.collection('placasAutorizadas').orderBy('placa').get();
-    const tbody = document.getElementById('placas-tbody');
-    tbody.innerHTML = snap.docs.map(doc=>{
-      const d = doc.data();
-      return `<tr>
-        <td><strong style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.placa}</strong></td>
-        <td style="color:var(--text2);font-size:14px">${d.descricao||'—'}</td>
-        <td style="font-size:13px;color:var(--text2)">${d.adicionadaEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerPlaca('${doc.id}')" style="padding:5px 10px;font-size:13px;">Remover</button></td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="4" style="color:var(--text2);text-align:center;">Nenhuma placa cadastrada</td></tr>';
+    _todasPlacas = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filtroPlacasStatus(_filtroPlacas || 'ativas');
   } catch(e) { console.warn(e.message); }
 }
 
@@ -2143,19 +2344,60 @@ async function adicionarPlaca() {
     alert('Placa inválida!\n\nFormatos aceitos:\n• Padrão antigo: ABC1234\n• Mercosul: ABC1D23');
     return;
   }
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  // Check if already exists (possibly inativa)
+  const existing = await db.collection('placasAutorizadas').doc(placa).get();
+  if (existing.exists && !existing.data().inativa) {
+    alert(`Placa ${placa} já está cadastrada e ativa.`);
+    return;
+  }
+  if (existing.exists && existing.data().inativa) {
+    if (!confirm(`Placa ${placa} está inativa.\nDeseja reativar com a descrição "${desc||existing.data().descricao||'—'}"?`)) return;
+    await db.collection('placasAutorizadas').doc(placa).update({
+      descricao: desc || existing.data().descricao || '',
+      inativa: false, inativadaEm: null, inativadaPor: null, inativadaPorNome: null,
+      reativadaEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await registrarLog('reativar_placa', `Placa ${placa} reativada via cadastro por ${operador.nome}`);
+    showTopAlert(`✅ Placa ${placa} reativada`, 'ok');
+    document.getElementById('nova-placa').value = '';
+    document.getElementById('nova-placa-desc').value = '';
+    loadPlacas();
+    return;
+  }
   await db.collection('placasAutorizadas').doc(placa).set({
-    placa, descricao: desc,
-    adicionadaEm: firebase.firestore.FieldValue.serverTimestamp()
+    placa, descricao: desc, inativa: false,
+    adicionadaEm: firebase.firestore.FieldValue.serverTimestamp(),
+    cadastradoPor: operador.email || '',
+    cadastradoPorNome: operador.nome || 'Admin'
   });
-  await registrarLog('cadastro_placa', `Placa ${placa} cadastrada. Descrição: ${desc||'—'}`);
+  await registrarLog('cadastro_placa', `Placa ${placa} cadastrada. Descrição: ${desc||'—'}. Por: ${operador.nome}`);
   document.getElementById('nova-placa').value = '';
   document.getElementById('nova-placa-desc').value = '';
   loadPlacas();
 }
 
-async function removerPlaca(id) {
-  if (!confirm(`Remover placa ${id}?`)) return;
-  await db.collection('placasAutorizadas').doc(id).delete();
+async function inativarPlaca(placa) {
+  if (!confirm(`Inativar placa ${placa}?\n\nA placa não poderá ser usada no sistema, mas poderá ser reativada.`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('placasAutorizadas').doc(placa).update({
+    inativa: true,
+    inativadaEm: firebase.firestore.FieldValue.serverTimestamp(),
+    inativadaPor: operador.email || '',
+    inativadaPorNome: operador.nome || 'Admin'
+  });
+  await registrarLog('inativar_placa', `Placa ${placa} inativada por ${operador.nome}`);
+  showTopAlert(`🚫 Placa ${placa} inativada`, 'warning');
+  loadPlacas();
+}
+async function reativarPlaca(placa) {
+  if (!confirm(`Reativar placa ${placa}?`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('placasAutorizadas').doc(placa).update({
+    inativa: false, inativadaEm: null, inativadaPor: null, inativadaPorNome: null
+  });
+  await registrarLog('reativar_placa', `Placa ${placa} reativada por ${operador.nome}`);
+  showTopAlert(`✅ Placa ${placa} reativada`, 'ok');
   loadPlacas();
 }
 
@@ -2968,6 +3210,21 @@ loadGeminiKey();
       }
     });
 
+    // iOS PWA fix: compare build hash stored in localStorage
+    const BUILD_HASH = 'v20260320-r14'; // update this on every deploy
+    const stored = localStorage.getItem('app_build_hash');
+    if (stored && stored !== BUILD_HASH) {
+      localStorage.setItem('app_build_hash', BUILD_HASH);
+      // Clear caches and reload
+      if ('caches' in window) {
+        caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => window.location.reload(true));
+      } else {
+        window.location.reload(true);
+      }
+      return; // stop here; reload will handle rest
+    }
+    localStorage.setItem('app_build_hash', BUILD_HASH);
+
     navigator.serviceWorker.register('service-worker.js').then(reg => {
       console.log('[SW] Registrado:', reg.scope);
 
@@ -3080,6 +3337,13 @@ async function doAppLoginComOffline() {
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
     const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
     const empresa = userDoc.exists ? (userDoc.data().empresa || '') : '';
+    // Block inactive users
+    if (userDoc.exists && userDoc.data().inativo) {
+      errEl.textContent = 'Usuário inativo. Contate o administrador.';
+      errEl.style.display = 'block';
+      await auth.signOut();
+      return;
+    }
     currentOperador = { email, nome, uid: cred.user.uid, perfil, empresa };
     // Salvar para offline
     await salvarLoginOffline(cred.user, { nome, empresa, perfil });
@@ -3607,6 +3871,49 @@ function _tirarFotoNF(lado) {
 
   // Analisar automaticamente
   analisarNF(lado);
+}
+
+// ──────────────────────────────────────────────────────────
+// ABA LOGS
+// ──────────────────────────────────────────────────────────
+let _todosLogs = [];
+async function loadLogs() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('logs').orderBy('timestamp','desc').limit(200).get();
+    _todosLogs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filtrarLogs();
+  } catch(e) { console.warn('Logs error:', e.message); }
+}
+function filtrarLogs() {
+  const filtro = document.getElementById('logs-filtro-acao')?.value || '';
+  const lista = filtro ? _todosLogs.filter(l=>l.acao===filtro) : _todosLogs;
+  const tbody = document.getElementById('logs-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:20px;">Nenhum log encontrado</td></tr>`;
+    return;
+  }
+  const LABELS = {
+    cadastro_lacres:'Cadastro lacres', inativar_lacre:'Inativar lacre', reativar_lacre:'Reativar lacre',
+    cadastro_placa:'Cadastro placa', inativar_placa:'Inativar placa', reativar_placa:'Reativar placa',
+    cadastro_fornecedor:'Cadastro fornecedor', remocao_fornecedor:'Remoção fornecedor',
+    inativar_usuario:'Inativar usuário', reativar_usuario:'Reativar usuário',
+  };
+  tbody.innerHTML = lista.map(l => {
+    const ts = l.timestamp?.toDate?.()?.toLocaleString('pt-BR') || '—';
+    const label = LABELS[l.acao] || l.acao || '—';
+    const isAlert = l.acao?.includes('inativar') || l.acao?.includes('remoc');
+    const isOk = l.acao?.includes('reativar') || l.acao?.includes('cadastro');
+    const badgeStyle = isAlert ? 'background:var(--danger);color:#fff;'
+                     : isOk   ? 'background:var(--success);color:#fff;'
+                     : 'background:var(--gerdau-blue);color:#fff;';
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--text2)">${ts}</td>
+      <td><span class="badge" style="${badgeStyle}">${label}</span></td>
+      <td style="color:var(--text)">${l.detalhe||'—'}</td>
+      <td style="color:var(--text2)">${l.usuario||'—'}</td>
+    </tr>`;
+  }).join('');
 }
 </script>
 </body>
