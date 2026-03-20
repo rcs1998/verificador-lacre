@@ -263,6 +263,9 @@ tbody tr:hover{background:var(--surface2);}
         <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;">
       </div>
       <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
+      <div style="text-align:center;margin-top:12px;">
+        <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
+      </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
   </div>
@@ -2076,7 +2079,11 @@ function renderUsuarios(lista) {
       : '<span class="badge" style="background:var(--success);color:#fff;">Ativo</span>';
     const btn = u.inativo
       ? `<button class="btn btn-outline btn-sm" onclick="reativarUsuario('${u.id}','${u.email}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
-      : `<button class="btn btn-outline btn-sm" onclick="inativarUsuario('${u.id}','${u.email}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>`;
+      : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
+           <button class="btn btn-outline btn-sm" onclick="abrirEdicaoUsuario('${u.id}','${u.nome||''}','${u.empresa||''}','${u.perfil||'operacional'}')" style="font-size:13px;">✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="resetarSenhaUsuario('${u.email}')" style="font-size:13px;">🔑 Senha</button>
+           <button class="btn btn-outline btn-sm" onclick="inativarUsuario('${u.id}','${u.email}')" style="border-color:var(--danger);color:var(--danger);font-size:13px;">🚫 Inativar</button>
+         </div>`;
     return `<tr style="${u.inativo ? 'opacity:.6;' : ''}">
       <td>${u.email}</td>
       <td>${u.nome||'—'}</td>
@@ -2744,14 +2751,25 @@ async function removerEmail(id) {
   loadEmails();
 }
 
-function loadConfig() {
+async function loadConfig() {
+  // Load from Firestore first (synced across all devices), fallback to localStorage
+  if (db) {
+    try {
+      const [appDoc, geminiDoc] = await Promise.all([
+        db.collection('config').doc('app').get(),
+        db.collection('config').doc('gemini').get()
+      ]);
+      if (appDoc.exists) {
+        const d = appDoc.data();
+        if (d.config_horas) setCfg('config_horas', d.config_horas);
+        if (d.config_timeout) setCfg('config_timeout', d.config_timeout);
+        if (d.config_horas) sessionTimeoutMs = parseInt(d.config_timeout||5) * 60 * 60 * 1000;
+      }
+      if (geminiDoc.exists) document.getElementById('cfg-gemini-key').value = geminiDoc.data().key||'';
+    } catch(e) { console.warn('Config load error:', e.message); }
+  }
   document.getElementById('config-horas').value = getCfg('config_horas','96');
   document.getElementById('config-timeout').value = getCfg('config_timeout','5');
-  if (db) {
-    db.collection('config').doc('gemini').get().then(doc=>{
-      if (doc.exists) document.getElementById('cfg-gemini-key').value = doc.data().key||'';
-    }).catch(()=>{});
-  }
   document.getElementById('cfg-ejs-pub').value = getCfg('ejs_pub','');
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
@@ -2769,16 +2787,33 @@ async function salvarGeminiKey() {
   } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
-function salvarConfig() {
-  setCfg('config_horas', document.getElementById('config-horas').value);
-  alert('Configuração salva!');
+async function salvarConfig() {
+  const horas = document.getElementById('config-horas').value;
+  const timeout = document.getElementById('config-timeout').value;
+  setCfg('config_horas', horas);
+  setCfg('config_timeout', timeout);
+  if (db) {
+    await db.collection('config').doc('app').set({
+      config_horas: horas,
+      config_timeout: timeout,
+      atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+  sessionTimeoutMs = parseInt(timeout) * 60 * 60 * 1000;
+  alert('✅ Configurações salvas e sincronizadas em todos os dispositivos!');
 }
 
-function salvarTimeoutConfig() {
+async function salvarTimeoutConfig() {
   const timeout = document.getElementById('config-timeout').value;
   setCfg('config_timeout', timeout);
   sessionTimeoutMs = parseInt(timeout) * 60 * 60 * 1000;
-  alert('Timeout de sessão atualizado para ' + timeout + ' horas!');
+  if (db) {
+    await db.collection('config').doc('app').set({
+      config_timeout: timeout,
+      atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+  alert('✅ Timeout atualizado para ' + timeout + ' horas!');
 }
 
 function salvarEmailJS() {
@@ -3198,6 +3233,23 @@ loadGeminiKey();
 
 <!-- Registrar Service Worker para PWA -->
 <script>
+  // PWA build-hash check: forces full reload when a new version is deployed
+  // Change BUILD_HASH on every deploy to trigger update on all devices
+  (function checkBuildHash() {
+    const BUILD_HASH = 'v20260320-r14';
+    const stored = localStorage.getItem('app_build_hash');
+    if (stored && stored !== BUILD_HASH) {
+      localStorage.setItem('app_build_hash', BUILD_HASH);
+      if ('caches' in window) {
+        caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => window.location.reload(true));
+      } else {
+        window.location.reload(true);
+      }
+    } else {
+      localStorage.setItem('app_build_hash', BUILD_HASH);
+    }
+  })();
+
   if ('serviceWorker' in navigator) {
     let swRefreshing = false;
 
@@ -3210,20 +3262,6 @@ loadGeminiKey();
       }
     });
 
-    // iOS PWA fix: compare build hash stored in localStorage
-    const BUILD_HASH = 'v20260320-r14'; // update this on every deploy
-    const stored = localStorage.getItem('app_build_hash');
-    if (stored && stored !== BUILD_HASH) {
-      localStorage.setItem('app_build_hash', BUILD_HASH);
-      // Clear caches and reload
-      if ('caches' in window) {
-        caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => window.location.reload(true));
-      } else {
-        window.location.reload(true);
-      }
-      return; // stop here; reload will handle rest
-    }
-    localStorage.setItem('app_build_hash', BUILD_HASH);
 
     navigator.serviceWorker.register('service-worker.js').then(reg => {
       console.log('[SW] Registrado:', reg.scope);
@@ -3356,6 +3394,8 @@ async function doAppLoginComOffline() {
       adminBtn.style.visibility = 'visible';
     }
     applyRolePermissions(perfil);
+    // Load config from Firestore to get latest settings on this device
+    if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
     initSessionTimeout();
     setTimeout(() => startCamera('origem'), 300);
   } catch(e) {
@@ -3914,6 +3954,96 @@ function filtrarLogs() {
       <td style="color:var(--text2)">${l.usuario||'—'}</td>
     </tr>`;
   }).join('');
+}
+
+// ─── RECUPERAÇÃO DE SENHA ─────────────────────────────────
+async function enviarRecuperacaoSenha(evt) {
+  if (evt) evt.preventDefault();
+  const emailInput = document.getElementById('op-email');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const dest = email || prompt('Digite seu e-mail para receber o link de recuperação:');
+  if (!dest) return;
+  if (!auth) { alert('Firebase não configurado.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(dest);
+    alert(`✅ Link de recuperação enviado para ${dest}\n\nVerifique sua caixa de entrada (e a pasta de spam).`);
+  } catch(e) {
+    const msg = e.code === 'auth/user-not-found' ? 'E-mail não encontrado no sistema.'
+              : e.code === 'auth/invalid-email'  ? 'E-mail inválido.'
+              : e.message;
+    alert('❌ Erro: ' + msg);
+  }
+}
+
+// Admin pode resetar senha de qualquer usuário
+async function resetarSenhaUsuario(email) {
+  if (!confirm(`Enviar link de recuperação de senha para ${email}?`)) return;
+  if (!auth) { alert('Firebase não configurado.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showTopAlert(`✅ Link enviado para ${email}`, 'ok');
+    await registrarLog('reset_senha', `Link de recuperação enviado para ${email}`);
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+// ─── EDITAR USUÁRIO ───────────────────────────────────────
+function abrirEdicaoUsuario(uid, nome, empresa, perfil) {
+  const modal = document.getElementById('edit-user-modal');
+  if (!modal) {
+    // Create modal on first call
+    const m = document.createElement('div');
+    m.id = 'edit-user-modal';
+    m.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+    m.innerHTML = `
+      <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:20px;">✏️ EDITAR USUÁRIO</div>
+        <input type="hidden" id="edit-uid">
+        <div class="input-group">
+          <label>Nome</label>
+          <input type="text" id="edit-nome" placeholder="Nome completo" style="font-size:15px;letter-spacing:0;text-transform:none;">
+        </div>
+        <div class="input-group">
+          <label>Empresa</label>
+          <input type="text" id="edit-empresa" placeholder="Empresa" style="font-size:15px;letter-spacing:0;text-transform:none;">
+        </div>
+        <div class="input-group">
+          <label>Perfil</label>
+          <select id="edit-perfil" style="font-size:15px;letter-spacing:0;text-transform:none;">
+            <option value="operacional">Operacional</option>
+            <option value="operador">Operador</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button class="btn btn-primary" onclick="salvarEdicaoUsuario()" style="flex:1;">💾 Salvar</button>
+          <button class="btn btn-outline" onclick="document.getElementById('edit-user-modal').style.display='none'" style="flex:1;">Cancelar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+  }
+  const el = document.getElementById('edit-user-modal');
+  document.getElementById('edit-uid').value = uid;
+  document.getElementById('edit-nome').value = nome.replace(/&#39;/g,"'");
+  document.getElementById('edit-empresa').value = empresa.replace(/&#39;/g,"'");
+  document.getElementById('edit-perfil').value = perfil;
+  el.style.display = 'flex';
+}
+
+async function salvarEdicaoUsuario() {
+  const uid = document.getElementById('edit-uid').value;
+  const nome = document.getElementById('edit-nome').value.trim();
+  const empresa = document.getElementById('edit-empresa').value.trim();
+  const perfil = document.getElementById('edit-perfil').value;
+  if (!nome) { alert('Informe o nome.'); return; }
+  try {
+    await db.collection('usuarios').doc(uid).update({ nome, empresa, perfil });
+    await registrarLog('editar_usuario', `Usuário ${uid} editado: nome=${nome}, perfil=${perfil}`);
+    document.getElementById('edit-user-modal').style.display = 'none';
+    showTopAlert('✅ Usuário atualizado', 'ok');
+    loadUsuarios();
+  } catch(e) { alert('Erro: ' + e.message); }
 }
 </script>
 </body>
