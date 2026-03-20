@@ -367,7 +367,12 @@ tbody tr:hover{background:var(--surface2);}
             <label>Fornecedor <span style="color:var(--danger);">*</span>
               <span id="forn-badge-origem" style="display:none;font-size:10px;background:var(--success);color:#fff;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:600;letter-spacing:0;">✓ CADASTRADO</span>
             </label>
-            <input type="text" id="fornecedor-origem" placeholder="NOME DO FORNECEDOR" style="font-size:13px;letter-spacing:0;text-transform:none;">
+            <input type="text" id="fornecedor-origem" placeholder="Digite ou selecione o fornecedor"
+              list="fornecedores-datalist"
+              style="font-size:13px;letter-spacing:0;text-transform:none;"
+              oninput="verificarFornecedorSelecionado('origem',this.value)"
+              autocomplete="off">
+            <datalist id="fornecedores-datalist"></datalist>
           </div>
         </div>
 
@@ -547,6 +552,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('processos')">Processos</button>
           <button class="admin-tab" onclick="adminTab('historico')">Histórico</button>
           <button class="admin-tab" onclick="adminTab('emails')">E-mails</button>
+          <button class="admin-tab" onclick="adminTab('perfis')">Perfis</button>
           <button class="admin-tab" onclick="adminTab('usuarios')">Usuários</button>
           <button class="admin-tab" onclick="adminTab('fornecedores')">Fornecedores</button>
           <button class="admin-tab" onclick="adminTab('logs')">Logs</button>
@@ -663,6 +669,12 @@ tbody tr:hover{background:var(--surface2);}
         <!-- FORNECEDORES -->
         <div class="admin-section" id="atab-fornecedores">
           <div class="info-bar">Cadastre fornecedores com CNPJ. Ao ler uma NF com IA, o sistema cruzará o CNPJ do emissor com os cadastrados e usará o nome definido aqui. <strong>Importante:</strong> certifique-se que as regras do Firestore permitem leitura/escrita na coleção <code style="background:rgba(0,0,0,.07);padding:1px 5px;border-radius:3px;">fornecedores</code>.</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;">EXIBIR:</span>
+            <button id="btn-forn-ativos" class="btn btn-primary btn-sm" onclick="filtroFornStatus('ativos')">✅ Ativos</button>
+            <button id="btn-forn-inativos" class="btn btn-outline btn-sm" onclick="filtroFornStatus('inativos')">🚫 Inativados</button>
+            <button id="btn-forn-todos" class="btn btn-outline btn-sm" onclick="filtroFornStatus('todos')">📋 Todos</button>
+          </div>
 
           <div class="form-row" style="margin-bottom:12px;align-items:flex-end;">
             <div class="input-group" style="flex:1.2;">
@@ -684,9 +696,10 @@ tbody tr:hover{background:var(--surface2);}
               <thead>
                 <tr>
                   <th>CNPJ</th>
-                  <th>Nome Cadastrado</th>
+                  <th>Nome</th>
+                  <th>Status</th>
                   <th>Cadastrado em</th>
-                  <th>Cadastrado por</th>
+                  <th>Por</th>
                   <th></th>
                 </tr>
               </thead>
@@ -705,6 +718,40 @@ tbody tr:hover{background:var(--surface2);}
           <div class="table-wrap">
             <table><thead><tr><th>E-mail</th><th>Adicionado em</th><th></th></tr></thead>
             <tbody id="emails-tbody"></tbody></table>
+          </div>
+        </div>
+
+        <!-- PERFIS -->
+        <div class="admin-section" id="atab-perfis">
+          <div class="info-bar">Defina quais abas do painel Admin cada perfil pode acessar. As alterações são aplicadas imediatamente a todos os usuários com aquele perfil.</div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px;margin-top:4px;">
+
+            <!-- OPERACIONAL -->
+            <div class="card">
+              <div class="card-title" style="color:var(--success);">👷 OPERACIONAL</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Acesso ao app operacional (câmera, lacres). Não acessa o painel Admin.</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Abas disponíveis no Admin:</div>
+              <div id="perfis-operacional-perms" style="display:flex;flex-direction:column;gap:8px;"></div>
+              <button class="btn btn-primary btn-sm" onclick="salvarPermissoesPerfil('operacional')" style="margin-top:14px;width:100%;">💾 Salvar Permissões</button>
+            </div>
+
+            <!-- OPERADOR -->
+            <div class="card">
+              <div class="card-title" style="color:var(--gerdau-blue);">🔧 OPERADOR</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Acesso ao app + painel Admin (abas configuradas abaixo).</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Abas disponíveis no Admin:</div>
+              <div id="perfis-operador-perms" style="display:flex;flex-direction:column;gap:8px;"></div>
+              <button class="btn btn-primary btn-sm" onclick="salvarPermissoesPerfil('operador')" style="margin-top:14px;width:100%;">💾 Salvar Permissões</button>
+            </div>
+
+            <!-- ADMIN -->
+            <div class="card">
+              <div class="card-title" style="color:var(--danger);">👑 ADMIN</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Acesso total a todas as abas. Não pode ser restringido.</div>
+              <div id="perfis-admin-perms" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
           </div>
         </div>
 
@@ -1392,7 +1439,10 @@ Retorne SOMENTE o JSON.`;
         <div class="status-item">A câmera não conseguiu ler o número do lacre. Tente aproximar mais, melhorar a iluminação ou inserir o número manualmente.</div>`;
       document.getElementById(`btn-refoto-${lado}`).style.display='block';
       document.getElementById(`btn-foto-${lado}`).style.display='none';
-      mostrarEntradaManual(lado);
+      // Photo was taken — show manual input immediately (skip re-prompt)
+      const me = document.getElementById(`manual-entry-${lado}`);
+      if (!me) mostrarEntradaManual(lado);
+      else _mostrarInputManual(lado);
       return;
     }
 
@@ -1448,7 +1498,14 @@ Retorne SOMENTE o JSON.`;
       <div class="status-item" style="font-size:13px;color:var(--text2)">Verifique sua conexão ou insira o número manualmente.</div>`;
     document.getElementById(`btn-refoto-${lado}`).style.display='block';
     document.getElementById(`btn-foto-${lado}`).style.display='none';
-    mostrarEntradaManual(lado);
+    // Photo already captured before analysis — go straight to manual input
+    if (state[lado].photoBase64) {
+      const me = document.getElementById(`manual-entry-${lado}`);
+      if (!me) mostrarEntradaManual(lado);
+      else _mostrarInputManual(lado);
+    } else {
+      mostrarEntradaManual(lado);
+    }
   }
 }
 
@@ -1858,35 +1915,88 @@ function hideTopAlert() {
 
 function mostrarEntradaManual(lado) {
   if (document.getElementById(`manual-entry-${lado}`)) return;
+  const hasPhoto = !!state[lado].photoBase64;
   const box = document.getElementById(`result-${lado}`);
   const manualDiv = document.createElement('div');
   manualDiv.id = `manual-entry-${lado}`;
-  manualDiv.style.cssText = 'background:var(--warning-bg);border:1.5px solid var(--warning-border);border-radius:12px;padding:16px;margin-top:12px;';
-  manualDiv.innerHTML = `
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:10px;">⌨️ INSERÇÃO MANUAL DO LACRE</div>
-    <div style="font-size:14px;color:var(--text2);margin-bottom:10px;">Digite o número do lacre exatamente como está impresso:</div>
-    <div style="display:flex;gap:8px;">
-      <input type="text" id="manual-lacre-${lado}" placeholder="00000" maxlength="5" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:2px;padding:11px 13px;text-transform:uppercase;outline:none;">
-      <button onclick="processarManual('${lado}')" class="btn btn-primary btn-sm" style="width:auto;padding:11px 16px;margin:0;">Confirmar</button>
-    </div>`;
+  manualDiv.style.cssText = 'background:var(--surface2);border:1.5px solid var(--warning-border,#f5a623);border-radius:12px;padding:16px;margin-top:12px;';
+
+  if (!hasPhoto) {
+    // Photo required first
+    manualDiv.innerHTML = `
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--warning,#f5a623);letter-spacing:1px;margin-bottom:8px;">⌨️ ENTRADA MANUAL — FOTO OBRIGATÓRIA</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:12px;">
+        📸 Para registrar o lacre manualmente, <strong>a foto ainda é obrigatória</strong> para fins de registro. Tire a foto do lacre e depois insira o número.
+      </div>
+      <button onclick="tirarFotoParaManual('${lado}')" class="btn btn-primary btn-sm" style="width:100%;margin:0;">
+        📷 Tirar Foto do Lacre Agora
+      </button>`;
+  } else {
+    // Photo already taken — show number input
+    _mostrarInputManual(lado, manualDiv);
+  }
   box.parentNode.insertBefore(manualDiv, box.nextSibling);
+}
+
+function _mostrarInputManual(lado, container) {
+  container = container || document.getElementById(`manual-entry-${lado}`);
+  if (!container) return;
+  container.innerHTML = `
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--warning,#f5a623);letter-spacing:1px;margin-bottom:8px;">⌨️ INSERÇÃO MANUAL DO LACRE</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">✅ Foto registrada. Agora insira o número do lacre:</div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="manual-lacre-${lado}" placeholder="00000" maxlength="10"
+        style="flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:3px;padding:11px 13px;text-transform:uppercase;outline:none;"
+        oninput="this.value=this.value.toUpperCase()"
+        onkeydown="if(event.key==='Enter') processarManual('${lado}')">
+      <button onclick="processarManual('${lado}')" class="btn btn-primary" style="padding:11px 20px;margin:0;width:auto;">✅ Confirmar</button>
+    </div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px;">O lacre será registrado como <strong>inserção manual</strong> com a foto tirada.</div>`;
+}
+
+async function tirarFotoParaManual(lado) {
+  // Trigger camera photo manually and then show manual input
+  const video = document.getElementById(`video-${lado}`);
+  if (video && state[lado].stream && video.readyState >= 2) {
+    await takePhoto(lado);
+    // takePhoto calls analisarLacre which may fail again — we intercept
+    // Set a flag so after photo is taken we show manual input
+    state[lado]._aguardandoManual = true;
+  } else {
+    // Camera not running — start it
+    await startCamera(lado);
+    showTopAlert('📷 Câmera iniciada. Aponte para o lacre, tire a foto e depois use a entrada manual.', 'warning');
+    // Remove the manual div so user sees camera
+    const me = document.getElementById(`manual-entry-${lado}`);
+    if (me) me.remove();
+  }
 }
 
 function processarManual(lado) {
   const input = document.getElementById(`manual-lacre-${lado}`);
-  const numero = input.value.trim().padStart(5,'0');
-  if (!numero || numero === '00000') { alert('Informe um número válido.'); return; }
-  
-  state[lado].lacreNumero = numero;
-  state[lado].lacreIntegro = true; // Assume íntegro se manual
-  
-  if (lado === 'origem') {
-    mostrarResultadoOrigem({ numero, integro: true, observacao: 'Inserido manualmente' });
-  } else {
-    verificarDestino({ numero, integro: true, observacao: 'Inserido manualmente' });
+  if (!input) return;
+  const rawNumero = input.value.trim().toUpperCase();
+  const numero = rawNumero.replace(/\D/g,'').padStart(5,'0') || rawNumero;
+  if (!rawNumero || rawNumero.length < 1) { alert('Informe o número do lacre.'); input.focus(); return; }
+
+  // Photo is mandatory
+  if (!state[lado].photoBase64) {
+    alert('⚠️ A foto do lacre é obrigatória para o registro manual.\nTire a foto primeiro.');
+    return;
   }
-  
-  document.getElementById(`manual-entry-${lado}`).remove();
+
+  state[lado].lacreNumero = numero;
+  state[lado].lacreIntegro = true;
+  state[lado]._aguardandoManual = false;
+
+  const manualEl = document.getElementById(`manual-entry-${lado}`);
+  if (manualEl) manualEl.remove();
+
+  if (lado === 'origem') {
+    mostrarResultadoOrigem({ numero, integro: true, observacao: 'Inserido manualmente — foto registrada' });
+  } else {
+    verificarDestino({ numero, integro: true, observacao: 'Inserido manualmente — foto registrada' });
+  }
 }
 
 async function validarPlacaCadastrada(placa) {
@@ -2007,16 +2117,92 @@ async function doLogin() {
   }
 }
 
-function applyRolePermissions() {
-  const tabs = ['lacres','placas','processos','historico','emails','usuarios','config'];
-  document.querySelectorAll('.admin-tab').forEach(t=>t.style.display='');
+// Default permissions per profile (used if Firestore has no custom config)
+const DEFAULT_PERMS = {
+  operacional: [],  // No admin access
+  operador:    ['lacres','placas','processos','historico'],
+  admin:       ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config']
+};
+const ALL_TABS = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config'];
+const TAB_LABELS = {
+  lacres:'Lacres', placas:'Placas', processos:'Processos', historico:'Histórico',
+  emails:'E-mails', perfis:'Perfis', usuarios:'Usuários', fornecedores:'Fornecedores',
+  logs:'Logs', config:'Config'
+};
+let _cachedPerms = null;
 
-  if (currentUserRole === 'operador') {
-    const hidden = ['emails','usuarios','config'];
-    document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-      if (hidden.includes(tabs[i])) t.style.display = 'none';
-    });
-  }
+async function getPermissoes() {
+  if (_cachedPerms) return _cachedPerms;
+  try {
+    if (db) {
+      const doc = await db.collection('config').doc('permissoes').get();
+      if (doc.exists) { _cachedPerms = doc.data(); return _cachedPerms; }
+    }
+  } catch(e) {}
+  _cachedPerms = { ...DEFAULT_PERMS };
+  return _cachedPerms;
+}
+
+async function applyRolePermissions(perfil) {
+  const role = perfil || currentUserRole;
+  document.querySelectorAll('.admin-tab').forEach(t => t.style.display = '');
+  if (role === 'admin') return; // admin sees everything
+
+  const perms = await getPermissoes();
+  const allowed = perms[role] || DEFAULT_PERMS[role] || [];
+
+  document.querySelectorAll('.admin-tab').forEach(t => {
+    const onclick = t.getAttribute('onclick') || '';
+    const tabMatch = onclick.match(/adminTab\('(\w+)'\)/);
+    if (tabMatch) {
+      const tabName = tabMatch[1];
+      t.style.display = allowed.includes(tabName) ? '' : 'none';
+    }
+  });
+}
+
+async function loadPerfis() {
+  const perms = await getPermissoes();
+  ['operacional','operador','admin'].forEach(profile => {
+    const container = document.getElementById(`perfis-${profile}-perms`);
+    if (!container) return;
+    const allowed = perms[profile] || DEFAULT_PERMS[profile] || [];
+    if (profile === 'admin') {
+      container.innerHTML = ALL_TABS.map(t =>
+        `<div style="display:flex;align-items:center;gap:8px;opacity:.6;">
+          <span style="font-size:16px;">✅</span>
+          <span style="font-size:14px;font-weight:600;">${TAB_LABELS[t]}</span>
+          <span style="font-size:11px;color:var(--text3);">(sempre ativo)</span>
+        </div>`
+      ).join('');
+      return;
+    }
+    container.innerHTML = ALL_TABS.map(t => {
+      const checked = allowed.includes(t);
+      return `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:8px;transition:background .15s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+        <input type="checkbox" id="perm-${profile}-${t}" ${checked ? 'checked' : ''}
+          style="width:18px;height:18px;cursor:pointer;accent-color:var(--gerdau-blue);">
+        <span style="font-size:14px;font-weight:600;">${TAB_LABELS[t]}</span>
+      </label>`;
+    }).join('');
+  });
+}
+
+async function salvarPermissoesPerfil(profile) {
+  const allowed = ALL_TABS.filter(t => {
+    const el = document.getElementById(`perm-${profile}-${t}`);
+    return el && el.checked;
+  });
+  if (!db) { alert('Firebase não configurado.'); return; }
+  try {
+    await db.collection('config').doc('permissoes').set(
+      { [profile]: allowed },
+      { merge: true }
+    );
+    _cachedPerms = null; // clear cache
+    await registrarLog('editar_permissoes', `Permissões do perfil "${profile}" atualizadas: ${allowed.join(', ')}`);
+    showTopAlert(`✅ Permissões do perfil "${profile}" salvas e aplicadas!`, 'ok');
+  } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
 // ============================================================
@@ -2140,7 +2326,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','usuarios','fornecedores','logs','config'];
+    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -2152,8 +2338,9 @@ function adminTab(tab) {
   if (tab==='config') loadConfig();
   if (tab==='usuarios') loadUsuarios();
   if (tab==='historico') loadHistorico();
-  if (tab==='fornecedores') loadFornecedores();
+  if (tab==='fornecedores') { loadFornecedores(); _fornecedoresCache = null; popularFornecedoresDatalist(); }
   if (tab==='logs') loadLogs();
+  if (tab==='perfis') loadPerfis();
 }
 
 // ============================================================
@@ -3398,6 +3585,8 @@ async function doAppLoginComOffline() {
     if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
     initSessionTimeout();
     setTimeout(() => startCamera('origem'), 300);
+    // Pre-load fornecedores for dropdown
+    setTimeout(popularFornecedoresDatalist, 1500);
   } catch(e) {
     console.error('App login error:', e.code, e.message);
     errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential'
@@ -3548,10 +3737,17 @@ Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, respo
   } catch (err) {
     loading.classList.remove('show');
     result.className = 'status-box error show';
-    result.innerHTML = `<div class="status-title">⚠️ Erro ao Ler NF</div>
+    const temFotoNF = !!stateNF[lado]?.photoBase64;
+    result.innerHTML = `<div class="status-title">⚠️ ${err.message.includes('404') || err.message.includes('API') || err.message.includes('Gemini') ? 'IA indisponível' : 'NF não identificada'}</div>
       <div class="status-item">${err.message}</div>
-      <div class="status-item" style="font-size:14px;">Tente tirar uma foto mais clara da NF.</div>`;
+      <div class="status-item" style="font-size:13px;margin-top:6px;">
+        ${temFotoNF
+          ? '✅ Foto registrada. Preencha o número da NF e o fornecedor manualmente nos campos acima.'
+          : '📷 Para preencher manualmente, tire uma foto da NF primeiro (obrigatória para o registro).'}
+      </div>
+      ${!temFotoNF ? `<button onclick="capturarFotoNF('${lado}')" class="btn btn-outline btn-sm" style="margin-top:8px;width:100%;">📷 Tirar Foto da NF</button>` : ''}`;
     result.style.display = 'block';
+    // Unlock NF fields for manual typing (fields start unlocked, this is just UX feedback)
   }
 }
 
@@ -3619,22 +3815,53 @@ function validarCNPJ(cnpj) {
   return calc(cnpj, 12) === parseInt(cnpj[12]) && calc(cnpj, 13) === parseInt(cnpj[13]);
 }
 
+let _todosFornecedores = [];
+let _filtroForn = 'ativos';
+function filtroFornStatus(f) {
+  _filtroForn = f;
+  ['ativos','inativos','todos'].forEach(s => {
+    const el = document.getElementById(`btn-forn-${s}`);
+    if (el) el.className = `btn btn-sm ${f===s ? 'btn-primary' : 'btn-outline'}`;
+  });
+  const lista = f === 'ativos'   ? _todosFornecedores.filter(f=>!f.inativo)
+              : f === 'inativos' ? _todosFornecedores.filter(f=>f.inativo)
+              : _todosFornecedores;
+  renderFornecedores(lista);
+}
+function renderFornecedores(lista) {
+  const tbody = document.getElementById('fornecedores-tbody');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text2);text-align:center;padding:20px;">Nenhum fornecedor nesta categoria</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(d => {
+    const cnpjFmt = formatarCNPJ(d.cnpj || '');
+    const statusBadge = d.inativo
+      ? '<span class="badge badge-err">Inativo</span>'
+      : '<span class="badge badge-ok">Ativo</span>';
+    const inativadoPor = d.inativo && d.inativadoPorNome ? `<br><small style="font-size:11px;color:var(--text3);">por ${d.inativadoPorNome}</small>` : '';
+    const btns = d.inativo
+      ? `<button class="btn btn-outline btn-sm" onclick="reativarFornecedor('${d.cnpj}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
+      : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
+           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,'\'\'')}')">✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="inativarFornecedor('${d.cnpj}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>
+         </div>`;
+    return `<tr style="${d.inativo ? 'opacity:.6;' : ''}">
+      <td><strong style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">${cnpjFmt}</strong></td>
+      <td style="font-weight:600;">${d.nome||'—'}</td>
+      <td>${statusBadge}${inativadoPor}</td>
+      <td style="color:var(--text2)">${d.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</td>
+      <td style="color:var(--text2)">${d.cadastradoPor||d.cadastradoPorNome||'—'}</td>
+      <td>${btns}</td>
+    </tr>`;
+  }).join('');
+}
 async function loadFornecedores() {
   if (!db) return;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
-    const tbody = document.getElementById('fornecedores-tbody');
-    tbody.innerHTML = snap.docs.map(doc => {
-      const d = doc.data();
-      const cnpjFormatado = formatarCNPJ(d.cnpj || '');
-      return `<tr>
-        <td><strong style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:14px;">${cnpjFormatado}</strong></td>
-        <td style="font-weight:600;">${d.nome || '—'}</td>
-        <td style="font-size:13px;color:var(--text2);">${d.cadastradoEm?.toDate?.()?.toLocaleString('pt-BR') || '—'}</td>
-        <td style="font-size:13px;color:var(--text2);">${d.cadastradoPor || '—'}</td>
-        <td><button class="btn btn-danger btn-sm" onclick="removerFornecedor('${doc.id}')" style="padding:5px 10px;font-size:13px;">Remover</button></td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:20px;">Nenhum fornecedor cadastrado</td></tr>';
+    _todosFornecedores = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filtroFornStatus(_filtroForn || 'ativos');
   } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); }
 }
 
@@ -3661,6 +3888,19 @@ async function adicionarFornecedor() {
   try {
     const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
     if (existing.exists) {
+      if (existing.data().inativo) {
+        if (!confirm(`CNPJ já cadastrado mas está inativo como "${existing.data().nome}".\nDeseja reativar com o nome "${nome}"?`)) {
+          if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
+          return;
+        }
+        await db.collection('fornecedores').doc(cnpjRaw).update({ nome, inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null });
+        document.getElementById('novo-forn-cnpj').value = '';
+        document.getElementById('novo-forn-nome').value = '';
+        showTopAlert(`✅ Fornecedor "${nome}" reativado`, 'ok');
+        loadFornecedores();
+        if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
+        return;
+      }
       if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".\nDeseja atualizar o nome para "${nome}"?`)) {
         if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
         return;
@@ -3690,11 +3930,68 @@ async function adicionarFornecedor() {
   }
 }
 
-async function removerFornecedor(cnpj) {
-  if (!confirm(`Remover fornecedor com CNPJ ${formatarCNPJ(cnpj)}?`)) return;
-  await db.collection('fornecedores').doc(cnpj).delete();
-  await registrarLog('remocao_fornecedor', `Fornecedor removido: CNPJ ${formatarCNPJ(cnpj)}`);
+async function inativarFornecedor(cnpj) {
+  if (!confirm(`Inativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?\n\nPoderá ser reativado quando necessário.`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('fornecedores').doc(cnpj).update({
+    inativo: true,
+    inativadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    inativadoPor: operador.email || '',
+    inativadoPorNome: operador.nome || 'Admin'
+  });
+  await registrarLog('inativar_fornecedor', `CNPJ ${formatarCNPJ(cnpj)} inativado por ${operador.nome}`);
+  showTopAlert(`🚫 Fornecedor inativado`, 'warning');
   loadFornecedores();
+}
+
+async function reativarFornecedor(cnpj) {
+  if (!confirm(`Reativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?`)) return;
+  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
+  await db.collection('fornecedores').doc(cnpj).update({
+    inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null
+  });
+  await registrarLog('reativar_fornecedor', `CNPJ ${formatarCNPJ(cnpj)} reativado por ${operador.nome}`);
+  showTopAlert(`✅ Fornecedor reativado`, 'ok');
+  loadFornecedores();
+}
+
+function editarFornecedor(cnpj, nomeAtual) {
+  const modal = document.getElementById('edit-forn-modal');
+  const criar = !modal;
+  const m = modal || document.createElement('div');
+  m.id = 'edit-forn-modal';
+  m.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR FORNECEDOR</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">CNPJ: <strong>${formatarCNPJ(cnpj)}</strong></div>
+      <input type="hidden" id="edit-forn-cnpj">
+      <div class="input-group">
+        <label>Nome Cadastrado</label>
+        <input type="text" id="edit-forn-nome" placeholder="NOME DO FORNECEDOR" style="font-size:15px;letter-spacing:0;text-transform:uppercase;">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary" onclick="salvarEdicaoFornecedor()" style="flex:1;">💾 Salvar</button>
+        <button class="btn btn-outline" onclick="document.getElementById('edit-forn-modal').style.display='none'" style="flex:1;">Cancelar</button>
+      </div>
+    </div>`;
+  if (criar) document.body.appendChild(m);
+  document.getElementById('edit-forn-cnpj').value = cnpj;
+  document.getElementById('edit-forn-nome').value = nomeAtual;
+  m.style.display = 'flex';
+}
+
+async function salvarEdicaoFornecedor() {
+  const cnpj = document.getElementById('edit-forn-cnpj').value;
+  const nome = document.getElementById('edit-forn-nome').value.trim().toUpperCase();
+  if (!nome) { alert('Informe o nome.'); return; }
+  try {
+    await db.collection('fornecedores').doc(cnpj).update({ nome });
+    await registrarLog('editar_fornecedor', `CNPJ ${formatarCNPJ(cnpj)} → nome: ${nome}`);
+    document.getElementById('edit-forn-modal').style.display = 'none';
+    showTopAlert(`✅ Fornecedor atualizado`, 'ok');
+    loadFornecedores();
+  } catch(e) { alert('Erro: ' + e.message); }
 }
 
 async function buscarFornecedorPorCNPJ(cnpj) {
@@ -3703,7 +4000,7 @@ async function buscarFornecedorPorCNPJ(cnpj) {
   if (cnpjLimpo.length !== 14) return null;
   try {
     const doc = await db.collection('fornecedores').doc(cnpjLimpo).get();
-    return doc.exists ? doc.data() : null;
+    return (doc.exists && !doc.data().inativo) ? doc.data() : null;
   } catch(e) {
     console.warn('Erro ao buscar fornecedor:', e.message);
     return null;
@@ -4045,6 +4342,64 @@ async function salvarEdicaoUsuario() {
     loadUsuarios();
   } catch(e) { alert('Erro: ' + e.message); }
 }
+
+// ─── FORNECEDOR DROPDOWN ──────────────────────────────────
+let _fornecedoresCache = null;
+
+async function carregarFornecedoresDropdown() {
+  if (!db) return [];
+  if (_fornecedoresCache) return _fornecedoresCache;
+  try {
+    const snap = await db.collection('fornecedores')
+      .where('inativo','==',false).orderBy('nome').get();
+    _fornecedoresCache = snap.docs.map(d => ({ cnpj: d.data().cnpj, nome: d.data().nome }));
+    // Also load docs without inativo field (older records)
+    const snap2 = await db.collection('fornecedores').orderBy('nome').get();
+    const extras = snap2.docs
+      .filter(d => d.data().inativo === undefined || d.data().inativo === false)
+      .map(d => ({ cnpj: d.data().cnpj, nome: d.data().nome }));
+    // Deduplicate
+    const seen = new Set(_fornecedoresCache.map(f => f.cnpj));
+    extras.forEach(f => { if (!seen.has(f.cnpj)) { _fornecedoresCache.push(f); seen.add(f.cnpj); } });
+    _fornecedoresCache.sort((a,b) => a.nome.localeCompare(b.nome));
+  } catch(e) {
+    console.warn('Erro ao carregar fornecedores:', e.message);
+    _fornecedoresCache = [];
+  }
+  return _fornecedoresCache;
+}
+
+async function popularFornecedoresDatalist() {
+  const lista = await carregarFornecedoresDropdown();
+  // Populate all datalists on the page
+  document.querySelectorAll('.fornecedores-datalist-target').forEach(dl => {
+    dl.innerHTML = lista.map(f => `<option value="${f.nome}" data-cnpj="${f.cnpj}">${f.nome}</option>`).join('');
+  });
+  const dl = document.getElementById('fornecedores-datalist');
+  if (dl) dl.innerHTML = lista.map(f =>
+    `<option value="${f.nome}">${f.nome} — CNPJ: ${formatarCNPJ(f.cnpj)}</option>`
+  ).join('');
+}
+
+function verificarFornecedorSelecionado(lado, valor) {
+  if (!valor || !_fornecedoresCache) return;
+  const match = _fornecedoresCache.find(f =>
+    f.nome.toLowerCase() === valor.toLowerCase()
+  );
+  const badge = document.getElementById(`forn-badge-${lado}`);
+  if (badge) {
+    badge.style.display = match ? 'inline' : 'none';
+  }
+  if (match && stateNF && stateNF[lado]) {
+    stateNF[lado].cnpjEmissor = match.cnpj;
+  }
+}
+
+// Populate on app load + after fornecedores tab is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  // Populate after a short delay to allow Firebase to init
+  setTimeout(popularFornecedoresDatalist, 2000);
+});
 </script>
 </body>
 </html>
