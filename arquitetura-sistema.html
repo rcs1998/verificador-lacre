@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitetura — Verificador de Lacres Gerdau</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+  :root{--blue:#1B3A6B;--yellow:#F5A623;--green:#1A8C4E;--red:#C0392B;--purple:#6C3483;--teal:#117A8B;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#0d1628;color:#fff;min-height:100vh;}
+  .header{background:linear-gradient(135deg,#0d1628 0%,#1B3A6B 100%);border-bottom:4px solid var(--yellow);padding:40px 60px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+  .header-title{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;letter-spacing:3px;color:#fff;line-height:1;}
+  .header-sub{font-size:14px;color:var(--yellow);letter-spacing:4px;font-weight:600;text-transform:uppercase;margin-bottom:8px;}
+  .header-badge{background:rgba(245,166,35,.15);border:1px solid var(--yellow);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--yellow);font-weight:600;letter-spacing:1px;}
+  .tabs{display:flex;gap:4px;padding:24px 60px 0;background:#111c2e;border-bottom:1px solid #1e2d4a;flex-wrap:wrap;}
+  .tab{padding:12px 22px;font-size:15px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;border:none;background:transparent;color:#6b7fa0;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-family:'Barlow Condensed',sans-serif;}
+  .tab:hover{color:#fff;} .tab.active{color:var(--yellow);border-bottom-color:var(--yellow);}
+  .content{padding:40px 60px;max-width:1400px;margin:0 auto;}
+  .section{display:none;} .section.active{display:block;}
+  .section-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;}
+  .section-sub{font-size:14px;color:#6b7fa0;margin-bottom:32px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:24px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
+  .card-icon{font-size:28px;margin-bottom:12px;display:block;}
+  .card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:10px;}
+  .card-body{font-size:13px;color:#8a9bb8;line-height:1.6;}
+  .tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:3px 2px;}
+  .tag-blue{background:rgba(27,58,107,.4);color:#7ea8d8;border:1px solid #1e3d6b;}
+  .tag-yellow{background:rgba(245,166,35,.15);color:var(--yellow);border:1px solid rgba(245,166,35,.3);}
+  .tag-green{background:rgba(26,140,78,.2);color:#5ecb8a;border:1px solid rgba(26,140,78,.3);}
+  .tag-red{background:rgba(192,57,43,.2);color:#f08080;border:1px solid rgba(192,57,43,.3);}
+  .tag-teal{background:rgba(17,122,139,.2);color:#5ec8d8;border:1px solid rgba(17,122,139,.3);}
+  .tag-gray{background:rgba(255,255,255,.06);color:#8a9bb8;border:1px solid rgba(255,255,255,.1);}
+  .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:20px 0;}
+  .flow-step{background:#1a2840;border:1.5px solid #1e3d6b;border-radius:12px;padding:14px 18px;text-align:center;min-width:120px;flex:1;}
+  .flow-step-icon{font-size:22px;display:block;margin-bottom:6px;}
+  .flow-step-label{font-size:12px;font-weight:600;color:#8a9bb8;letter-spacing:0.5px;}
+  .flow-step-sub{font-size:11px;color:#556070;margin-top:3px;}
+  .flow-arrow{color:var(--yellow);font-size:20px;padding:0 6px;flex-shrink:0;}
+  .collection{background:#0d1628;border:1px solid #1e2d4a;border-radius:12px;overflow:hidden;margin-bottom:16px;}
+  .collection-header{background:#141f35;padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1e2d4a;}
+  .collection-icon{font-size:18px;}
+  .collection-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;color:#fff;}
+  .collection-desc{font-size:12px;color:#6b7fa0;margin-left:auto;}
+  .collection-fields{padding:14px 18px;display:flex;flex-wrap:wrap;gap:6px;}
+  .field{background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;}
+  .field.key{color:var(--yellow);border-color:rgba(245,166,35,.3);}
+  .rule-box{background:#0d1628;border:1px solid #1e2d4a;border-radius:10px;overflow:hidden;margin-bottom:12px;}
+  .rule-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#141f35;border-bottom:1px solid #1e2d4a;}
+  .rule-collection{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;color:#fff;}
+  .rule-perms{display:flex;gap:6px;flex-wrap:wrap;}
+  .perm{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.5px;}
+  .perm-r{background:rgba(26,140,78,.2);color:#5ecb8a;}
+  .perm-w{background:rgba(245,166,35,.15);color:var(--yellow);}
+  .perm-d{background:rgba(192,57,43,.15);color:#f08080;}
+  .perm-no{background:rgba(255,255,255,.05);color:#556070;text-decoration:line-through;}
+  .rule-detail{padding:10px 16px;font-size:12px;color:#6b7fa0;font-family:'Courier New',monospace;line-height:1.5;}
+  .matrix{width:100%;border-collapse:collapse;margin-top:16px;}
+  .matrix th{background:#141f35;padding:12px 16px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:var(--yellow);font-weight:700;border-bottom:2px solid #1e2d4a;}
+  .matrix td{padding:10px 16px;border-bottom:1px solid #1a2840;font-size:13px;color:#8a9bb8;vertical-align:middle;}
+  .matrix tr:hover td{background:#111c2e;}
+  .matrix .check{color:#5ecb8a;font-size:16px;}
+  .matrix .cross{color:#556070;font-size:16px;}
+  .matrix .admin-only{color:var(--yellow);font-size:11px;font-weight:700;}
+  .arch{display:grid;grid-template-columns:1fr 60px 1fr 60px 1fr;align-items:center;gap:0;margin:20px 0;}
+  .arch-layer{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:20px;text-align:center;}
+  .arch-arrow{text-align:center;color:var(--yellow);font-size:22px;}
+  .arch-layer-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--yellow);margin-bottom:12px;text-transform:uppercase;}
+  .arch-item{background:#0d1628;border:1px solid #1e2d4a;border-radius:8px;padding:8px 12px;font-size:12px;color:#8a9bb8;margin:5px 0;text-align:left;display:flex;align-items:center;gap:8px;}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .stat{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:20px;text-align:center;}
+  .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:900;color:var(--yellow);line-height:1;}
+  .stat-label{font-size:12px;color:#6b7fa0;margin-top:6px;}
+  .divider{height:1px;background:#1e2d4a;margin:28px 0;}
+  .alert-box{background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);border-radius:10px;padding:16px 20px;font-size:13px;color:#5ecb8a;margin-bottom:20px;}
+  .warn-box{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:16px 20px;font-size:13px;color:var(--yellow);margin-bottom:20px;}
+  @media(max-width:900px){.content{padding:24px 20px;}.tabs{padding:16px 20px 0;}.header{padding:24px 20px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.stat-grid{grid-template-columns:1fr 1fr;}.arch{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="header-sub">Gerdau — Controle de Lacres</div>
+    <div class="header-title">ARQUITETURA<br>DO SISTEMA</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+    <div class="header-badge">🔐 PWA + Firebase + Gemini AI</div>
+    <div class="header-badge">📧 E-mail somente em desvios</div>
+    <div class="header-badge" style="color:#5ecb8a;border-color:rgba(26,140,78,.4);background:rgba(26,140,78,.1);">✅ Produção — verificador-lacre</div>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="showSection('visao-geral')">Visão Geral</button>
+  <button class="tab" onclick="showSection('dados')">Dados</button>
+  <button class="tab" onclick="showSection('seguranca')">Segurança</button>
+  <button class="tab" onclick="showSection('fluxo')">Fluxo Operacional</button>
+  <button class="tab" onclick="showSection('perfis')">Perfis & Acessos</button>
+  <button class="tab" onclick="showSection('infra')">Infraestrutura</button>
+</div>
+<div class="content">
+
+<!-- VISÃO GERAL -->
+<div class="section active" id="section-visao-geral">
+  <div class="section-title">Visão Geral do Sistema</div>
+  <div class="section-sub">Plataforma de controle e rastreabilidade de lacres de segurança para transporte de cargas</div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Perfis de Acesso</div></div>
+    <div class="stat"><div class="stat-num">8</div><div class="stat-label">Coleções no Firestore</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Servidores Próprios</div></div>
+    <div class="stat"><div class="stat-num">2h</div><div class="stat-label">Timeout de Sessão</div></div>
+  </div>
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">📱</span><div class="card-title">Frontend PWA</div><div class="card-body">Aplicação web progressiva instalável em Android e iOS. Funciona offline com fallback de sessão por 7 dias. HTML5 único sem dependências de build — deploy via GitHub Pages.<div style="margin-top:12px;"><span class="tag tag-blue">HTML5</span><span class="tag tag-yellow">PWA</span><span class="tag tag-gray">Service Worker</span><span class="tag tag-green">Offline-first</span></div></div></div>
+    <div class="card" style="--accent:#F57C00;"><span class="card-icon">🔥</span><div class="card-title">Firebase Backend</div><div class="card-body">Backend serverless 100% gerenciado pelo Google. Firestore para dados em tempo real, Authentication para identidade, Storage para imagens. Sem servidor para manter ou escalar.<div style="margin-top:12px;"><span class="tag tag-yellow">Firestore</span><span class="tag tag-blue">Auth</span><span class="tag tag-teal">Storage</span><span class="tag tag-red">Security Rules</span></div></div></div>
+    <div class="card" style="--accent:var(--teal);"><span class="card-icon">🤖</span><div class="card-title">Google Gemini AI</div><div class="card-body">IA multimodal para leitura óptica de lacres (QR Code / código de barras) e extração de dados de Notas Fiscais (número NF, CNPJ do emissor). Fallback manual com foto obrigatória.<div style="margin-top:12px;"><span class="tag tag-teal">Gemini 2.5 Flash</span><span class="tag tag-blue">Vision API</span><span class="tag tag-green">OCR</span></div></div></div>
+  </div>
+  <div class="arch">
+    <div class="arch-layer"><div class="arch-layer-title">📱 Cliente</div><div class="arch-item">📲 Android / iOS (PWA)</div><div class="arch-item">💻 Desktop (Navegador)</div><div class="arch-item">📷 Câmera nativa</div><div class="arch-item">🌐 GitHub Pages CDN</div></div>
+    <div class="arch-arrow">⟶</div>
+    <div class="arch-layer"><div class="arch-layer-title">🔥 Firebase</div><div class="arch-item">🔐 Authentication</div><div class="arch-item">🗄 Firestore DB</div><div class="arch-item">📁 Storage (fotos)</div><div class="arch-item">🛡 Security Rules</div></div>
+    <div class="arch-arrow">⟶</div>
+    <div class="arch-layer"><div class="arch-layer-title">☁️ APIs Externas</div><div class="arch-item">🤖 Gemini Vision</div><div class="arch-item">📧 EmailJS — só desvios</div><div class="arch-item">🗺 OpenStreetMap</div><div class="arch-item">📍 Geolocation API</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="grid-2">
+    <div class="card" style="--accent:var(--green);"><div class="card-title">✅ O que o sistema faz</div><div class="card-body" style="line-height:2;">• Registro fotográfico do lacre na origem com análise por IA<br>• Validação de placa, lacre e NF antes de cada saída<br>• Verificação de integridade do lacre no destino<br>• Detecção automática de desvios (lacre trocado ou violado)<br>• <strong style="color:#fff;">Notificação por e-mail apenas em desvios</strong> (economia de cota)<br>• Geolocalização com reverse geocoding em cada registro<br>• Histórico imutável de auditoria (logs indeléveis)<br>• Exportação de processos em CSV com 21 campos</div></div>
+    <div class="card" style="--accent:var(--yellow);"><div class="card-title">🏗 Decisões de Arquitetura</div><div class="card-body" style="line-height:2;">• <strong style="color:#fff;">Sem servidor próprio</strong> — zero custo de infraestrutura<br>• <strong style="color:#fff;">Single HTML file</strong> — deploy simples via GitHub, sem build<br>• <strong style="color:#fff;">Offline-first</strong> — operação contínua sem internet por 7 dias<br>• <strong style="color:#fff;">Firestore real-time</strong> — dados sincronizados entre todos dispositivos<br>• <strong style="color:#fff;">PWA instalável</strong> — experiência nativa sem App Store<br>• <strong style="color:#fff;">Logs imutáveis</strong> — auditoria à prova de manipulação<br>• <strong style="color:#fff;">IA com fallback manual</strong> — processo nunca trava por falha da IA<br>• <strong style="color:#fff;">Timeout de sessão: 2h</strong> por inatividade (configurável)</div></div>
+  </div>
+</div>
+
+<!-- DADOS -->
+<div class="section" id="section-dados">
+  <div class="section-title">Arquitetura de Dados</div>
+  <div class="section-sub">8 coleções no Cloud Firestore — banco NoSQL em tempo real gerenciado pelo Google</div>
+  <div class="grid-2">
+    <div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">🚛</span><div class="collection-name">PROCESSOS</div><div class="collection-desc">Registro principal de cada transporte</div></div><div class="collection-fields"><span class="field key">processId</span><span class="field">placa</span><span class="field">lacreNumero</span><span class="field">status</span><span class="field">timestamp</span><span class="field">transportadora</span><span class="field">motorista</span><span class="field">locOrigem</span><span class="field">locDestino</span><span class="field">fotoOrigemURL</span><span class="field">fotoDestinoURL</span><span class="field">numeroNF</span><span class="field">fornecedor</span><span class="field">cnpjFornecedor</span><span class="field">resultado</span><span class="field">abertoPorNome</span><span class="field">fechadoPorNome</span></div><div style="padding:0 18px 14px;"><div style="font-size:11px;color:#556070;margin-bottom:6px;">STATUS POSSÍVEIS:</div><span class="tag tag-green">aberto</span><span class="tag tag-yellow">aguardando_confirmacao</span><span class="tag tag-red">aguardando_confirmacao_desvio</span><span class="tag tag-gray">encerrado</span><span class="tag tag-gray">encerrado_manual</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">🔐</span><div class="collection-name">LACRES VÁLIDOS</div><div class="collection-desc">Cadastro de lacres autorizados</div></div><div class="collection-fields"><span class="field key">numero</span><span class="field">emUso</span><span class="field">inutilizado</span><span class="field">inativo</span><span class="field">placa</span><span class="field">cadastradoPorNome</span><span class="field">inativadoPorNome</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">🚗</span><div class="collection-name">PLACAS AUTORIZADAS</div></div><div class="collection-fields"><span class="field key">placa</span><span class="field">descricao</span><span class="field">inativa</span><span class="field">cadastradoPorNome</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">📦</span><div class="collection-name">FORNECEDORES</div></div><div class="collection-fields"><span class="field key">cnpj</span><span class="field">nome</span><span class="field">inativo</span><span class="field">cadastradoPor</span></div></div>
+    </div>
+    <div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">👤</span><div class="collection-name">USUÁRIOS</div></div><div class="collection-fields"><span class="field key">uid</span><span class="field">email</span><span class="field">perfil</span><span class="field">nome</span><span class="field">empresa</span><span class="field">inativo</span><span class="field">criadoEm</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">📋</span><div class="collection-name">LOGS</div><div class="collection-desc">Auditoria imutável</div></div><div class="collection-fields"><span class="field">acao</span><span class="field">detalhe</span><span class="field">usuario</span><span class="field">timestamp</span></div><div style="padding:0 18px 14px;"><span class="tag tag-red">update: NEGADO</span><span class="tag tag-red">delete: NEGADO</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">📧</span><div class="collection-name">EMAILS</div><div class="collection-desc">Destinatários — alertas de desvio</div></div><div class="collection-fields"><span class="field">email</span><span class="field">adicionadoEm</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">⚙️</span><div class="collection-name">CONFIG</div></div><div class="collection-fields"><span class="field key">config/app</span><span class="field key">config/gemini</span><span class="field key">config/permissoes</span><span class="field key">config/perfis-customizados</span></div></div>
+      <div class="alert-box" style="margin-top:16px;">📧 <strong>Política de e-mail:</strong> notificações enviadas exclusivamente em caso de <strong>desvio detectado</strong> (lacre divergente ou violado). Saídas e chegadas normais não geram e-mail — conserva a cota de 200 e-mails/mês do EmailJS.</div>
+      <div class="card" style="--accent:var(--teal);"><div class="card-title">📁 Firebase Storage</div><div class="card-body">Fotos em <code style="color:var(--yellow);">processos/{id}/origem_*.jpg</code> e <code style="color:var(--yellow);">destino_*.jpg</code>. Limpeza automática após <strong style="color:#fff;">5 meses</strong>. URLs salvas no documento do processo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SEGURANÇA -->
+<div class="section" id="section-seguranca">
+  <div class="section-title">Arquitetura de Segurança</div>
+  <div class="section-sub">Múltiplas camadas de proteção — autenticação, autorização e auditoria</div>
+  <div class="grid-3" style="margin-bottom:28px;">
+    <div class="card" style="--accent:var(--green);"><span class="card-icon">🔑</span><div class="card-title">Camada 1 — Autenticação</div><div class="card-body" style="line-height:1.8;"><strong style="color:#fff;">Firebase Authentication</strong> com e-mail e senha. Tokens JWT gerenciados pelo Google. Sessão com timeout de <strong style="color:#fff;">2 horas</strong> de inatividade (configurável). Recuperação de senha via SMTP Gmail.</div></div>
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">🛡</span><div class="card-title">Camada 2 — Autorização</div><div class="card-body" style="line-height:1.8;"><strong style="color:#fff;">Firestore Security Rules</strong> lado servidor. Nenhum dado é acessado sem <code style="color:var(--yellow);">request.auth != null</code>. Regras específicas por coleção com restrições por operação.</div></div>
+    <div class="card" style="--accent:var(--purple);"><span class="card-icon">📋</span><div class="card-title">Camada 3 — Auditoria</div><div class="card-body" style="line-height:1.8;"><strong style="color:#fff;">Logs imutáveis</strong> para toda ação. Regra Firestore bloqueia update e delete na coleção logs. Registro inclui usuário, timestamp e device a cada login.</div></div>
+  </div>
+  <div class="grid-2">
+    <div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">🚛 PROCESSOS</div><div class="rule-perms"><span class="perm perm-r">R: auth</span><span class="perm perm-w">C: auth + campos obrigatórios</span><span class="perm perm-w">U: auth</span><span class="perm perm-d">D: admin</span></div></div><div class="rule-detail">create: requer placa, lacreNumero, status, timestamp</div></div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">🔐 LACRES VÁLIDOS</div><div class="rule-perms"><span class="perm perm-r">R: auth</span><span class="perm perm-w">C: admin/op</span><span class="perm perm-w">U: auth</span><span class="perm perm-d">D: admin</span></div></div><div class="rule-detail">Operadores podem atualizar emUso e inutilizado</div></div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">👤 USUÁRIOS</div><div class="rule-perms"><span class="perm perm-r">R: próprio uid ou admin</span><span class="perm perm-w">W: admin only</span></div></div><div class="rule-detail">Usuário lê apenas seu próprio documento</div></div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">📋 LOGS</div><div class="rule-perms"><span class="perm perm-r">R: admin/op</span><span class="perm perm-w">C: auth</span><span class="perm perm-no">U: NUNCA</span><span class="perm perm-no">D: NUNCA</span></div></div><div class="rule-detail">allow update, delete: if false; // hardcoded</div></div>
+    </div>
+    <div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">⚙️ CONFIG</div><div class="rule-perms"><span class="perm perm-r">R: público</span><span class="perm perm-w">W: admin/op</span></div></div><div class="rule-detail">Leitura pública p/ carregar chave Gemini antes do login</div></div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">🚗 PLACAS / 📦 FORNECEDORES</div><div class="rule-perms"><span class="perm perm-r">R: auth</span><span class="perm perm-w">W: admin/op</span><span class="perm perm-d">D: admin</span></div></div><div class="rule-detail">Operadores precisam ler para validar placa e cruzar CNPJ</div></div>
+      <div class="rule-box"><div class="rule-header"><div class="rule-collection">📧 EMAILS</div><div class="rule-perms"><span class="perm perm-r">R: admin/op</span><span class="perm perm-w">W: admin/op</span><span class="perm perm-d">D: admin</span></div></div><div class="rule-detail">Apenas painel admin gerencia destinatários de desvio</div></div>
+      <div class="card" style="--accent:var(--red);margin-top:12px;"><div class="card-title">⛔ Bloqueio Padrão</div><div class="card-body"><code style="color:#7ea8d8;font-size:12px;">match /{document=**} { allow read, write: if false; }</code><div style="font-size:12px;color:#8a9bb8;margin-top:10px;">Nenhuma coleção fora da lista tem acesso.</div></div></div>
+      <div class="card" style="--accent:var(--green);margin-top:12px;"><div class="card-title">🚫 Controle de Acesso Adicional</div><div class="card-body" style="line-height:1.8;">• Usuários <strong style="color:#fff;">inativos</strong> bloqueados no login<br>• Placas <strong style="color:#fff;">inativas</strong> rejeitadas na validação<br>• Lacres <strong style="color:#fff;">inutilizados</strong> não reutilizáveis<br>• Timeout automático após <strong style="color:#fff;">2h</strong> de inatividade</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FLUXO -->
+<div class="section" id="section-fluxo">
+  <div class="section-title">Fluxo Operacional</div>
+  <div class="section-sub">Jornada completa de um processo — da origem ao destino</div>
+  <div class="card" style="--accent:var(--yellow);margin-bottom:24px;"><div class="card-title" style="color:var(--yellow);">🟢 ORIGEM — Registrar Saída</div><div class="flow" style="margin-top:12px;"><div class="flow-step"><span class="flow-step-icon">🔑</span><div class="flow-step-label">Login</div><div class="flow-step-sub">Firebase Auth</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">🚗</span><div class="flow-step-label">Digitar Placa</div><div class="flow-step-sub">Validação inline</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">📷</span><div class="flow-step-label">Foto Lacre</div><div class="flow-step-sub">Câmera + GPS</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">🤖</span><div class="flow-step-label">IA Analisa</div><div class="flow-step-sub">Gemini Vision</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">📄</span><div class="flow-step-label">NF / CNPJ</div><div class="flow-step-sub">OCR automático</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">✅</span><div class="flow-step-label">Registrar</div><div class="flow-step-sub">Firestore</div></div></div></div>
+  <div class="card" style="--accent:var(--green);margin-bottom:24px;"><div class="card-title" style="color:#5ecb8a;">🔵 DESTINO — Verificar Chegada</div><div class="flow" style="margin-top:12px;"><div class="flow-step"><span class="flow-step-icon">🚗</span><div class="flow-step-label">Informar Placa</div><div class="flow-step-sub">Busca processo</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">📷</span><div class="flow-step-label">Foto Lacre</div><div class="flow-step-sub">Câmera + GPS</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">🤖</span><div class="flow-step-label">IA Analisa</div><div class="flow-step-sub">Número + Integridade</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">🔍</span><div class="flow-step-label">Comparação</div><div class="flow-step-sub">Lacre esperado vs encontrado</div></div><div class="flow-arrow">→</div><div class="flow-step"><span class="flow-step-icon">📩</span><div class="flow-step-label">Resultado</div><div class="flow-step-sub">✅ OK ou 🚨 Desvio</div></div></div></div>
+  <div class="grid-2">
+    <div class="card" style="--accent:var(--green);"><div class="card-title">✅ APROVADO</div><div class="card-body" style="line-height:2;">Lacre número confere + lacre íntegro<br><div style="height:8px;"></div>→ Processo encerrado automaticamente<br>→ Lacre inutilizado (não reutilizável)<br>→ <strong style="color:#fff;">Nenhum e-mail enviado</strong> (operação normal)<br>→ Registro no Histórico com fotos e GPS</div></div>
+    <div class="card" style="--accent:var(--red);"><div class="card-title">🚨 DESVIO</div><div class="card-body" style="line-height:2;">Lacre divergente OU violado/rompido<br><div style="height:8px;"></div>→ Status: aguardando_confirmacao_desvio<br>→ <strong style="color:#f08080;">📧 E-mail de alerta enviado imediatamente</strong><br>→ Admin confirma ou encerra com justificativa<br>→ Registro completo de auditoria</div></div>
+  </div>
+</div>
+
+<!-- PERFIS -->
+<div class="section" id="section-perfis">
+  <div class="section-title">Perfis & Controle de Acesso</div>
+  <div class="section-sub">Sistema hierárquico com permissões configuráveis via painel Admin</div>
+  <div class="grid-3" style="margin-bottom:28px;">
+    <div class="card" style="--accent:var(--green);"><span class="card-icon">👷</span><div class="card-title">OPERACIONAL</div><div class="card-body" style="line-height:2;">Acesso exclusivo ao app.<br>• Câmera + leitura de lacres<br>• Registro de saída na origem<br>• Verificação de chegada no destino<br>• NF / fornecedor<br><br>❌ Sem acesso ao painel Admin</div></div>
+    <div class="card" style="--accent:var(--blue);"><span class="card-icon">🔧</span><div class="card-title">OPERADOR</div><div class="card-body" style="line-height:2;">App + painel Admin com abas configuráveis.<br>• Padrão: Lacres, Placas, Processos, Histórico<br>• Admin pode adicionar/remover abas<br>• Pode criar usuários Operacional e Operador<br><br>❌ Não cria perfil Admin</div></div>
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">👑</span><div class="card-title">ADMIN</div><div class="card-body" style="line-height:2;">Acesso total a todas as abas.<br>• Gerencia perfis e permissões<br>• Cria perfis customizados<br>• Config avançada (Gemini, EmailJS, Firebase)<br>• Único que pode criar outros Admins</div></div>
+  </div>
+  <table class="matrix">
+    <thead><tr><th>FUNCIONALIDADE</th><th>OPERACIONAL</th><th>OPERADOR</th><th>ADMIN</th></tr></thead>
+    <tbody>
+      <tr><td>App — Câmera e leitura de lacres</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>App — Registrar saída / verificar chegada</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>Painel Admin — Dashboard KPIs</td><td class="cross">—</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>Lacres, Placas, Processos, Histórico</td><td class="cross">—</td><td class="check">✅ configurável</td><td class="check">✅</td></tr>
+      <tr><td>Fornecedores, E-mails, Logs</td><td class="cross">—</td><td class="check">✅ configurável</td><td class="check">✅</td></tr>
+      <tr><td>Aba Perfis (configurar permissões)</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
+      <tr><td>Aba Usuários (criar, inativar, editar)</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
+      <tr><td>Config Avançada (Gemini, Firebase)</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
+      <tr><td>Criar usuário Admin / criar perfis</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- INFRA -->
+<div class="section" id="section-infra">
+  <div class="section-title">Infraestrutura & Stack</div>
+  <div class="section-sub">Tecnologias, custos e considerações de escala</div>
+  <div class="grid-4" style="margin-bottom:28px;">
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">🌐</span><div class="card-title">GitHub Pages</div><div class="card-body">Hospedagem estática gratuita. CDN global. HTTPS automático.</div><div style="margin-top:10px;"><span class="tag tag-green">Gratuito</span></div></div>
+    <div class="card" style="--accent:#F57C00;"><span class="card-icon">🔥</span><div class="card-title">Firebase Spark</div><div class="card-body">Plano gratuito. Firestore, Auth e Storage incluídos sem custo.</div><div style="margin-top:10px;"><span class="tag tag-green">Gratuito</span></div></div>
+    <div class="card" style="--accent:var(--teal);"><span class="card-icon">🤖</span><div class="card-title">Gemini API</div><div class="card-body">Google AI Studio. Gemini 2.5 Flash para leitura de imagens e OCR de NF.</div><div style="margin-top:10px;"><span class="tag tag-yellow">Pago por uso</span></div></div>
+    <div class="card" style="--accent:var(--purple);"><span class="card-icon">📧</span><div class="card-title">EmailJS</div><div class="card-body">SMTP Gmail. <strong style="color:#fff;">200 e-mails/mês</strong> grátis — conservado enviando apenas em desvios.</div><div style="margin-top:10px;"><span class="tag tag-green">Gratuito</span></div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card" style="--accent:var(--green);"><div class="card-title">📦 Dependências</div><div style="margin-top:12px;"><div class="arch-item">🔥 Firebase SDK 9.23 (Auth, Firestore, Storage)</div><div class="arch-item">🤖 Gemini 2.5 Flash (Vision API)</div><div class="arch-item">📊 jsQR 1.4 — QR Code em tempo real</div><div class="arch-item">📧 EmailJS Browser 4</div><div class="arch-item">📋 SheetJS 0.18 — Exportação planilhas</div><div class="arch-item">🗺 Leaflet 1.9 — Mapas interativos</div><div class="arch-item">🌐 Nominatim — Reverse geocoding</div></div></div>
+    <div class="card" style="--accent:var(--yellow);"><div class="card-title">📏 Limites Firebase Spark (Gratuito)</div><div style="margin-top:12px;"><div class="arch-item">📖 Leituras: 50.000 / dia</div><div class="arch-item">✏️ Escritas: 20.000 / dia</div><div class="arch-item">📁 Storage: 5 GB total</div><div class="arch-item">👤 Auth: ilimitado</div><div class="arch-item" style="border-color:rgba(26,140,78,.3);">✅ Para ~500 processos/mês: dentro do gratuito</div><div class="arch-item" style="border-color:rgba(245,166,35,.3);">⚠ Acima de 500/mês: migrar para Firebase Blaze</div></div></div>
+  </div>
+</div>
+
+</div>
+<script>
+  function showSection(id){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('section-'+id).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.classList.add('active');});
+    window.scrollTo(0,0);
+  }
+</script>
+</body>
+</html>
