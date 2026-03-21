@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificador de Lacres — Gerdau</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+  :root{--blue:#1B3A6B;--yellow:#F5A623;--green:#1A8C4E;--red:#C0392B;--teal:#117A8B;--purple:#6C3483;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#0d1628;color:#fff;min-height:100vh;}
+  .header{background:linear-gradient(135deg,#0d1628 0%,#1B3A6B 100%);border-bottom:4px solid var(--yellow);padding:40px 60px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+  .header-title{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;letter-spacing:3px;color:#fff;line-height:1;}
+  .header-sub{font-size:14px;color:var(--yellow);letter-spacing:4px;font-weight:600;text-transform:uppercase;margin-bottom:8px;}
+  .header-badge{background:rgba(245,166,35,.15);border:1px solid var(--yellow);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--yellow);font-weight:600;letter-spacing:1px;}
+  .tabs{display:flex;gap:4px;padding:24px 60px 0;background:#111c2e;border-bottom:1px solid #1e2d4a;flex-wrap:wrap;}
+  .tab{padding:12px 22px;font-size:15px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:none;background:transparent;color:#6b7fa0;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-family:'Barlow Condensed',sans-serif;}
+  .tab:hover{color:#fff;} .tab.active{color:var(--yellow);border-bottom-color:var(--yellow);}
+  .content{padding:40px 60px;max-width:1400px;margin:0 auto;}
+  .section{display:none;} .section.active{display:block;}
+  .section-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;}
+  .section-sub{font-size:14px;color:#6b7fa0;margin-bottom:32px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:24px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
+  .card-icon{font-size:32px;margin-bottom:14px;display:block;}
+  .card-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:10px;}
+  .card-body{font-size:14px;color:#8a9bb8;line-height:1.7;}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+  .stat{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:20px;text-align:center;}
+  .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
+  .stat-label{font-size:12px;color:#6b7fa0;margin-top:6px;}
+  .tag{display:inline-block;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:3px 2px;}
+  .tag-blue{background:rgba(27,58,107,.4);color:#7ea8d8;border:1px solid #1e3d6b;}
+  .tag-yellow{background:rgba(245,166,35,.15);color:var(--yellow);border:1px solid rgba(245,166,35,.3);}
+  .tag-green{background:rgba(26,140,78,.2);color:#5ecb8a;border:1px solid rgba(26,140,78,.3);}
+  .tag-red{background:rgba(192,57,43,.2);color:#f08080;border:1px solid rgba(192,57,43,.3);}
+  .tag-teal{background:rgba(17,122,139,.2);color:#5ec8d8;border:1px solid rgba(17,122,139,.3);}
+  .tag-gray{background:rgba(255,255,255,.06);color:#8a9bb8;border:1px solid rgba(255,255,255,.1);}
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:16px 0;}
+  .flow-step{background:#1a2840;border:1.5px solid #1e3d6b;border-radius:12px;padding:16px 14px;text-align:center;flex:1;min-width:100px;}
+  .flow-step-icon{font-size:26px;display:block;margin-bottom:8px;}
+  .flow-step-label{font-size:13px;font-weight:600;color:#fff;line-height:1.3;}
+  .flow-step-sub{font-size:11px;color:#556070;margin-top:4px;}
+  .flow-arrow{display:flex;align-items:center;padding:0 8px;color:var(--yellow);font-size:22px;flex-shrink:0;}
+  .outcome-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;}
+  .outcome{border-radius:12px;padding:24px;display:flex;gap:16px;align-items:flex-start;}
+  .outcome.ok{background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);}
+  .outcome.desvio{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);}
+  .outcome-icon{font-size:32px;flex-shrink:0;}
+  .outcome-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;letter-spacing:1px;}
+  .outcome.ok .outcome-title{color:#5ecb8a;} .outcome.desvio .outcome-title{color:#f08080;}
+  .outcome-text{font-size:13px;color:#8a9bb8;line-height:1.7;}
+  .step{display:flex;gap:20px;align-items:flex-start;background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:20px 24px;}
+  .step-num{width:48px;height:48px;border-radius:12px;background:var(--yellow);color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:1px;}
+  .step-text{font-size:13px;color:#8a9bb8;line-height:1.6;}
+  .access-card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:28px 24px;text-align:center;position:relative;overflow:hidden;}
+  .access-card.op::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--green);}
+  .access-card.oper::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue);}
+  .access-card.admin::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--yellow);}
+  .access-emoji{font-size:48px;margin-bottom:16px;display:block;}
+  .access-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:2px;margin-bottom:16px;}
+  .access-card.op .access-title{color:#5ecb8a;} .access-card.oper .access-title{color:#7ea8d8;} .access-card.admin .access-title{color:var(--yellow);}
+  .access-feature{font-size:13px;color:#8a9bb8;padding:7px 0;border-bottom:1px solid #1a2840;text-align:left;line-height:1.4;}
+  .access-feature:last-child{border-bottom:none;}
+  .access-feature.yes::before{content:'✅  ';} .access-feature.no{opacity:.35;} .access-feature.no::before{content:'—  ';}
+  .audience-card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:28px 24px;position:relative;overflow:hidden;}
+  .audience-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
+  .audience-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .audience-text{font-size:14px;color:#8a9bb8;line-height:1.9;}
+  .audience-text strong{color:#fff;}
+  .data-highlight{background:linear-gradient(135deg,#1B3A6B,#0d1628);border:1px solid #1e2d4a;border-radius:14px;padding:28px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;margin-top:24px;}
+  .data-num{font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
+  .data-label{font-size:12px;color:#6b7fa0;margin-top:6px;}
+  .closing-hero{background:linear-gradient(135deg,#0d1628,#1B3A6B);border:1px solid #1e2d4a;border-radius:20px;padding:60px 40px;text-align:center;position:relative;overflow:hidden;margin-bottom:28px;}
+  .closing-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(245,166,35,.1) 0%,transparent 70%);}
+  .closing-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;letter-spacing:4px;line-height:.95;margin-bottom:16px;}
+  .closing-title span{color:var(--yellow);}
+  .closing-url{background:rgba(245,166,35,.1);border:2px solid var(--yellow);border-radius:12px;padding:14px 28px;font-family:'Barlow Condensed',sans-serif;font-size:20px;color:var(--yellow);letter-spacing:3px;font-weight:700;display:inline-block;margin:20px 0;}
+  .sec-item{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid #1a2840;}
+  .sec-item:last-child{border-bottom:none;}
+  .sec-item-icon{font-size:24px;flex-shrink:0;width:36px;text-align:center;}
+  .sec-item-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;}
+  .sec-item-text{font-size:13px;color:#8a9bb8;line-height:1.6;}
+  .ai-fallback{background:#0d1628;border:1px solid #1e2d4a;border-radius:14px;padding:22px 24px;display:flex;align-items:flex-start;gap:18px;margin-top:20px;}
+  .ai-fallback-icon{font-size:36px;flex-shrink:0;}
+  .ai-fallback-text{font-size:14px;color:#8a9bb8;line-height:1.7;}
+  .ai-fallback-text strong{color:#fff;}
+  .divider{height:1px;background:#1e2d4a;margin:28px 0;}
+  @media(max-width:900px){.content{padding:24px 20px;}.tabs{padding:16px 20px 0;}.header{padding:24px 20px;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.stat-grid{grid-template-columns:1fr 1fr;}.outcome-row{grid-template-columns:1fr;}.data-highlight{grid-template-columns:1fr 1fr;}.flow{flex-direction:column;}.flow-arrow{transform:rotate(90deg);padding:4px 0;}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="header-sub">Gerdau · Inovação Interna</div>
+    <div class="header-title">VERIFICADOR<br>DE LACRES</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+    <div class="header-badge">📱 Funciona em qualquer celular</div>
+    <div class="header-badge">🤖 Inteligência Artificial</div>
+    <div class="header-badge" style="color:#5ecb8a;border-color:rgba(26,140,78,.4);background:rgba(26,140,78,.1);">✅ Em produção agora</div>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="show('inicio')">Início</button>
+  <button class="tab" onclick="show('problema')">O Problema</button>
+  <button class="tab" onclick="show('solucao')">A Solução</button>
+  <button class="tab" onclick="show('como-funciona')">Como Funciona</button>
+  <button class="tab" onclick="show('ia')">Inteligência Artificial</button>
+  <button class="tab" onclick="show('seguranca')">Segurança</button>
+  <button class="tab" onclick="show('quem-usa')">Quem Usa</button>
+  <button class="tab" onclick="show('sistema')">O Sistema</button>
+  <button class="tab" onclick="show('impacto')">Impacto</button>
+  <button class="tab" onclick="show('conclusao')">Conclusão</button>
+</div>
+<div class="content">
+
+<!-- INÍCIO -->
+<div class="section active" id="section-inicio">
+  <div class="section-title">Bem-vindo ao Verificador de Lacres</div>
+  <div class="section-sub">Um sistema desenvolvido internamente para garantir que nenhuma carga chegue violada ao destino</div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num">📷</div><div class="stat-label">Foto obrigatória do lacre</div></div>
+    <div class="stat"><div class="stat-num">🤖</div><div class="stat-label">Leitura por Inteligência Artificial</div></div>
+    <div class="stat"><div class="stat-num">🚨</div><div class="stat-label">Alerta imediato em desvios</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Histórico permanente</div></div>
+  </div>
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">📱</span><div class="card-title">Funciona no celular</div><div class="card-body">Não precisa baixar nada. Abre direto no navegador como um site, mas se comporta como um aplicativo. Funciona no Android, iPhone ou computador.<div style="margin-top:14px;"><span class="tag tag-green">Android</span><span class="tag tag-blue">iPhone</span><span class="tag tag-gray">Desktop</span><span class="tag tag-yellow">Offline</span></div></div></div>
+    <div class="card" style="--accent:var(--teal);"><span class="card-icon">🤖</span><div class="card-title">Inteligência Artificial</div><div class="card-body">O operador aponta a câmera para o lacre e o sistema lê o número sozinho — sem precisar digitar nada. A mesma IA do Google que reconhece imagens.<div style="margin-top:14px;"><span class="tag tag-teal">Gemini AI</span><span class="tag tag-blue">Leitura automática</span></div></div></div>
+    <div class="card" style="--accent:var(--green);"><span class="card-icon">🔐</span><div class="card-title">Seguro e rastreável</div><div class="card-body">Cada registro tem foto, localização GPS, nome do operador e horário. Os dados ficam na nuvem do Google e nunca podem ser apagados.<div style="margin-top:14px;"><span class="tag tag-green">GPS</span><span class="tag tag-yellow">Nuvem Google</span><span class="tag tag-red">Imutável</span></div></div></div>
+  </div>
+  <div class="card" style="--accent:var(--blue);background:linear-gradient(135deg,#111c2e,#0d1628);">
+    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;"><div class="card-title">💡 Em uma frase</div><div style="font-size:18px;color:#fff;line-height:1.6;font-weight:300;margin-top:8px;">Um <strong style="color:var(--yellow);">guardião digital</strong> que acompanha cada lacre do momento em que fecha a carreta até o momento em que ela é aberta no destino — com foto, IA e rastreabilidade completa.</div></div>
+      <div style="flex-shrink:0;text-align:center;"><div style="font-size:72px;">🔐</div><div style="font-size:12px;color:#6b7fa0;margin-top:8px;letter-spacing:2px;">LACRE ÍNTEGRO</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- O PROBLEMA -->
+<div class="section" id="section-problema">
+  <div class="section-title">Como Era Antes</div>
+  <div class="section-sub">A realidade do controle de transporte antes do sistema — e o que faltava para ter segurança real na carga</div>
+
+  <div class="card" style="--accent:var(--teal);margin-bottom:24px;">
+    <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="font-size:52px;flex-shrink:0;">🛣️</div>
+      <div>
+        <div class="card-title" style="color:#5ec8d8;">O que existia: apenas rastreamento de rota</div>
+        <div class="card-body" style="font-size:15px;line-height:1.9;">
+          O único controle existente era o <strong style="color:#fff;">acompanhamento de rota por telemetria</strong>. Se o veículo desviasse do trajeto previsto, a transportadora enviava um e-mail automático informando o desvio geográfico.<br><br>
+          Não havia <strong style="color:#fff;">nenhum controle sobre a integridade da carga</strong> em si. O veículo poderia chegar no destino correto, pela rota correta — e a carga ter sido violada no caminho.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div class="card" style="--accent:var(--red);">
+      <span class="card-icon">🔐</span>
+      <div class="card-title" style="color:#f08080;">Lacre não existia</div>
+      <div class="card-body">Não havia nenhum lacre de segurança físico no processo. A carreta podia ser aberta e fechada sem deixar nenhum rastro ou evidência física de violação.</div>
+    </div>
+    <div class="card" style="--accent:var(--red);">
+      <span class="card-icon">⏱️</span>
+      <div class="card-title" style="color:#f08080;">Tempo em percurso sem controle</div>
+      <div class="card-body">Era difícil saber exatamente quanto tempo o veículo estava em trânsito e fazer o acompanhamento da descarga. Não havia alerta automático se o processo demorava além do esperado.</div>
+    </div>
+    <div class="card" style="--accent:var(--red);">
+      <span class="card-icon">📋</span>
+      <div class="card-title" style="color:#f08080;">Sem registro de integridade</div>
+      <div class="card-body">Mesmo com a telemetria de rota, não havia como registrar o estado da carga — se foi aberta, quando, por quem, em qual ponto do trajeto. Nenhuma evidência, nenhuma rastreabilidade da carga em si.</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card" style="--accent:var(--yellow);">
+      <div class="card-title">💡 A decisão que mudou tudo</div>
+      <div class="card-body" style="line-height:1.9;font-size:14px;">
+        A partir da realidade do processo e da lacuna que a telemetria deixava, surgiu a ideia de <strong style="color:#fff;">implementar um lacre físico</strong> nos veículos.<br><br>
+        Com o lacre físico definido como necessidade, veio a próxima pergunta: <strong style="color:#fff;">como controlar esse lacre de forma digital, rastreável e à prova de falha humana?</strong><br><br>
+        Foi aí que o sistema foi pensado, desenhado e construído — do zero, internamente.
+      </div>
+    </div>
+    <div class="card" style="--accent:var(--blue);">
+      <div class="card-title">🤔 A pergunta que gerou o sistema</div>
+      <div style="font-size:18px;color:#fff;line-height:1.7;font-weight:300;margin-top:8px;">
+        "<em style="color:var(--yellow);">Como posso garantir que a tampa dessa carreta não foi aberta entre a saída e a chegada — e provar isso com foto, localização e registro de quem verificou?</em>"
+      </div>
+    </div>
+  </div>
+
+  <div style="background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:14px;padding:24px 28px;display:flex;align-items:center;gap:20px;">
+    <div style="font-size:40px;flex-shrink:0;">👨‍💻</div>
+    <div style="font-size:14px;color:#8a9bb8;line-height:1.8;">
+      <strong style="color:var(--yellow);">Desenvolvido por iniciativa própria</strong> — o sistema foi idealizado, projetado e construído internamente por quem conhecia o processo de perto. Nenhuma consultoria externa, nenhum software comprado. Uma solução feita para o problema real que existia, não para um problema genérico do mercado.
+    </div>
+  </div>
+</div>
+
+<!-- A SOLUÇÃO -->
+<div class="section" id="section-solucao">
+  <div class="section-title">A Solução: Um Sistema Completo</div>
+  <div class="section-sub">Desenvolvido internamente, sem custo de licença, que funciona no celular de qualquer operador</div>
+  <div class="grid-2">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Foto obrigatória do lacre</div><div class="step-text">O operador tira uma foto do lacre antes de fechar a carreta. A foto fica salva com data, hora e localização — evidência incontestável de que o lacre estava íntegro.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">IA lê o número automaticamente</div><div class="step-text">A câmera do celular aponta para o lacre e o sistema usa Inteligência Artificial para ler o número — sem digitar nada. Rápido, preciso, sem erro humano.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Verificação automática no destino</div><div class="step-text">Quando a carga chega, o operador aponta a câmera novamente. O sistema compara se é o mesmo lacre e se está intacto — em segundos.</div></div></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title">Alerta imediato se algo errar</div><div class="step-text">Se o lacre for diferente ou estiver violado, o sistema detecta na hora e envia um e-mail de alerta para toda a equipe responsável.</div></div></div>
+    <div class="step"><div class="step-num">5</div><div><div class="step-title">Histórico completo e auditável</div><div class="step-text">Todo registro fica salvo na nuvem com fotos, localização GPS, nome do operador e horário. Nunca se perde, nunca pode ser apagado.</div></div></div>
+    <div class="step"><div class="step-num">6</div><div><div class="step-title">Funciona em qualquer celular</div><div class="step-text">Não precisa baixar nada. Abre no navegador do celular como um site, mas se comporta como um aplicativo — inclusive funciona sem internet.</div></div></div>
+  </div>
+</div>
+
+<!-- COMO FUNCIONA -->
+<div class="section" id="section-como-funciona">
+  <div class="section-title">Como Funciona na Prática</div>
+  <div class="section-sub">Passo a passo da jornada de um lacre — da origem ao destino</div>
+  <div class="card" style="--accent:var(--yellow);margin-bottom:20px;">
+    <div class="card-title" style="color:var(--yellow);">🚛 Na Origem — Quando a carreta está saindo</div>
+    <div class="flow" style="margin-top:16px;">
+      <div class="flow-step"><span class="flow-step-icon">🔑</span><div class="flow-step-label">Login no sistema</div><div class="flow-step-sub">E-mail e senha</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">🚗</span><div class="flow-step-label">Informa a placa</div><div class="flow-step-sub">Validada automaticamente</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">📷</span><div class="flow-step-label">Foto do lacre</div><div class="flow-step-sub">GPS registrado</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">🤖</span><div class="flow-step-label">IA lê o número</div><div class="flow-step-sub">Em segundos</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">📄</span><div class="flow-step-label">Dados da NF</div><div class="flow-step-sub">OCR automático</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:rgba(26,140,78,.4);"><span class="flow-step-icon">✅</span><div class="flow-step-label">Saída registrada</div><div class="flow-step-sub">Salvo na nuvem</div></div>
+    </div>
+  </div>
+  <div class="card" style="--accent:var(--green);margin-bottom:20px;">
+    <div class="card-title" style="color:#5ecb8a;">📍 No Destino — Quando a carreta chega</div>
+    <div class="flow" style="margin-top:16px;">
+      <div class="flow-step"><span class="flow-step-icon">🚗</span><div class="flow-step-label">Informa a placa</div><div class="flow-step-sub">Sistema busca o processo</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">📷</span><div class="flow-step-label">Foto do lacre</div><div class="flow-step-sub">GPS registrado</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">🤖</span><div class="flow-step-label">IA analisa</div><div class="flow-step-sub">Número e integridade</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">🔍</span><div class="flow-step-label">Comparação</div><div class="flow-step-sub">Sistema confere tudo</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="flow-step-icon">⚡</span><div class="flow-step-label">Resultado imediato</div><div class="flow-step-sub">OK ou Desvio</div></div>
+    </div>
+  </div>
+  <div class="outcome-row">
+    <div class="outcome ok"><div class="outcome-icon">✅</div><div><div class="outcome-title">APROVADO</div><div class="outcome-text">Mesmo lacre, íntegro, sem violação. Processo encerrado automaticamente, registrado no histórico com fotos e GPS de origem e destino. Nenhum e-mail enviado — operação normal.</div></div></div>
+    <div class="outcome desvio"><div class="outcome-icon">🚨</div><div><div class="outcome-title">DESVIO DETECTADO</div><div class="outcome-text">Lacre diferente ou violado/rompido. E-mail de alerta enviado imediatamente para toda a equipe. Processo fica aguardando confirmação do responsável antes de encerrar.</div></div></div>
+  </div>
+</div>
+
+<!-- IA -->
+<div class="section" id="section-ia">
+  <div class="section-title">Inteligência Artificial no Processo</div>
+  <div class="section-sub">O sistema usa o Gemini — a mesma IA do Google — para ver e interpretar imagens automaticamente</div>
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="card" style="--accent:var(--blue);"><span class="card-icon">🔍</span><div class="card-title">Leitura de Lacres</div><div class="card-body">O operador aponta a câmera para o lacre. A IA identifica o tipo (QR Code, código de barras), lê o número e verifica se o lacre está intacto ou violado — tudo em segundos, sem digitar nada.</div></div>
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">📄</span><div class="card-title">Leitura de Nota Fiscal</div><div class="card-body">Tira uma foto da NF ou DANFE e a IA extrai o número da nota e o CNPJ da empresa emitente automaticamente. Cruza com os fornecedores cadastrados no sistema sem digitar nada.</div></div>
+    <div class="card" style="--accent:var(--green);"><span class="card-icon">🛡</span><div class="card-title">Detecção de Violação</div><div class="card-body">A IA avalia o estado físico do lacre na foto — sinais de ruptura, deformação ou dano. Indica se está íntegro ou comprometido, como um inspetor visual automático.</div></div>
+  </div>
+  <div class="ai-fallback">
+    <div class="ai-fallback-icon">🔄</div>
+    <div class="ai-fallback-text"><strong>E se a IA não conseguir ler?</strong> O processo nunca para. Se a imagem estiver ruim ou a IA estiver fora do ar, o sistema mostra uma entrada manual. A foto já foi registrada — o operador só digita o número. A evidência fotográfica é sempre preservada, independente da IA.</div>
+  </div>
+</div>
+
+<!-- SEGURANÇA -->
+<div class="section" id="section-seguranca">
+  <div class="section-title">Segurança em Todo o Processo</div>
+  <div class="section-sub">Construído com tecnologia de nível bancário — sem servidores próprios para hackear, sem papel para se perder</div>
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card" style="--accent:var(--green);">
+      <div class="sec-item"><div class="sec-item-icon">🔐</div><div><div class="sec-item-title">Login com senha pessoal</div><div class="sec-item-text">Cada operador tem seu e-mail e senha próprios. O sistema bloqueia automaticamente após 2 horas de inatividade. Usuários inativos não conseguem entrar.</div></div></div>
+      <div class="sec-item"><div class="sec-item-icon">📋</div><div><div class="sec-item-title">Histórico que nunca some</div><div class="sec-item-text">Todo registro fica gravado permanentemente. Ninguém consegue apagar ou alterar. É como uma caixa preta de avião — imutável.</div></div></div>
+      <div class="sec-item"><div class="sec-item-icon">📍</div><div><div class="sec-item-title">Foto com GPS e horário</div><div class="sec-item-text">Toda foto é registrada com a localização exata e o horário. Impossível alegar que algo aconteceu em outro lugar ou momento.</div></div></div>
+    </div>
+    <div class="card" style="--accent:var(--yellow);">
+      <div class="sec-item"><div class="sec-item-icon">☁️</div><div><div class="sec-item-title">Nuvem Google (Firebase)</div><div class="sec-item-text">Os dados ficam no Firebase — a mesma infraestrutura que protege o Gmail e o Drive de bilhões de pessoas. Sem servidor próprio para invadir.</div></div></div>
+      <div class="sec-item"><div class="sec-item-icon">📧</div><div><div class="sec-item-title">Alerta só quando importa</div><div class="sec-item-text">O sistema envia e-mail apenas quando detecta um desvio ou quando um processo fica aberto além do tempo configurado. Quando o e-mail chega, é porque algo precisa de atenção.</div></div></div>
+      <div class="sec-item"><div class="sec-item-icon">🚫</div><div><div class="sec-item-title">Acesso controlado por perfil</div><div class="sec-item-text">Cada pessoa vê apenas o que precisa. Operador não acessa configurações. Admin controla tudo. Ninguém acessa dados sem permissão.</div></div></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <span class="tag tag-green">✅ Login individual</span>
+    <span class="tag tag-green">✅ Fotos com GPS e horário</span>
+    <span class="tag tag-green">✅ Logs permanentes</span>
+    <span class="tag tag-yellow">⚡ Alerta de desvio</span>
+    <span class="tag tag-yellow">⏰ Alerta de processo expirado</span>
+    <span class="tag tag-red">🚫 Ninguém apaga registros</span>
+    <span class="tag tag-blue">🔐 Dados no Google Cloud</span>
+  </div>
+</div>
+
+<!-- QUEM USA -->
+<div class="section" id="section-quem-usa">
+  <div class="section-title">Quem Usa e o que Cada Um Vê</div>
+  <div class="section-sub">O sistema tem três tipos de usuário — cada um com acesso ao que precisa, nem mais nem menos</div>
+  <div class="grid-3">
+    <div class="access-card op">
+      <span class="access-emoji">👷</span>
+      <div class="access-title">OPERACIONAL</div>
+      <div class="access-feature yes">Câmera para ler lacres</div>
+      <div class="access-feature yes">Registrar saída na origem</div>
+      <div class="access-feature yes">Verificar chegada no destino</div>
+      <div class="access-feature yes">Ler Nota Fiscal com câmera</div>
+      <div class="access-feature yes">Funciona offline (7 dias)</div>
+      <div class="access-feature no">Painel administrativo</div>
+      <div class="access-feature no">Histórico de todos os processos</div>
+    </div>
+    <div class="access-card oper">
+      <span class="access-emoji">🔧</span>
+      <div class="access-title">OPERADOR</div>
+      <div class="access-feature yes">Tudo do Operacional</div>
+      <div class="access-feature yes">Painel admin (abas configuradas)</div>
+      <div class="access-feature yes">Histórico e relatórios</div>
+      <div class="access-feature yes">Gerenciar lacres e placas</div>
+      <div class="access-feature yes">Criar usuários operacionais</div>
+      <div class="access-feature no">Criar usuário Admin</div>
+      <div class="access-feature no">Configurações avançadas</div>
+    </div>
+    <div class="access-card admin">
+      <span class="access-emoji">👑</span>
+      <div class="access-title">ADMIN</div>
+      <div class="access-feature yes">Tudo do Operador</div>
+      <div class="access-feature yes">Criar e gerenciar usuários</div>
+      <div class="access-feature yes">Configurar permissões</div>
+      <div class="access-feature yes">Confirmar ou encerrar desvios</div>
+      <div class="access-feature yes">Exportar relatórios CSV</div>
+      <div class="access-feature yes">Configurações do sistema</div>
+      <div class="access-feature yes">Criar perfis customizados</div>
+    </div>
+  </div>
+</div>
+
+<!-- O SISTEMA -->
+<div class="section" id="section-sistema">
+  <div class="section-title">O que o Sistema Armazena</div>
+  <div class="section-sub">Tudo organizado e acessível — desde o cadastro de lacres até o histórico de cada entrega</div>
+  <div class="grid-4">
+    <div class="card" style="--accent:var(--blue);"><span class="card-icon">🚛</span><div class="card-title">Processos</div><div class="card-body" style="line-height:2;">Placa do veículo<br>Número do lacre<br>Nome do motorista<br>Foto da origem<br>Foto do destino<br>Localização GPS<br>Data e hora<br>Resultado</div></div>
+    <div class="card" style="--accent:var(--yellow);"><span class="card-icon">🔐</span><div class="card-title">Lacres</div><div class="card-body" style="line-height:2;">Cadastro de lacres válidos<br>Status: livre, em uso ou inutilizado<br>Quem cadastrou<br>Histórico de uso<br>Inativar sem perder histórico</div></div>
+    <div class="card" style="--accent:var(--green);"><span class="card-icon">🚗</span><div class="card-title">Placas</div><div class="card-body" style="line-height:2;">Veículos autorizados<br>Transportadora associada<br>Validação automática<br>Ativar e inativar por frota</div></div>
+    <div class="card" style="--accent:var(--teal);"><span class="card-icon">📦</span><div class="card-title">Fornecedores</div><div class="card-body" style="line-height:2;">CNPJ e nome<br>Identificação automática via NF<br>Cruzamento com notas fiscais<br>Gerenciamento completo</div></div>
+  </div>
+  <div class="data-highlight">
+    <div><div class="data-num">📷</div><div class="data-label">Fotos com GPS e horário</div></div>
+    <div><div class="data-num">5m</div><div class="data-label">Fotos preservadas por 5 meses</div></div>
+    <div><div class="data-num">21</div><div class="data-label">Campos exportados em CSV</div></div>
+    <div><div class="data-num">∞</div><div class="data-label">Logs permanentes — nunca apagados</div></div>
+  </div>
+</div>
+
+<!-- IMPACTO -->
+<div class="section" id="section-impacto">
+  <div class="section-title">O que Muda para Cada Pessoa</div>
+  <div class="section-sub">Seja você liderança, operação ou curioso sobre o sistema — veja o impacto direto</div>
+  <div class="grid-3">
+    <div class="audience-card" style="--accent:var(--yellow);">
+      <div class="audience-title">🏢 Para a Liderança</div>
+      <div class="audience-text"><strong>Visibilidade total</strong> de todos os transportes em tempo real pelo painel admin.<br><br><strong>Alertas automáticos</strong> só quando há problema — sem ruído desnecessário. O e-mail chegou? Algo precisa de atenção.<br><br><strong>Relatórios exportáveis</strong> com histórico completo de todas as entregas, prontos para análise.<br><br><strong>Rastreabilidade</strong> para responder qualquer questionamento com evidência: foto, GPS, horário e nome do operador.</div>
+    </div>
+    <div class="audience-card" style="--accent:var(--green);">
+      <div class="audience-title">👷 Para o Operador</div>
+      <div class="audience-text"><strong>Processo simples</strong> — apontar a câmera e confirmar. A IA faz o trabalho pesado de ler o número.<br><br><strong>Funciona no celular</strong> sem precisar baixar nada ou passar por treinamento longo.<br><br><strong>Backup automático</strong> — nenhuma informação se perde se o celular estragar ou trocar de chip.<br><br><strong>Funciona sem internet</strong> — em áreas com sinal fraco, salva localmente e sincroniza quando a conexão voltar.</div>
+    </div>
+    <div class="audience-card" style="--accent:var(--blue);">
+      <div class="audience-title">🌍 Para Todos</div>
+      <div class="audience-text"><strong>Desenvolvido internamente</strong> — sem pagar licença de software para terceiros.<br><br><strong>Custo próximo a zero</strong> — toda a infraestrutura usa serviços gratuitos do Google.<br><br><strong>Escalável</strong> — pode crescer para mais plantas e transportadoras sem mudança estrutural.<br><br><strong>Pronto hoje</strong> — em produção, acessível em qualquer celular com um link, agora mesmo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONCLUSÃO -->
+<div class="section" id="section-conclusao">
+  <div class="section-title">Conclusão</div>
+  <div class="section-sub">Um sistema desenvolvido de dentro para fora, que resolve um problema real com tecnologia moderna</div>
+  <div class="closing-hero">
+    <div class="closing-title">RASTREABILIDADE<br><span>TOTAL.</span><br>CUSTO ZERO.</div>
+    <div style="font-size:16px;color:rgba(255,255,255,.5);max-width:500px;margin:0 auto 24px;line-height:1.6;">Acessível em qualquer celular, a qualquer hora, por qualquer operador — com evidência fotográfica, IA e auditoria permanente.</div>
+    <div class="closing-url">rcs1998.github.io/verificador-lacre</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Servidores para manter</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Cliques para registrar uma saída</div></div>
+    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Rastreável</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Registros guardados para sempre</div></div>
+  </div>
+  <div class="card" style="--accent:var(--green);margin-top:0;">
+    <div class="card-title">✅ Antes e depois</div>
+    <div class="grid-2" style="margin-top:16px;gap:28px;">
+      <div><div style="font-size:13px;font-weight:700;color:#f08080;letter-spacing:2px;margin-bottom:12px;">ANTES</div><div class="card-body" style="line-height:2.2;">❌ Papel e WhatsApp<br>❌ Sem evidência fotográfica<br>❌ Sem GPS<br>❌ Fácil de questionar<br>❌ Difícil de auditar<br>❌ Dependente de memória humana</div></div>
+      <div><div style="font-size:13px;font-weight:700;color:#5ecb8a;letter-spacing:2px;margin-bottom:12px;">AGORA</div><div class="card-body" style="line-height:2.2;">✅ Sistema digital no celular<br>✅ Foto obrigatória com IA<br>✅ GPS em todo registro<br>✅ Evidência incontestável<br>✅ Auditoria permanente<br>✅ Alertas automáticos em desvios</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+  function show(id){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('section-'+id).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.classList.add('active');});
+    window.scrollTo(0,0);
+  }
+</script>
+</body>
+</html>
