@@ -3,22 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <title>Verificador de Lacres — Gerdau</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+  /* Fonts loaded via <link> in <head> for better offline fallback */
   :root{--blue:#1B3A6B;--yellow:#F5A623;--green:#1A8C4E;--red:#C0392B;--teal:#117A8B;--purple:#6C3483;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Inter',sans-serif;background:#0d1628;color:#fff;min-height:100vh;}
+  body{font-family:'Inter','Segoe UI',Roboto,Arial,sans-serif;background:#0d1628;color:#fff;min-height:100vh;}
   .header{background:linear-gradient(135deg,#0d1628 0%,#1B3A6B 100%);border-bottom:4px solid var(--yellow);padding:40px 60px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
-  .header-title{font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;letter-spacing:3px;color:#fff;line-height:1;}
+  .header-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:42px;font-weight:900;letter-spacing:3px;color:#fff;line-height:1;}
   .header-sub{font-size:14px;color:var(--yellow);letter-spacing:4px;font-weight:600;text-transform:uppercase;margin-bottom:8px;}
   .header-badge{background:rgba(245,166,35,.15);border:1px solid var(--yellow);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--yellow);font-weight:600;letter-spacing:1px;}
   .tabs{display:flex;gap:4px;padding:24px 60px 0;background:#111c2e;border-bottom:1px solid #1e2d4a;flex-wrap:wrap;}
-  .tab{padding:12px 22px;font-size:15px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:none;background:transparent;color:#6b7fa0;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-family:'Barlow Condensed',sans-serif;}
+  .tab{padding:12px 22px;font-size:15px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:none;background:transparent;color:#6b7fa0;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;}
   .tab:hover{color:#fff;} .tab.active{color:var(--yellow);border-bottom-color:var(--yellow);}
   .content{padding:40px 60px;max-width:1400px;margin:0 auto;}
   .section{display:none;} .section.active{display:block;}
-  .section-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;}
+  .section-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--yellow);margin-bottom:6px;}
   .section-sub{font-size:14px;color:#6b7fa0;margin-bottom:32px;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
   .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
@@ -26,11 +28,11 @@
   .card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:24px;position:relative;overflow:hidden;}
   .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
   .card-icon{font-size:32px;margin-bottom:14px;display:block;}
-  .card-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:10px;}
+  .card-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:10px;}
   .card-body{font-size:14px;color:#8a9bb8;line-height:1.7;}
   .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
   .stat{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:20px;text-align:center;}
-  .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
+  .stat-num{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
   .stat-label{font-size:12px;color:#6b7fa0;margin-top:6px;}
   .tag{display:inline-block;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:3px 2px;}
   .tag-blue{background:rgba(27,58,107,.4);color:#7ea8d8;border:1px solid #1e3d6b;}
@@ -50,36 +52,36 @@
   .outcome.ok{background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);}
   .outcome.desvio{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);}
   .outcome-icon{font-size:32px;flex-shrink:0;}
-  .outcome-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;letter-spacing:1px;}
+  .outcome-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;letter-spacing:1px;}
   .outcome.ok .outcome-title{color:#5ecb8a;} .outcome.desvio .outcome-title{color:#f08080;}
   .outcome-text{font-size:13px;color:#8a9bb8;line-height:1.7;}
   .step{display:flex;gap:20px;align-items:flex-start;background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:20px 24px;}
-  .step-num{width:48px;height:48px;border-radius:12px;background:var(--yellow);color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  .step-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:1px;}
+  .step-num{width:48px;height:48px;border-radius:12px;background:var(--yellow);color:var(--blue);font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:1px;}
   .step-text{font-size:13px;color:#8a9bb8;line-height:1.6;}
   .access-card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:28px 24px;text-align:center;position:relative;overflow:hidden;}
   .access-card.op::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--green);}
   .access-card.oper::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--blue);}
   .access-card.admin::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--yellow);}
   .access-emoji{font-size:48px;margin-bottom:16px;display:block;}
-  .access-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:2px;margin-bottom:16px;}
+  .access-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:24px;font-weight:900;letter-spacing:2px;margin-bottom:16px;}
   .access-card.op .access-title{color:#5ecb8a;} .access-card.oper .access-title{color:#7ea8d8;} .access-card.admin .access-title{color:var(--yellow);}
   .access-feature{font-size:13px;color:#8a9bb8;padding:7px 0;border-bottom:1px solid #1a2840;text-align:left;line-height:1.4;}
   .access-feature:last-child{border-bottom:none;}
   .access-feature.yes::before{content:'✅  ';} .access-feature.no{opacity:.35;} .access-feature.no::before{content:'—  ';}
   .audience-card{background:#111c2e;border:1px solid #1e2d4a;border-radius:14px;padding:28px 24px;position:relative;overflow:hidden;}
   .audience-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));}
-  .audience-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .audience-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
   .audience-text{font-size:14px;color:#8a9bb8;line-height:1.9;}
   .audience-text strong{color:#fff;}
   .data-highlight{background:linear-gradient(135deg,#1B3A6B,#0d1628);border:1px solid #1e2d4a;border-radius:14px;padding:28px 32px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;margin-top:24px;}
-  .data-num{font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
+  .data-num{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
   .data-label{font-size:12px;color:#6b7fa0;margin-top:6px;}
   .closing-hero{background:linear-gradient(135deg,#0d1628,#1B3A6B);border:1px solid #1e2d4a;border-radius:20px;padding:60px 40px;text-align:center;position:relative;overflow:hidden;margin-bottom:28px;}
   .closing-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(245,166,35,.1) 0%,transparent 70%);}
-  .closing-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;letter-spacing:4px;line-height:.95;margin-bottom:16px;}
+  .closing-title{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;letter-spacing:4px;line-height:.95;margin-bottom:16px;}
   .closing-title span{color:var(--yellow);}
-  .closing-url{background:rgba(245,166,35,.1);border:2px solid var(--yellow);border-radius:12px;padding:14px 28px;font-family:'Barlow Condensed',sans-serif;font-size:20px;color:var(--yellow);letter-spacing:3px;font-weight:700;display:inline-block;margin:20px 0;}
+  .closing-url{background:rgba(245,166,35,.1);border:2px solid var(--yellow);border-radius:12px;padding:14px 28px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:20px;color:var(--yellow);letter-spacing:3px;font-weight:700;display:inline-block;margin:20px 0;}
   .sec-item{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid #1a2840;}
   .sec-item:last-child{border-bottom:none;}
   .sec-item-icon{font-size:24px;flex-shrink:0;width:36px;text-align:center;}
@@ -106,16 +108,16 @@
   </div>
 </div>
 <div class="tabs">
-  <button class="tab active" onclick="show('inicio')">Início</button>
-  <button class="tab" onclick="show('problema')">O Problema</button>
-  <button class="tab" onclick="show('solucao')">A Solução</button>
-  <button class="tab" onclick="show('como-funciona')">Como Funciona</button>
-  <button class="tab" onclick="show('ia')">Inteligência Artificial</button>
-  <button class="tab" onclick="show('seguranca')">Segurança</button>
-  <button class="tab" onclick="show('quem-usa')">Quem Usa</button>
-  <button class="tab" onclick="show('sistema')">O Sistema</button>
-  <button class="tab" onclick="show('impacto')">Impacto</button>
-  <button class="tab" onclick="show('conclusao')">Conclusão</button>
+  <button class="tab active" onclick="show('inicio')">🏠 Início</button>
+  <button class="tab" onclick="show('problema')">⚠️ Como Era Antes</button>
+  <button class="tab" onclick="show('solucao')">💡 A Solução</button>
+  <button class="tab" onclick="show('como-funciona')">⚙️ Como Funciona</button>
+  <button class="tab" onclick="show('ia')">🤖 IA</button>
+  <button class="tab" onclick="show('seguranca')">🔐 Segurança</button>
+  <button class="tab" onclick="show('quem-usa')">👥 Quem Usa</button>
+  <button class="tab" onclick="show('sistema')">📦 O Sistema</button>
+  <button class="tab" onclick="show('impacto')">🎯 Impacto</button>
+  <button class="tab" onclick="show('conclusao')">🏆 Conclusão</button>
 </div>
 <div class="content">
 
@@ -411,6 +413,32 @@
     document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.classList.add('active');});
     window.scrollTo(0,0);
   }
+</script>
+
+<div id="open-hint" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1B3A6B;border-top:3px solid #F5A623;padding:12px 20px;font-family:Arial,sans-serif;font-size:13px;color:#fff;z-index:9999;text-align:center;">
+  📱 <strong>Android:</strong> toque nos 3 pontos → "Abrir com" → Chrome &nbsp;|&nbsp; 
+  🍎 <strong>iPhone:</strong> toque em "Compartilhar" → "Abrir no Safari"
+  <button onclick="document.getElementById('open-hint').style.display='none'" style="margin-left:16px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px;">✕ Fechar</button>
+</div>
+<script>
+  // Show hint only if accessed as a local file
+  if (location.protocol === 'file:') {
+    document.getElementById('open-hint').style.display = 'block';
+  }
+</script>
+<script>
+
+// Add bottom navigation arrows to each section
+document.querySelectorAll('.section').forEach((sec, i) => {
+  const sections = ['inicio','problema','solucao','como-funciona','ia','seguranca','quem-usa','sistema','impacto','conclusao'];
+  const labels = ['🏠 Início','⚠️ Como Era Antes','💡 A Solução','⚙️ Como Funciona','🤖 IA','🔐 Segurança','👥 Quem Usa','📦 O Sistema','🎯 Impacto','🏆 Conclusão'];
+  const nav = document.createElement('div');
+  nav.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:24px;border-top:1px solid #1e2d4a;';
+  const prev = i > 0 ? `<button onclick="show('${sections[i-1]}')" style="background:#111c2e;border:1px solid #1e2d4a;color:#6b7fa0;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;">‹ ${labels[i-1]}</button>` : '<span></span>';
+  const next = i < sections.length-1 ? `<button onclick="show('${sections[i+1]}')" style="background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);color:#F5A623;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;">${labels[i+1]} ›</button>` : '<span></span>';
+  nav.innerHTML = prev + `<span style="font-size:12px;color:#3a4a60;">${i+1} / ${sections.length}</span>` + next;
+  sec.appendChild(nav);
+});
 </script>
 </body>
 </html>
