@@ -1116,8 +1116,8 @@ async function doAppLogin() {
     const adminBtn = document.querySelector('.admin-btn');
     console.log('Perfil do usuário:', perfil, 'Email:', email);
     if (adminBtn) {
-      // Mostrar admin button para admin e operador, ocultar apenas para operacional
-      if (perfil === 'admin' || perfil === 'operador') {
+      // Mostrar admin button para admin, operador e developer
+      if (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') {
         adminBtn.style.display = 'block';
         adminBtn.style.visibility = 'visible';
       } else {
@@ -2124,7 +2124,7 @@ function openAdmin() {
     const uid = auth.currentUser.uid;
     db.collection('usuarios').doc(uid).get().then(doc => {
       const perfil = doc.exists ? doc.data().perfil : 'admin';
-      if (perfil === 'admin' || perfil === 'operador') {
+      if (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') {
         currentUserRole = perfil;
         document.getElementById('admin-login').style.display = 'none';
         document.getElementById('admin-body').style.display = 'block';
@@ -3758,7 +3758,7 @@ async function doAppLoginComOffline() {
     document.getElementById('app-main').style.display = 'block';
     const adminBtn = document.querySelector('.admin-btn');
     if (adminBtn) {
-      adminBtn.style.display = (perfil === 'admin' || perfil === 'operador') ? 'block' : 'none';
+      adminBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'block' : 'none';
       adminBtn.style.visibility = 'visible';
     }
     applyRolePermissions(perfil);
