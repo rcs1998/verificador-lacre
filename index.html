@@ -263,8 +263,9 @@ tbody tr:hover{background:var(--surface2);}
         <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;" onkeydown="if(event.key==='Enter') doAppLoginComOffline()">
       </div>
       <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
-      <div style="text-align:center;margin-top:12px;">
+      <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
+        <a href="manual.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Sistema</a>
       </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
@@ -279,6 +280,7 @@ tbody tr:hover{background:var(--surface2);}
       <div id="op-nome-display">—</div>
     </div>
     <div class="header-buttons">
+      <a href="manual-operacional.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
       <button class="admin-btn" onclick="doAppLogoutComOffline()">🚪 Sair</button>
     </div>
@@ -558,6 +560,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('logs')">Logs</button>
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
           <button class="admin-tab" onclick="adminTab('config-avancada')">Config Avançada</button>
+          <button class="admin-tab" id="tab-deploy-btn" onclick="adminTab('deploy')" style="display:none;border-color:var(--gerdau-yellow);color:var(--gerdau-yellow);">🚀 Deploy</button>
         </div>
       </div>
 
@@ -846,11 +849,17 @@ tbody tr:hover{background:var(--surface2);}
             <div class="card-title">🔐 Timeout de Sessão (Logout Automático)</div>
             <div class="input-group">
               <label>Horas de inatividade até logout automático</label>
-              <input type="number" id="config-timeout" value="5" min="1" max="24" style="font-size:18px;width:120px;letter-spacing:2px;">
+              <input type="number" id="config-timeout" value="2" min="1" max="24" style="font-size:18px;width:120px;letter-spacing:2px;">
             </div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarTimeoutConfig()">Salvar</button>
           </div>
-          <button class="btn btn-outline btn-sm" style="margin-top:14px;width:auto;" onclick="doLogout()">Sair do Painel</button>
+          <div class="divider" style="margin:20px 0;"></div>
+          <div class="card" style="margin-bottom:14px;background:rgba(27,58,107,.15);border-color:rgba(27,58,107,.3);">
+            <div class="card-title" style="font-size:13px;">📦 Versão do Sistema</div>
+            <div id="cfg-version-display" style="font-size:13px;color:var(--text2);line-height:2;">Carregando...</div>
+            <button class="btn btn-outline btn-sm" style="width:auto;margin-top:10px;font-size:12px;" onclick="verChangelog()">📋 Ver Changelog</button>
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:6px;width:auto;" onclick="doLogout()">Sair do Painel</button>
         </div>
 
         <!-- CONFIG AVANÇADA -->
@@ -875,6 +884,63 @@ tbody tr:hover{background:var(--surface2);}
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
           </div>
           <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
+        </div>
+
+        <!-- DEPLOY (somente developer) -->
+        <div class="admin-section" id="atab-deploy">
+          <div class="info-bar" style="border-left-color:var(--gerdau-yellow);background:rgba(245,166,35,.08);">
+            🚀 <strong>Painel de Deploy</strong> — Visível apenas para o perfil <code>developer</code>. Use antes de qualquer publicação em produção.
+          </div>
+
+          <!-- AMBIENTE -->
+          <div class="card" style="margin-bottom:16px;border-left:3px solid var(--gerdau-yellow);">
+            <div class="card-title">⚙️ Ambiente Atual</div>
+            <div id="deploy-env-info" style="font-size:14px;color:var(--text2);line-height:2;">Carregando...</div>
+          </div>
+
+          <!-- STAGING CONFIG -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">🧪 Configuração do Staging</div>
+            <div class="info-bar" style="margin-bottom:14px;">Configure aqui o Firebase do ambiente de staging (banco separado do produção). Quando preenchido, o sistema se conecta ao staging automaticamente neste dispositivo.</div>
+            <div class="input-group">
+              <label>Firebase Config — Staging (JSON)</label>
+              <textarea id="cfg-firebase-staging" rows="5" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" style="width:auto;" onclick="salvarStagingConfig()">💾 Salvar Config Staging</button>
+              <button class="btn btn-outline btn-sm" style="width:auto;" onclick="limparStagingConfig()">🗑 Limpar (voltar produção)</button>
+            </div>
+          </div>
+
+          <!-- GERAR DADOS DE TESTE -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">🎲 Gerar Dados de Teste</div>
+            <div class="info-bar" style="margin-bottom:14px;">Popula o banco de dados atual (staging) com dados fictícios mas realistas. <strong>Não execute isso em produção.</strong></div>
+            <div id="staging-env-warning" class="danger-bar" style="display:none;margin-bottom:12px;">⚠️ Detectado ambiente de PRODUÇÃO. Esta ação está bloqueada.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" style="width:auto;" onclick="gerarDadosTeste()">🎲 Gerar Todos os Dados</button>
+              <button class="btn btn-outline btn-sm" style="width:auto;" onclick="gerarDadosTeste('lacres')">🔐 Só Lacres</button>
+              <button class="btn btn-outline btn-sm" style="width:auto;" onclick="gerarDadosTeste('placas')">🚗 Só Placas</button>
+              <button class="btn btn-outline btn-sm" style="width:auto;" onclick="gerarDadosTeste('processos')">🚛 Só Processos</button>
+              <button class="btn btn-outline btn-sm" style="width:auto;border-color:var(--danger);color:var(--danger);" onclick="limparDadosTeste()">🗑 Limpar Dados de Teste</button>
+            </div>
+            <div id="staging-gen-log" style="margin-top:12px;font-size:13px;color:var(--text2);min-height:20px;"></div>
+          </div>
+
+          <!-- CHECKLIST PRÉ-DEPLOY -->
+          <div class="card">
+            <div class="card-title">✅ Checklist Pré-Deploy</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+              <div class="input-group" style="flex:1;margin-bottom:0;">
+                <label>Descreva o que foi alterado nesta versão</label>
+                <input type="text" id="deploy-changes-input" placeholder="ex: adicionado campo motorista no destino, corrigido bug de login offline..."
+                  style="font-size:14px;letter-spacing:0;text-transform:none;">
+              </div>
+              <button class="btn btn-primary btn-sm" style="width:auto;white-space:nowrap;" onclick="gerarChecklist()">📋 Gerar Checklist</button>
+            </div>
+            <div id="checklist-container"></div>
+            <div id="checklist-resultado" style="display:none;margin-top:16px;padding:14px;border-radius:10px;font-size:14px;font-weight:600;text-align:center;"></div>
+          </div>
         </div>
 
       </div>
@@ -994,6 +1060,24 @@ function initFirebase() {
 }
 initFirebase();
 
+// Load config from Firestore on startup so PWA gets fresh settings
+async function loadConfigOnStartup() {
+  if (!db) return;
+  try {
+    const appDoc = await db.collection('config').doc('app').get();
+    if (appDoc.exists) {
+      const d = appDoc.data();
+      if (d.config_timeout) {
+        setCfg('config_timeout', d.config_timeout);
+        sessionTimeoutMs = parseInt(d.config_timeout) * 60 * 60 * 1000;
+      }
+      if (d.config_horas) setCfg('config_horas', d.config_horas);
+    }
+  } catch(e) { /* fail silently - use cached values */ }
+}
+// Run after Firebase init (with short delay to ensure db is ready)
+setTimeout(loadConfigOnStartup, 1500);
+
 function initEmailJS() {
   const pub = getCfg('ejs_pub', 'HTO7hOr-_3BU0mUcG');
   if (pub) emailjs.init(pub);
@@ -1009,7 +1093,7 @@ const state = {
 };
 
 let currentOperador = null;
-let sessionTimeoutMs = 5 * 60 * 60 * 1000; // 5 horas padrão
+let sessionTimeoutMs = 2 * 60 * 60 * 1000; // 2 horas padrão
 
 async function doAppLogin() {
   if (!auth) { alert('Firebase não configurado.'); return; }
@@ -1079,7 +1163,7 @@ function doAppLogout() {
 // ============================================================
 function initSessionTimeout() {
   // Carregar timeout configurado
-  const timeoutHoras = parseInt(getCfg('config_timeout', '5'));
+  const timeoutHoras = parseInt(getCfg('config_timeout', '2'));
   sessionTimeoutMs = timeoutHoras * 60 * 60 * 1000;
   
   // Iniciar timer
@@ -1689,30 +1773,7 @@ async function registrarOrigem() {
     await db.collection('processos').doc(processId).set(dados);
     await db.collection('lacresValidos').doc(state.origem.lacreNumero).update({ emUso:true, placa, processId });
 
-    // E-mail de saída
-    const emails = await getEmails();
-    const msg = `✅ Saída registrada — Placa: ${placa} | Lacre: ${state.origem.lacreNumero} | ${state.origem.timestamp.toLocaleString('pt-BR')} | Local: ${state.origem.loc||'N/A'}`;
-    await enviarEmailTodos(emails, `📍 Saída Registrada — ${placa}`, msg,
-      `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
-         <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-           <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
-           <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🚛 SAÍDA REGISTRADA</div>
-         </td></tr>
-         <tr><td style="background:#fff;padding:24px;">
-           <p style="margin:0 0 16px;font-size:14px;color:#333;">A saída do veículo <strong style="color:#1B3A6B;">${placa}</strong> foi registrada com sucesso.</p>
-           <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
-             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🏢 Transportadora</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${transportadora||'—'}</td></tr>
-             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placa}</td></tr>
-             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${motorista}</td></tr>
-             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🏢 Empresa</td><td style="padding:10px 14px;font-size:13px;color:#333;">${currentOperador.empresa || '—'}</td></tr>
-             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${currentOperador.nome}</td></tr>
-             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${state.origem.lacreNumero}</td></tr>
-             <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Local</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${state.origem.loc||'N/A'}</td></tr>
-             <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.origem.timestamp.toLocaleString('pt-BR')}</td></tr>
-             ${obsAbertura ? `<tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📝 Observações</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${obsAbertura}</td></tr>` : ''}
-           </table>
-         </td></tr>
-       </table>`);
+
 
     showTopAlert('✅ Saída registrada com sucesso!', 'ok');
     btn.disabled = false;
@@ -1836,35 +1897,7 @@ async function verificarDestino(resultDestino) {
         inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
       });
       
-      // E-mail de encerramento
-      const emails = await getEmails();
-      const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
-           <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-             <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
-             <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">✅ LACRE APROVADO</div>
-           </td></tr>
-           <tr><td style="background:#fff;padding:24px;">
-             <p style="margin:0 0 16px;font-size:14px;color:#333;">A chegada do veículo <strong style="color:#1B3A6B;">${placaDest}</strong> foi verificada com sucesso.</p>
-             <table width="100%" style="border-collapse:collapse;margin-bottom:16px;">
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🏢 Transportadora</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${proc.transportadora||'—'}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${placaDest}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Motorista (Saída)</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.motorista||'—'}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">👤 Motorista (Chegada)</td><td style="padding:10px 14px;font-size:13px;color:#333;">${motoristaDest||'—'}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🏢 Empresa (Saída)</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.abertoPorEmpresa||'—'}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${proc.abertoPorNome||proc.abertoPor||'—'}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">✏️ Fechado por</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${currentOperador?.nome||'—'}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔐 Lacre origem</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${proc.lacreNumero}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre destino</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${resultDestino.numero}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🛡️ Integridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1A8C4E;">Íntegro</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📍 Origem</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${proc.locOrigem}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Destino</td><td style="padding:10px 14px;font-size:13px;color:#333;">${state.destino.loc||'N/A'}</td></tr>
-               <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Saída</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${tsOrigem}</td></tr>
-               <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📅 Chegada</td><td style="padding:10px 14px;font-size:13px;color:#333;">${tsDest}</td></tr>
-             </table>
-             <div style="background:#E8F7EE;border-left:4px solid #1A8C4E;padding:12px 16px;border-radius:0 6px 6px 0;font-size:13px;color:#1A8C4E;font-weight:700;">✅ Processo encerrado automaticamente.</div>
-           </td></tr>
-         </table>`;
-      await enviarEmailTodos(emails, `✅ Lacre Aprovado — ${placaDest}`, `Lacre aprovado para ${placaDest}`, corpo);
+
     } else {
       // Desvio - fica pendente
       // Salvar foto do destino no Firebase Storage (desvio)
@@ -2144,15 +2177,17 @@ async function doLogin() {
 
 // Default permissions per profile (used if Firestore has no custom config)
 const DEFAULT_PERMS = {
-  operacional: [],  // No admin access
+  operacional: [],
   operador:    ['lacres','placas','processos','historico'],
-  admin:       ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada']
+  admin:       ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'],
+  developer:   ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','deploy']
 };
 const ALL_TABS = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'];
+const DEV_TABS = ['deploy']; // Only visible to developer profile
 const TAB_LABELS = {
   lacres:'Lacres', placas:'Placas', processos:'Processos', historico:'Histórico',
   emails:'E-mails', perfis:'Perfis', usuarios:'Usuários', fornecedores:'Fornecedores',
-  logs:'Logs', config:'Config', 'config-avancada':'Config Avançada'
+  logs:'Logs', config:'Config', 'config-avancada':'Config Avançada', deploy:'Deploy'
 };
 let _cachedPerms = null;
 
@@ -2171,7 +2206,10 @@ async function getPermissoes() {
 async function applyRolePermissions(perfil) {
   const role = perfil || currentUserRole;
   document.querySelectorAll('.admin-tab').forEach(t => t.style.display = '');
-  if (role === 'admin') return; // admin sees everything
+  // Show deploy tab only for developer
+  const deployTabBtn = document.getElementById('tab-deploy-btn');
+  if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
+  if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
   const allowed = perms[role] || DEFAULT_PERMS[role] || [];
@@ -2357,7 +2395,7 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'];
+    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','deploy'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
@@ -2373,6 +2411,7 @@ function adminTab(tab) {
   if (tab==='logs') loadLogs();
   if (tab==='perfis') loadPerfis();
   if (tab==='config-avancada') loadConfig();
+  if (tab==='deploy') loadDeployPanel();
 }
 
 // ============================================================
@@ -2539,7 +2578,10 @@ function renderPlacas(lista) {
       : '<span class="badge badge-ok">Ativa</span>';
     const btn = d.inativa
       ? `<button class="btn btn-outline btn-sm" onclick="reativarPlaca('${d.placa}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
-      : `<button class="btn btn-outline btn-sm" onclick="inativarPlaca('${d.placa}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>`;
+      : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
+           <button class="btn btn-outline btn-sm" onclick="editarPlaca('${d.placa}','${(d.descricao||'').replace(/'/g,"\'")}')" style="font-size:13px;">✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="inativarPlaca('${d.placa}')" style="border-color:var(--danger);color:var(--danger);font-size:13px;">🚫 Inativar</button>
+         </div>`;
     const inativadoPor = d.inativa && d.inativadaPorNome ? `<br><small style="font-size:11px;color:var(--text3);">por ${d.inativadaPorNome}</small>` : '';
     return `<tr style="${d.inativa ? 'opacity:.6;' : ''}">
       <td><strong style="font-family:'Rajdhani',sans-serif;letter-spacing:2px">${d.placa}</strong></td>
@@ -2875,22 +2917,68 @@ function renderHistorico(lista) {
 }
 
 async function confirmarEncerramento(id, lacreNum) {
-  if (!confirm('Confirmar encerramento do processo?\n\nO lacre será inutilizado e a placa liberada.')) return;
+  // Check if process has desvio status — requires mandatory justification
+  const procDoc = await db.collection('processos').doc(id).get();
+  const isDesvio = procDoc.exists && procDoc.data().resultado === 'desvio';
+
+  let justificativa = '';
+  if (isDesvio) {
+    // Show justification modal
+    justificativa = await new Promise(resolve => {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      overlay.innerHTML = `
+        <div style="background:var(--surface);border-radius:16px;padding:28px;width:100%;max-width:520px;box-shadow:0 16px 60px rgba(0,0,0,.4);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:var(--danger);margin-bottom:6px;">🚨 CONFIRMAR PROCESSO COM DESVIO</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Este processo teve um desvio detectado. Para confirmar o encerramento, é obrigatório informar o que foi apurado.</div>
+          <div class="input-group">
+            <label>Justificativa / O que foi apurado <span style="color:var(--danger);">*</span></label>
+            <textarea id="desvio-justificativa-input" rows="4" placeholder="Descreva o que foi apurado sobre o desvio detectado..." style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;padding:12px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px;">
+            <button id="desvio-confirm-btn" class="btn btn-primary" style="flex:1;background:var(--danger);">✅ Confirmar Encerramento</button>
+            <button id="desvio-cancel-btn" class="btn btn-outline" style="flex:1;">Cancelar</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      document.getElementById('desvio-confirm-btn').onclick = () => {
+        const val = document.getElementById('desvio-justificativa-input').value.trim();
+        if (!val) { document.getElementById('desvio-justificativa-input').style.borderColor='var(--danger)'; return; }
+        overlay.remove();
+        resolve(val);
+      };
+      document.getElementById('desvio-cancel-btn').onclick = () => { overlay.remove(); resolve(null); };
+    });
+    if (!justificativa) return;
+  } else {
+    if (!confirm('Confirmar encerramento do processo?\n\nO lacre será inutilizado e a placa liberada.')) return;
+  }
+
   const user = auth?.currentUser?.email || 'desconhecido';
-  await db.collection('processos').doc(id).update({
+  const updateData = {
     status: 'encerrado',
     encerradoEm: firebase.firestore.FieldValue.serverTimestamp(),
     encerradoPor: user
-  });
+  };
+  if (justificativa) updateData.justificativa = justificativa;
+
+  await db.collection('processos').doc(id).update(updateData);
   await db.collection('lacresValidos').doc(lacreNum).update({
     emUso: false, inutilizado: true, placa: null, processId: null,
     inutilizadoEm: firebase.firestore.FieldValue.serverTimestamp()
   });
-  await registrarLog('confirmacao_processo', `Processo ${id} confirmado. Lacre: ${lacreNum}`);
+  await registrarLog('confirmacao_processo', `Processo ${id} confirmado${justificativa ? '. Apurado: '+justificativa : ''}. Lacre: ${lacreNum}`);
+  showTopAlert('✅ Processo encerrado com sucesso', 'ok');
   loadProcessos();
 }
 
 async function encerrarProcessoManual(id, lacreNum) {
+  // Block manual close for desvio processes
+  const procSnap = await db.collection('processos').doc(id).get();
+  if (procSnap.exists && procSnap.data().resultado === 'desvio') {
+    alert('⚠️ Processos com desvio detectado devem ser confirmados pelo botão "✅ Confirmar" com justificativa obrigatória.\n\nO encerramento manual não é permitido para processos com desvio.');
+    return;
+  }
   const justificativa = prompt('Informe a justificativa para encerramento manual:\n(obrigatório)');
   if (!justificativa || !justificativa.trim()) { alert('Justificativa obrigatória para encerramento manual.'); return; }
   const user = auth?.currentUser?.email || 'desconhecido';
@@ -2972,6 +3060,15 @@ async function removerEmail(id) {
 }
 
 async function loadConfig() {
+  // Show version info
+  const vEl = document.getElementById('cfg-version-display');
+  if (vEl) {
+    vEl.innerHTML = `
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);">Versão 2.0</span>
+        <span style="font-size:13px;color:var(--text3);">· Lançada em 20/03/2026</span>
+      </div>`;
+  }
   // Load from Firestore first (synced across all devices), fallback to localStorage
   if (db) {
     try {
@@ -3319,7 +3416,22 @@ async function loadDashboard() {
     const pct = encPeriodo.length > 0 ? ((desviosPeriodo/encPeriodo.length)*100).toFixed(1) : '0.0';
 
     document.getElementById('dash-abertos').textContent = s1.size;
-    document.getElementById('dash-pendentes').textContent = s2.size + s3.size;
+    const pendentes = s2.size + s3.size;
+    document.getElementById('dash-pendentes').textContent = pendentes;
+    // Pulse the Processos tab when there are pending confirmations
+    document.querySelectorAll('.admin-tab').forEach(t => {
+      if (t.getAttribute('onclick')?.includes("'processos'")) {
+        if (pendentes > 0) {
+          t.style.animation = 'tabPulse 1.5s ease-in-out infinite';
+          t.style.color = 'var(--danger)';
+          if (!t.textContent.includes('⚠️')) t.textContent = 'Processos ⚠️';
+        } else {
+          t.style.animation = '';
+          t.style.color = '';
+          t.textContent = 'Processos';
+        }
+      }
+    });
     document.getElementById('dash-encerrados').textContent = encPeriodo.length;
     document.getElementById('dash-desvios').textContent = desviosPeriodo;
     document.getElementById('dash-pct').textContent = pct + '%';
@@ -3368,12 +3480,37 @@ async function checkProcessosExpirados() {
       const d = doc.data();
       if (d.timestamp < limite && !d.alertaExpirado) {
         const emails = await getEmails();
+        const horasAberto = Math.floor((Date.now() - new Date(d.timestamp).getTime()) / 3600000);
+        const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+          <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+            <div style="color:#F5A623;font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — CONTROLE DE LACRES</div>
+            <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">⏰ PROCESSO EM ABERTO HÁ ${horasAberto}H</div>
+          </td></tr>
+          <tr><td style="background:#fff;padding:24px;">
+            <div style="background:#FEF3E2;border-left:4px solid #B7770D;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:14px;color:#B7770D;font-weight:700;">
+              ⚠️ Este processo está aberto há mais de ${horas} horas sem confirmação de chegada.
+            </div>
+            <table width="100%" style="border-collapse:collapse;">
+              <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:40%;">🚛 Placa</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;">${d.placa}</td></tr>
+              <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🏢 Transportadora</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${d.transportadora||'—'}</td></tr>
+              <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">👤 Motorista</td><td style="padding:10px 14px;font-size:13px;color:#333;">${d.motorista||'—'}</td></tr>
+              <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🔐 Lacre</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;border-top:1px solid #DDE3EE;">${d.lacreNumero}</td></tr>
+              <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📍 Local saída</td><td style="padding:10px 14px;font-size:13px;color:#333;">${d.locOrigem||'N/A'}</td></tr>
+              <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📅 Saída em</td><td style="padding:10px 14px;font-size:13px;color:#333;border-top:1px solid #DDE3EE;">${new Date(d.timestamp).toLocaleString('pt-BR')}</td></tr>
+              <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">✏️ Aberto por</td><td style="padding:10px 14px;font-size:13px;color:#333;">${d.abertoPorNome||d.abertoPor||'—'}</td></tr>
+            </table>
+            <div style="background:#FEF3E2;border-left:4px solid #B7770D;padding:12px 16px;border-radius:0 6px 6px 0;margin-top:16px;font-size:13px;color:#B7770D;">
+              Verifique a situação do transporte e encerre o processo no painel Admin se necessário.
+            </div>
+          </td></tr>
+        </table>`;
         await enviarEmailTodos(emails,
-          `⏰ Processo em aberto há mais de ${horas}h — ${d.placa}`,
-          `Processo expirado — Placa: ${d.placa}`,
-          `O processo do veículo <strong>${d.placa}</strong> está aberto há mais de <strong>${horas} horas</strong>.<br><br>🔐 Lacre: ${d.lacreNumero}<br>📅 Saída: ${new Date(d.timestamp).toLocaleString('pt-BR')}<br>📍 Local saída: ${d.locOrigem}<br><br>Verifique a situação do transporte.`
+          `⏰ Alerta: Processo em aberto há ${horasAberto}h — ${d.placa}`,
+          `Processo da placa ${d.placa} está aberto há ${horasAberto} horas sem confirmação de chegada.`,
+          corpo
         );
-        await db.collection('processos').doc(d.processId).update({ alertaExpirado:true });
+        await db.collection('processos').doc(d.processId).update({ alertaExpirado: true });
+        await registrarLog('alerta_processo_expirado', `Processo placa ${d.placa} aberto há ${horasAberto}h — alerta enviado`);
       }
     }
   } catch(e) { console.warn('Erro ao checar expirados:', e.message); }
@@ -4562,14 +4699,496 @@ async function atualizarSelectPerfis() {
     options.push({ value: id, label: `${nome} — perfil customizado` });
   });
 
-  // Apenas admin pode criar outros admins
+  // Apenas admin pode criar outros admins e developers
   if (isAdmin) {
     options.push({ value: 'admin', label: 'Admin — acesso total' });
+    options.push({ value: 'developer', label: 'Developer — acesso total + painel de deploy' });
   }
 
   select.innerHTML = options.map(o =>
     `<option value="${o.value}">${o.label}</option>`
   ).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// DEPLOY PANEL — developer only
+// ══════════════════════════════════════════════════════════════
+const PRODUCTION_PROJECT_ID = 'verificador-lacre';
+
+function isProduction() {
+  const raw = getCfg('firebase_config','{}');
+  try {
+    const cfg = JSON.parse(raw);
+    if (cfg.projectId) return cfg.projectId === PRODUCTION_PROJECT_ID;
+  } catch(_) {}
+  // Default firebase config in code is production
+  return true;
+}
+
+function isStagingConfigured() {
+  const raw = getCfg('firebase_staging_config','{}');
+  try { return !!JSON.parse(raw).apiKey; } catch(_) { return false; }
+}
+
+function loadDeployPanel() {
+  // Show/hide deploy tab based on profile
+  const deployTab = document.getElementById('tab-deploy-btn');
+  if (deployTab) deployTab.style.display = currentUserRole === 'developer' ? '' : 'none';
+
+  // Load staging config textarea
+  const stagingTxt = document.getElementById('cfg-firebase-staging');
+  if (stagingTxt) stagingTxt.value = getCfg('firebase_staging_config', '{}');
+
+  // Environment info
+  const envInfo = document.getElementById('deploy-env-info');
+  const isProd = isProduction();
+  const isStagingCfg = isStagingConfigured();
+  const buildHash = 'v20260320-r14'; // keep in sync with BUILD_HASH
+  if (envInfo) {
+    envInfo.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px;">
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">AMBIENTE</div>
+          <div style="font-weight:700;color:${isProd ? 'var(--danger)' : 'var(--success)'};">${isProd ? '🔴 PRODUÇÃO' : '🟢 STAGING'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">BUILD</div>
+          <div style="font-weight:700;color:var(--text);font-family:monospace;">${buildHash}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">STAGING CONFIG</div>
+          <div style="font-weight:700;color:${isStagingCfg ? 'var(--success)' : 'var(--warning)'};">${isStagingCfg ? '✅ Configurado' : '⚠️ Não configurado'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">URL</div>
+          <div style="font-size:12px;color:var(--text2);word-break:break-all;">${window.location.hostname}</div>
+        </div>
+      </div>`;
+  }
+
+  // Show warning if prod
+  const warn = document.getElementById('staging-env-warning');
+  if (warn) warn.style.display = isProd ? 'block' : 'none';
+}
+
+function salvarStagingConfig() {
+  const raw = document.getElementById('cfg-firebase-staging')?.value.trim();
+  try {
+    JSON.parse(raw);
+    setCfg('firebase_staging_config', raw);
+    showTopAlert('✅ Config staging salva! Recarregue para aplicar.', 'ok');
+  } catch(e) { alert('JSON inválido: ' + e.message); }
+}
+
+function limparStagingConfig() {
+  if (!confirm('Remover config do staging e voltar para produção?')) return;
+  localStorage.removeItem('firebase_staging_config');
+  showTopAlert('✅ Staging removido — usando produção', 'ok');
+  loadDeployPanel();
+}
+
+// ── GERAR DADOS DE TESTE ──────────────────────────────────
+const DADOS_TESTE = {
+  placas: [
+    { placa:'ABC1234', descricao:'CARRETA TANQUE — TRANSPORTADORA ALFA' },
+    { placa:'XYZ5678', descricao:'BITREM — TRANSPORTADORA BETA' },
+    { placa:'DEF1E23', descricao:'CARRETA SIDER — TRANSPORTADORA GAMA' },
+    { placa:'GHI4567', descricao:'CARRETA BAÚ — TRANSPORTADORA DELTA' },
+    { placa:'JKL8901', descricao:'TRUCK — TRANSPORTADORA ÉPSILON' },
+  ],
+  lacres: Array.from({length:30}, (_,i) => String(i+1).padStart(5,'0')),
+  fornecedores: [
+    { cnpj:'12345678000195', nome:'FORNECEDOR ALFA LTDA' },
+    { cnpj:'98765432000100', nome:'DISTRIBUIDORA BETA S/A' },
+    { cnpj:'11223344000155', nome:'INDUSTRIA GAMA EIRELI' },
+  ],
+  motoristas: ['JOÃO DA SILVA','CARLOS PEREIRA','MARCOS SOUZA','PEDRO OLIVEIRA','LUCAS SANTOS'],
+  locais: [
+    { loc:'São Paulo, SP', coords:'-23.5505,-46.6333' },
+    { loc:'Campinas, SP', coords:'-22.9056,-47.0608' },
+    { loc:'Sorocaba, SP', coords:'-23.5015,-47.4526' },
+    { loc:'Guarulhos, SP', coords:'-23.4543,-46.5337' },
+  ]
+};
+
+async function gerarDadosTeste(tipo = 'todos') {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  if (isProduction()) { alert('⛔ Bloqueado em produção. Configure o banco de staging primeiro.'); return; }
+
+  const log = document.getElementById('staging-gen-log');
+  log.textContent = '⏳ Gerando dados...';
+
+  try {
+    if (tipo === 'todos' || tipo === 'placas') {
+      const batch = db.batch();
+      DADOS_TESTE.placas.forEach(p => {
+        batch.set(db.collection('placasAutorizadas').doc(p.placa), {
+          placa: p.placa, descricao: p.descricao, inativa: false,
+          adicionadaEm: firebase.firestore.FieldValue.serverTimestamp(),
+          cadastradoPorNome: 'Developer — Dados de Teste'
+        });
+      });
+      await batch.commit();
+      log.textContent += `
+✅ ${DADOS_TESTE.placas.length} placas criadas`;
+    }
+
+    if (tipo === 'todos' || tipo === 'lacres') {
+      const batch = db.batch();
+      DADOS_TESTE.lacres.forEach(num => {
+        batch.set(db.collection('lacresValidos').doc(num), {
+          numero: num, emUso: false, inutilizado: false, inativo: false,
+          cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          cadastradoPorNome: 'Developer — Dados de Teste'
+        });
+      });
+      await batch.commit();
+      log.textContent += `
+✅ ${DADOS_TESTE.lacres.length} lacres criados`;
+    }
+
+    if (tipo === 'todos') {
+      const batch2 = db.batch();
+      DADOS_TESTE.fornecedores.forEach(f => {
+        batch2.set(db.collection('fornecedores').doc(f.cnpj), {
+          cnpj: f.cnpj, nome: f.nome, inativo: false,
+          cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          cadastradoPor: 'Developer — Dados de Teste'
+        });
+      });
+      await batch2.commit();
+      log.textContent += `
+✅ ${DADOS_TESTE.fornecedores.length} fornecedores criados`;
+    }
+
+    if (tipo === 'todos' || tipo === 'processos') {
+      // Generate 5 sample processes in various states
+      const processos = [
+        { placa:'ABC1234', lacre:'00001', status:'aberto', resultado:null, motorista:'JOÃO DA SILVA', horas: -2 },
+        { placa:'XYZ5678', lacre:'00002', status:'encerrado', resultado:'ok', motorista:'CARLOS PEREIRA', horas: -25 },
+        { placa:'DEF1E23', lacre:'00003', status:'aguardando_confirmacao_desvio', resultado:'desvio', motorista:'MARCOS SOUZA', horas: -5 },
+        { placa:'GHI4567', lacre:'00004', status:'encerrado_manual', resultado:null, motorista:'PEDRO OLIVEIRA', horas: -100 },
+        { placa:'JKL8901', lacre:'00005', status:'encerrado', resultado:'ok', motorista:'LUCAS SANTOS', horas: -48 },
+      ];
+      for (const p of processos) {
+        const ts = new Date(Date.now() + p.horas * 3600000);
+        const docId = `TEST_${p.placa}_${Date.now()}`;
+        const orig = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
+        const dest = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
+        await db.collection('processos').doc(docId).set({
+          processId: docId, placa: p.placa, lacreNumero: p.lacre, motorista: p.motorista,
+          status: p.status, resultado: p.resultado,
+          transportadora: 'TRANSPORTADORA TESTE LTDA',
+          timestamp: ts.toISOString(),
+          locOrigem: orig.loc, locOrigemCoords: orig.coords,
+          locDestino: p.status !== 'aberto' ? dest.loc : null,
+          locDestinoCoords: p.status !== 'aberto' ? dest.coords : null,
+          tsDestino: p.status !== 'aberto' ? new Date(ts.getTime() + 8*3600000).toISOString() : null,
+          abertoPorNome: 'Operador Teste', abertoPor: 'teste@staging.com',
+          fechadoPorNome: p.status !== 'aberto' ? 'Operador Destino Teste' : null,
+          numeroNF: `NF-${Math.floor(Math.random()*99999).toString().padStart(6,'0')}`,
+          registradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          _testData: true
+        });
+      }
+      log.textContent += `
+✅ ${processos.length} processos de teste criados (aberto, encerrado, desvio, manual)`;
+    }
+
+    log.textContent += '
+
+🎉 Dados de teste gerados com sucesso!';
+    await registrarLog('staging_gerar_dados', `Dados de teste gerados: ${tipo}`);
+  } catch(e) {
+    log.textContent += `
+❌ Erro: ${e.message}`;
+  }
+}
+
+async function limparDadosTeste() {
+  if (!db) return;
+  if (isProduction()) { alert('⛔ Bloqueado em produção.'); return; }
+  if (!confirm('Apagar todos os dados marcados como teste?\n\nIsso remove processos, lacres, placas e fornecedores com a flag _testData ou cadastrado por Developer.')) return;
+
+  const log = document.getElementById('staging-gen-log');
+  log.textContent = '⏳ Limpando...';
+  try {
+    // Delete test processes
+    const snap = await db.collection('processos').where('_testData','==',true).get();
+    const b1 = db.batch();
+    snap.docs.forEach(d => b1.delete(d.ref));
+    if (!snap.empty) await b1.commit();
+    log.textContent += `
+✅ ${snap.size} processos removidos`;
+
+    // Delete test lacres
+    const sL = await db.collection('lacresValidos').where('cadastradoPorNome','==','Developer — Dados de Teste').get();
+    if (!sL.empty) {
+      const b2 = db.batch();
+      sL.docs.forEach(d => b2.delete(d.ref));
+      await b2.commit();
+    }
+    log.textContent += `
+✅ ${sL.size} lacres removidos`;
+
+    log.textContent += '\n\n🧹 Limpeza concluída!';
+  } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
+}
+
+// ── CHECKLIST PRÉ-DEPLOY ──────────────────────────────────
+const CHECKLIST_BASE = [
+  { id:'login',        categoria:'🔑 Autenticação',     item:'Login com e-mail e senha funciona corretamente' },
+  { id:'login_err',    categoria:'🔑 Autenticação',     item:'Mensagem de erro ao inserir credenciais erradas' },
+  { id:'login_inativo',categoria:'🔑 Autenticação',     item:'Usuário inativo é bloqueado no login' },
+  { id:'offline',      categoria:'🔑 Autenticação',     item:'Login offline funciona (após primeiro login online)' },
+  { id:'timeout',      categoria:'🔑 Autenticação',     item:'Sessão expira após inatividade configurada' },
+  { id:'cam_origem',   categoria:'📷 Câmera',           item:'Câmera abre na aba Origem' },
+  { id:'qr_detect',    categoria:'📷 Câmera',           item:'QR Code é detectado e capturado automaticamente' },
+  { id:'refoto',       categoria:'📷 Câmera',           item:'Botão "Tirar Nova Foto" reseta câmera corretamente' },
+  { id:'manual_foto',  categoria:'📷 Câmera',           item:'Entrada manual bloqueia sem foto tirada primeiro' },
+  { id:'manual_num',   categoria:'📷 Câmera',           item:'Após foto, campo manual aceita o número do lacre' },
+  { id:'placa_val',    categoria:'🚗 Validações',       item:'Placa não autorizada é bloqueada com mensagem' },
+  { id:'placa_inativa',categoria:'🚗 Validações',       item:'Placa inativa é rejeitada' },
+  { id:'lacre_val',    categoria:'🔐 Lacres',           item:'Lacre não cadastrado é rejeitado no registro' },
+  { id:'lacre_uso',    categoria:'🔐 Lacres',           item:'Lacre em uso não pode ser reutilizado' },
+  { id:'registro_ok',  categoria:'🚛 Processo Origem',  item:'Registro de saída salva no Firestore com todos os campos' },
+  { id:'gps_orig',     categoria:'🚛 Processo Origem',  item:'Geolocalização é capturada e exibida' },
+  { id:'nf_ia',        categoria:'📄 Nota Fiscal',      item:'Câmera da NF detecta documento automaticamente' },
+  { id:'nf_manual',    categoria:'📄 Nota Fiscal',      item:'NF manual funciona com dropdown de fornecedores' },
+  { id:'destino_ok',   categoria:'✅ Processo Destino', item:'Verificação no destino encontra o processo pelo placa' },
+  { id:'destino_aprv', categoria:'✅ Processo Destino', item:'Lacre correto e íntegro → processo encerrado automaticamente' },
+  { id:'desvio',       categoria:'🚨 Desvios',          item:'Lacre diferente gera status de desvio' },
+  { id:'desvio_email', categoria:'🚨 Desvios',          item:'E-mail de alerta de desvio é enviado' },
+  { id:'expiry_email', categoria:'🚨 Desvios',          item:'E-mail de processo expirado é enviado após o tempo configurado' },
+  { id:'admin_login',  categoria:'🏛 Admin',            item:'Login no painel admin funciona' },
+  { id:'perfil_perms', categoria:'🏛 Admin',            item:'Abas corretas aparecem para cada perfil' },
+  { id:'dash_kpis',    categoria:'🏛 Admin',            item:'Dashboard mostra KPIs corretos' },
+  { id:'lacres_crud',  categoria:'🏛 Admin',            item:'Cadastrar, inativar e reativar lacres funciona' },
+  { id:'placas_crud',  categoria:'🏛 Admin',            item:'Cadastrar, inativar e reativar placas funciona' },
+  { id:'usuarios_crud',categoria:'🏛 Admin',            item:'Criar, editar, inativar e reativar usuários funciona' },
+  { id:'forn_crud',    categoria:'🏛 Admin',            item:'Criar, editar, inativar e reativar fornecedores funciona' },
+  { id:'logs_audit',   categoria:'🏛 Admin',            item:'Aba Logs mostra registros com ação, detalhe e usuário' },
+  { id:'export_csv',   categoria:'🏛 Admin',            item:'Exportação CSV do histórico funciona' },
+  { id:'config_sync',  categoria:'🏛 Admin',            item:'Config salva no Firestore e sincroniza em outro dispositivo' },
+  { id:'pwa_install',  categoria:'📱 PWA',              item:'App instala na tela inicial do Android' },
+  { id:'pwa_ios',      categoria:'📱 PWA',              item:'App instala na tela inicial do iPhone' },
+  { id:'pwa_update',   categoria:'📱 PWA',              item:'PWA instalado atualiza após mudança do BUILD_HASH' },
+];
+
+function gerarChecklist() {
+  const changes = document.getElementById('deploy-changes-input')?.value.trim() || '';
+  const container = document.getElementById('checklist-container');
+  const resultado = document.getElementById('checklist-resultado');
+  if (resultado) resultado.style.display = 'none';
+
+  // Build extra items based on what changed
+  const extras = [];
+  const cl = changes.toLowerCase();
+  if (cl.includes('login') || cl.includes('senha') || cl.includes('auth'))
+    extras.push({ id:'extra_auth', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Testar todos os fluxos de autenticação com atenção especial' });
+  if (cl.includes('nf') || cl.includes('nota') || cl.includes('fornecedor'))
+    extras.push({ id:'extra_nf', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Testar leitura de NF e cruzamento de CNPJ com fornecedores cadastrados' });
+  if (cl.includes('email') || cl.includes('e-mail') || cl.includes('alerta'))
+    extras.push({ id:'extra_email', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Verificar envio de e-mail de desvio e de processo expirado' });
+  if (cl.includes('perfil') || cl.includes('permiss') || cl.includes('usuario'))
+    extras.push({ id:'extra_perfil', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Testar todos os perfis (operacional, operador, admin, developer)' });
+  if (cl.includes('pwa') || cl.includes('service worker') || cl.includes('hash') || cl.includes('build'))
+    extras.push({ id:'extra_pwa', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Instalar PWA no celular e verificar se atualizou corretamente' });
+  if (cl.includes('config') || cl.includes('firebase') || cl.includes('staging'))
+    extras.push({ id:'extra_config', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Verificar sincronização de configurações entre dispositivos' });
+
+  const allItems = [...extras, ...CHECKLIST_BASE];
+
+  // Group by category
+  const groups = {};
+  allItems.forEach(item => {
+    if (!groups[item.categoria]) groups[item.categoria] = [];
+    groups[item.categoria].push(item);
+  });
+
+  let html = '';
+  if (changes) {
+    html += `<div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--warning);">
+      📝 <strong>Mudanças desta versão:</strong> ${changes}
+    </div>`;
+  }
+
+  html += `<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Marque cada item após testar. O checklist deve estar 100% concluído antes de publicar em produção.</div>`;
+
+  Object.entries(groups).forEach(([cat, items]) => {
+    const isExtra = cat.includes('Extras');
+    html += `<div style="background:${isExtra ? 'rgba(245,166,35,.06)' : 'var(--surface2)'};border:1px solid ${isExtra ? 'rgba(245,166,35,.2)' : 'var(--border)'};border-radius:12px;margin-bottom:14px;overflow:hidden;">
+      <div style="padding:12px 16px;background:${isExtra ? 'rgba(245,166,35,.1)' : 'rgba(255,255,255,.04)'};font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:${isExtra ? 'var(--warning)' : 'var(--text)'};">${cat}</div>
+      <div style="padding:8px 16px 12px;">`;
+    items.forEach(it => {
+      html += `<label style="display:flex;align-items:flex-start;gap:12px;padding:8px 4px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);" onclick="atualizarChecklist()">
+        <input type="checkbox" id="chk-${it.id}" style="width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--success);cursor:pointer;">
+        <span id="chk-lbl-${it.id}" style="font-size:14px;color:var(--text2);line-height:1.5;">${it.item}</span>
+      </label>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `<button class="btn btn-primary" onclick="atualizarChecklist(true)" style="margin-top:8px;">📊 Ver Resultado</button>`;
+  container.innerHTML = html;
+}
+
+function atualizarChecklist(mostrarResultado = false) {
+  const all = document.querySelectorAll('[id^="chk-"]:not([id*="-lbl-"])');
+  all.forEach(chk => {
+    const lbl = document.getElementById(`chk-lbl-${chk.id.replace('chk-','')}`);
+    if (lbl) lbl.style.cssText = chk.checked
+      ? 'font-size:14px;color:var(--success);text-decoration:line-through;opacity:.7;line-height:1.5;'
+      : 'font-size:14px;color:var(--text2);line-height:1.5;';
+  });
+
+  if (!mostrarResultado) return;
+
+  const total = all.length;
+  const checked = Array.from(all).filter(c => c.checked).length;
+  const resultado = document.getElementById('checklist-resultado');
+  if (!resultado) return;
+  resultado.style.display = 'block';
+
+  if (checked === total) {
+    resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);';
+    resultado.innerHTML = '✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar em produção. Lembre de atualizar o BUILD_HASH!</span>';
+  } else {
+    const pct = Math.round((checked/total)*100);
+    resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
+    resultado.innerHTML = `⚠️ ${checked}/${total} itens concluídos (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar em produção.</span>`;
+  }
+}
+
+// ── CHANGELOG ────────────────────────────────────────────
+const CHANGELOG = [
+  {
+    version: 'v20260320-r14',
+    data: '20/03/2026',
+    novidades: [
+      'Aba Perfis: criar e editar perfis customizados',
+      'Painel de Deploy para perfil Developer',
+      'Checklist pré-deploy automático',
+      'Geração de dados fictícios para staging',
+      'Exibição de versão na aba Config',
+    ],
+    correcoes: [
+      'Correção de bug crítico (return ilegal no script)',
+      'Timeout padrão ajustado para 2 horas',
+      'E-mail enviado apenas em desvios (economia de cota)',
+    ]
+  },
+  {
+    version: 'v20260319-r13',
+    data: '19/03/2026',
+    novidades: [
+      'Inativar/reativar lacres, placas e usuários',
+      'Filtros Ativos/Inativos/Todos nas três seções',
+      'Aba Logs de auditoria no painel admin',
+      'Botões Editar e Redefinir Senha em usuários',
+      'Fornecedores: editar, inativar e reativar',
+    ],
+    correcoes: []
+  },
+  {
+    version: 'v20260318-r10',
+    data: '18/03/2026',
+    novidades: [
+      'Entrada manual de lacre com foto obrigatória',
+      'Fallback manual para NF quando IA falha',
+      'Campo fornecedor com lista suspensa dos cadastrados',
+      'Alerta de processo expirado por e-mail',
+    ],
+    correcoes: []
+  },
+  {
+    version: 'v20260316-r7',
+    data: '16/03/2026',
+    novidades: [
+      'Sistema base: câmera, IA, NF, geolocalização',
+      'Painel admin com dashboard KPIs',
+      'Controle de acesso por perfil',
+      'Notificações por e-mail',
+      'Exportação CSV',
+    ],
+    correcoes: []
+  },
+];
+
+function verChangelog() {
+  const modal = document.getElementById('changelog-modal');
+  const criar = !modal;
+  const m = modal || document.createElement('div');
+  m.id = 'changelog-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  const html = CHANGELOG.map((v, i) => `
+    <div style="background:${i===0 ? 'rgba(27,58,107,.2)' : 'transparent'};border:1px solid ${i===0 ? 'var(--gerdau-blue)' : 'var(--border)'};border-radius:12px;padding:18px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--text);">${v.version}</span>
+        ${i===0 ? '<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:1px;">ATUAL</span>' : ''}
+        <span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span>
+      </div>
+      ${v.novidades.length ? `<div style="margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:6px;">NOVIDADES</div>
+        ${v.novidades.map(n => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}
+      </div>` : ''}
+      ${v.correcoes.length ? `<div>
+        <div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:6px;">CORREÇÕES</div>
+        ${v.correcoes.map(c => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}
+      </div>` : ''}
+    </div>`).join('');
+
+  m.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);">
+      <div style="padding:20px 24px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:var(--text);">📋 CHANGELOG</div>
+        <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;">✕</button>
+      </div>
+      <div style="overflow-y:auto;padding:20px 24px;">${html}</div>
+    </div>`;
+
+  if (criar) document.body.appendChild(m);
+  m.style.display = 'flex';
+}
+
+async function editarPlaca(placa, descricaoAtual) {
+  const modal = document.getElementById('edit-placa-modal');
+  const criar = !modal;
+  const m = modal || document.createElement('div');
+  m.id = 'edit-placa-modal';
+  m.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR PLACA</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Placa: <strong style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">${placa}</strong></div>
+      <input type="hidden" id="edit-placa-id">
+      <div class="input-group">
+        <label>Descrição / Transportadora</label>
+        <input type="text" id="edit-placa-desc" placeholder="EX: CARRETA TANQUE — TRANSPORTADORA ALFA" style="font-size:14px;letter-spacing:0;text-transform:uppercase;">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary" onclick="salvarEdicaoPlaca()" style="flex:1;">💾 Salvar</button>
+        <button class="btn btn-outline" onclick="document.getElementById('edit-placa-modal').style.display='none'" style="flex:1;">Cancelar</button>
+      </div>
+    </div>`;
+  if (criar) document.body.appendChild(m);
+  document.getElementById('edit-placa-id').value = placa;
+  document.getElementById('edit-placa-desc').value = descricaoAtual.toUpperCase();
+  m.style.display = 'flex';
+}
+
+async function salvarEdicaoPlaca() {
+  const placa = document.getElementById('edit-placa-id').value;
+  const desc = document.getElementById('edit-placa-desc').value.trim().toUpperCase();
+  try {
+    await db.collection('placasAutorizadas').doc(placa).update({ descricao: desc });
+    await registrarLog('editar_placa', `Placa ${placa} → descrição: ${desc}`);
+    document.getElementById('edit-placa-modal').style.display = 'none';
+    showTopAlert(`✅ Placa ${placa} atualizada`, 'ok');
+    loadPlacas();
+    _todasPlacas = null; // reset cache
+  } catch(e) { alert('Erro: ' + e.message); }
 }
 </script>
 </body>
