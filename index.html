@@ -1054,12 +1054,16 @@ function initFirebase() {
     let chosen = null;
 
     if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
-      // Modo staging via código (arquivo staging/)
+      // Staging via código (arquivo da pasta staging/ com config hardcoded)
       chosen = STAGING_FIREBASE_CONFIG;
     } else {
-      // Modo padrão: lê staging config do localStorage se disponível
-      // (configurado via Painel Deploy — persiste entre sessões)
-      try { const s = JSON.parse(localStorage.getItem('firebase_staging_config')||'{}'); if (s.apiKey) chosen = s; } catch(_) {}
+      // Lê staging config do localStorage (configurado UMA VEZ via botão ⚙ Staging)
+      // NUNCA limpa — persiste entre sessões no dispositivo de testes
+      try {
+        const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
+        if (s.apiKey) chosen = s;
+      } catch(_) {}
+      // Se não tiver staging config, usa config customizado salvo (ou config fixa de produção)
       if (!chosen) {
         try { const c = JSON.parse(getCfg('firebase_config','{}')); if (c.apiKey) chosen = c; } catch(_) {}
       }
@@ -2435,7 +2439,7 @@ function adminTab(tab) {
   if (tab==='emails') loadEmails();
   if (tab==='lacres') loadLacres();
   if (tab==='placas') loadPlacas();
-  if (tab==='config') loadConfig();
+  if (tab==='config') { loadConfig(); if (currentUserRole==='developer') loadEmailCounter(); }
   if (tab==='usuarios') loadUsuarios();
   if (tab==='historico') loadHistorico();
   if (tab==='fornecedores') { loadFornecedores(); _fornecedoresCache = null; popularFornecedoresDatalist(); }
@@ -2800,7 +2804,7 @@ function verNoMapa(locOrigem, locDestino, placa) {
     <style>html,body,#map{margin:0;padding:0;width:100%;height:100%;}</style>
   </head><body>
     <div id="map"></div>
-    <script>
+    <scr${''}ipt>
       var map = L.map('map');
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
       var greenIcon = L.icon({iconUrl:'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',shadowUrl:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34]});
@@ -3797,7 +3801,7 @@ async function doAppLoginComOffline() {
       adminBtn.style.visibility = 'visible';
     }
     const ajudaBtnLogin = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtnLogin) ajudaBtnLogin.style.display = 'inline-block'; // visível para todos
+    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='operador'||perfil==='developer') ? 'inline-block' : 'none';
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
     if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
