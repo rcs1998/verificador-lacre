@@ -4050,7 +4050,9 @@ async function doAppLoginComOffline() {
     }
   }
   // Online: login normal + salvar para offline
-  if (!auth) { alert('Firebase não configurado.'); return; }
+  console.log('[LOGIN] Iniciando login online...');
+  console.log('[LOGIN] auth:', auth ? 'OK' : 'NULL', 'db:', db ? 'OK' : 'NULL', 'firebase.apps:', firebase.apps.length);
+  if (!auth) { alert('Firebase não configurado. Verifique se a configuração de staging foi salva.'); return; }
   const email = document.getElementById('op-email').value.trim();
   const pass = document.getElementById('op-pass').value;
   if (!email) { const e=document.getElementById('app-login-err');e.textContent='Informe seu e-mail.';e.style.display='block';return; }
@@ -4063,9 +4065,11 @@ async function doAppLoginComOffline() {
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const cred = await auth.signInWithEmailAndPassword(email, pass);
     const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
+    console.log('[LOGIN] Usuário encontrado:', userDoc.exists);
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
     const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
     const empresa = userDoc.exists ? (userDoc.data().empresa || '') : '';
+    console.log('[LOGIN] Perfil:', perfil, 'Nome:', nome);
     // Block inactive users
     if (userDoc.exists && userDoc.data().inativo) {
       errEl.textContent = 'Usuário inativo. Contate o administrador.';
@@ -4103,7 +4107,8 @@ async function doAppLoginComOffline() {
     // Pre-load fornecedores for dropdown
     setTimeout(popularFornecedoresDatalist, 1500);
   } catch(e) {
-    console.error('App login error:', e.code, e.message);
+    console.error('[LOGIN] Erro de autenticação:', e.code, e.message);
+    console.error('[LOGIN] Stack:', e.stack);
     errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials'
       ? 'E-mail ou senha incorretos.'
       : e.code === 'auth/too-many-requests'
