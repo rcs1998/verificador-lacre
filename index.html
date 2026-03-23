@@ -274,7 +274,12 @@ tbody tr:hover{background:var(--surface2);}
       <button class="btn btn-primary" id="btn-login" onclick="doAppLoginComOffline()">Entrar</button>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
-        <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
+        <a href="javascript:void(0)" onclick="abrirManualOperador()" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
+      </div>
+      <div id="btn-configurar-staging-wrap" style="display:none;margin-top:14px;border-top:1px dashed var(--border);padding-top:12px;">
+        <button id="btn-configurar-staging" onclick="abrirConfigurarStaging(event)" style="width:100%;background:linear-gradient(135deg,#0f4a28,#1a6b3a);border:none;color:#5ecb8a;border-radius:8px;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">⚙ Configurar Staging</button>
+      </div>
+      <div style="display:none"><!-- placeholder fechamento corrigido --
       </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
@@ -1055,23 +1060,34 @@ function initFirebase() {
   try {
     let chosen = null;
 
+    const urlIsStaging = window.location.href.includes('/staging');
+
     if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
       // Staging via código (arquivo da pasta staging/ com config hardcoded)
       chosen = STAGING_FIREBASE_CONFIG;
-    } else {
-      // Lê staging config do localStorage (configurado UMA VEZ via botão ⚙ Staging)
-      // NUNCA limpa — persiste entre sessões no dispositivo de testes
+    } else if (urlIsStaging) {
+      // Ambiente de staging detectado pela URL — NUNCA usar banco de produção
+      // Só conecta se houver config de staging configurada no localStorage
       try {
         const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
         if (s.apiKey) chosen = s;
       } catch(_) {}
-      // Se não tiver staging config, usa config customizado salvo (ou config fixa de produção)
+      // Sem config → não conecta, exibe aviso para configurar
       if (!chosen) {
-        try { const c = JSON.parse(getCfg('firebase_config','{}')); if (c.apiKey) chosen = c; } catch(_) {}
+        console.warn('Staging: nenhuma configuração encontrada. Configure via botão ⚙ Staging.');
+        return; // sai sem conectar — impede fallback para produção
       }
+    } else if (!urlIsStaging) {
+      // Produção: NUNCA usar config de staging — lê config customizado ou usa config fixa de produção
+      // Garantia extra: ignora qualquer chave de staging no localStorage
+      try {
+        const c = JSON.parse(localStorage.getItem('firebase_config') || '{}');
+        if (c.apiKey && c.projectId !== 'verificador-lacre-staging') chosen = c;
+      } catch(_) {}
     }
+    // urlIsStaging sem config → chosen continua null → sai sem conectar (return acima já cobre)
 
-    if (!chosen) chosen = {
+    if (!chosen && !urlIsStaging) chosen = {
       apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
       authDomain: "verificador-lacre.firebaseapp.com",
       projectId: "verificador-lacre",
@@ -4223,6 +4239,20 @@ function hideTopAlert() {
   if (window._alertTimer) clearTimeout(window._alertTimer);
 }
 
+function abrirManualOperador() {
+  // Tenta o manual na pasta atual; se não existir, usa a raiz do repositório
+  const pathname = window.location.pathname;
+  const base = pathname.replace(/\/[^\/]*$/, '/');
+  // Para staging (/verificador-lacre/staging/), o manual está na raiz (/verificador-lacre/)
+  const rootBase = pathname.replace(/\/staging\/.*$/, '/').replace(/\/[^\/]*$/, '/');
+  const localUrl = base + 'manual-operacional.html';
+  const rootUrl = rootBase + 'manual-operacional.html';
+  // Testa se o arquivo existe localmente, senão usa raiz
+  fetch(localUrl, { method: 'HEAD' })
+    .then(r => window.open(r.ok ? localUrl : rootUrl, '_blank'))
+    .catch(() => window.open(rootUrl, '_blank'));
+}
+
 // ── VALIDAÇÃO INLINE DE PLACA ─────────────────────────────────
 async function validarPlacaInline(lado) {
   const input  = document.getElementById(`placa-${lado}`);
@@ -4822,45 +4852,4 @@ function jsToJson(raw) {
 function salvarStagingSetup() {
   let raw = document.getElementById('staging-setup-input').value.trim();
   const errEl = document.getElementById('staging-setup-err');
-  const status = document.getElementById('staging-setup-status');
-  errEl.style.display = 'none';
-  if (!raw) { errEl.textContent = 'Cole o config do Firebase antes de salvar.'; errEl.style.display = 'block'; return; }
-  // Auto-convert JS format to JSON
-  try { JSON.parse(raw); } catch(e) {
-    try { raw = jsToJson(raw); JSON.parse(raw); }
-    catch(e2) { errEl.textContent = 'Formato inválido: ' + e2.message; errEl.style.display = 'block'; return; }
-  }
-  const cfg = JSON.parse(raw);
-  if (!cfg.apiKey || !cfg.projectId) {
-    errEl.textContent = 'Config incompleto — verifique se copiou tudo do Firebase Console.';
-    errEl.style.display = 'block'; return;
-  }
-  localStorage.setItem('firebase_staging_config', raw);
-  status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
-  status.textContent = '✅ Staging configurado: ' + cfg.projectId + ' — Recarregue a página para conectar.';
-  setTimeout(() => {
-    document.getElementById('staging-setup-modal').style.display = 'none';
-    location.reload();
-  }, 2000);
-}
-
-function limparStagingSetup() {
-  if (!confirm('Remover configuração de staging? O sistema voltará a usar o banco de produção.')) return;
-  localStorage.removeItem('firebase_staging_config');
-  document.getElementById('staging-setup-input').value = '';
-  const status = document.getElementById('staging-setup-status');
-  if (status) { status.style.cssText = 'display:block;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#c0392b;'; status.textContent = '🗑 Config removido — Recarregando...'; }
-  setTimeout(() => location.reload(), 1500);
-}
-
-// Show staging config button only in staging environment OR if URL contains 'staging'
-(function checkShowStagingBtn() {
-  const btn = document.getElementById('btn-configurar-staging');
-  if (!btn) return;
-  const isStaging = window.location.href.includes('/staging') || IS_STAGING_BUILD;
-  if (isStaging) btn.style.display = 'inline';
-})();
-
-</script>
-</body>
-</html>
+  const status = document.getElementById('staging-setup-status'
