@@ -279,8 +279,6 @@ tbody tr:hover{background:var(--surface2);}
       <div id="btn-configurar-staging-wrap" style="display:none;margin-top:14px;border-top:1px dashed var(--border);padding-top:12px;">
         <button id="btn-configurar-staging" onclick="abrirConfigurarStaging(event)" style="width:100%;background:linear-gradient(135deg,#0f4a28,#1a6b3a);border:none;color:#5ecb8a;border-radius:8px;padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">⚙ Configurar Staging</button>
       </div>
-      <div style="display:none"><!-- placeholder fechamento corrigido --
-      </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
   </div>
@@ -1042,6 +1040,34 @@ function setCfg(key, val) {
   try { localStorage.setItem(key, val); } catch(e) {}
 }
 
+// IDs dos projetos Firebase — nunca cruzar
+const PROD_PROJECT_ID    = 'verificador-lacre';
+const STAGING_PROJECT_ID = 'verificador-lacre-staging';
+
+function _isUrlStaging() {
+  return window.location.href.includes('/staging');
+}
+
+// ── Helpers de ambiente — definidos cedo para uso em todo o script ──
+function isProduction() {
+  if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return false;
+  if (_isUrlStaging()) return false;
+  try {
+    const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
+    if (s.apiKey && s.projectId === STAGING_PROJECT_ID) return false;
+  } catch(_) {}
+  return true;
+}
+function isStagingConfigured() {
+  if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return true;
+  try { return !!(JSON.parse(localStorage.getItem('firebase_staging_config') || '{}').apiKey); } catch(_) { return false; }
+}
+// Filtra dados de teste (_testData:true) de snapshots — nunca aparecem em produção
+function filtrarDadosReais(docs) {
+  if (!isProduction()) return docs;
+  return docs.filter(d => !d.data()._testData);
+}
+
 let db = null, auth = null;
 
 let storage = null;
@@ -1058,51 +1084,66 @@ const STAGING_FIREBASE_CONFIG = null;
 
 function initFirebase() {
   try {
+    // ── Detectar ambiente ────────────────────────────────────────
+    const urlIsStaging = _isUrlStaging();
     let chosen = null;
 
-    const urlIsStaging = window.location.href.includes('/staging');
-
-    if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
-      // Staging via código (arquivo da pasta staging/ com config hardcoded)
-      chosen = STAGING_FIREBASE_CONFIG;
-    } else if (urlIsStaging) {
-      // Ambiente de staging detectado pela URL — NUNCA usar banco de produção
-      // Só conecta se houver config de staging configurada no localStorage
-      try {
-        const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
-        if (s.apiKey) chosen = s;
-      } catch(_) {}
-      // Sem config → não conecta, exibe aviso para configurar
-      if (!chosen) {
-        console.warn('Staging: nenhuma configuração encontrada. Configure via botão ⚙ Staging.');
-        return; // sai sem conectar — impede fallback para produção
+    if (urlIsStaging || (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG)) {
+      // ── STAGING ─────────────────────────────────────────────────
+      // 1) Config hardcoded no build (arquivo staging/)
+      if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
+        chosen = STAGING_FIREBASE_CONFIG;
+      } else {
+        // 2) Config salva no localStorage pelo modal ⚙ Configurar Staging
+        try {
+          const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
+          if (s.apiKey && s.projectId === STAGING_PROJECT_ID) chosen = s;
+        } catch(_) {}
       }
-    } else if (!urlIsStaging) {
-      // Produção: NUNCA usar config de staging — lê config customizado ou usa config fixa de produção
-      // Garantia extra: ignora qualquer chave de staging no localStorage
+      // Validação final: config deve ser do projeto staging
+      if (!chosen || chosen.projectId !== STAGING_PROJECT_ID) {
+        console.warn('[STAGING] Nenhuma configuração válida encontrada. Configure via ⚙ Staging.');
+        // Exibir aviso na tela de login
+        document.addEventListener('DOMContentLoaded', () => {
+          const wrap = document.getElementById('btn-configurar-staging-wrap');
+          if (wrap) wrap.style.display = 'block';
+          showTopAlert('⚙ Ambiente de Staging — configure o Firebase para continuar.', 'warning');
+        });
+        return; // NUNCA faz fallback para produção
+      }
+    } else {
+      // ── PRODUÇÃO ─────────────────────────────────────────────────
+      // Jamais lê firebase_staging_config; ignora qualquer config que aponte para staging
       try {
         const c = JSON.parse(localStorage.getItem('firebase_config') || '{}');
-        if (c.apiKey && c.projectId !== 'verificador-lacre-staging') chosen = c;
+        if (c.apiKey && c.projectId === PROD_PROJECT_ID) chosen = c;
       } catch(_) {}
-    }
-    // urlIsStaging sem config → chosen continua null → sai sem conectar (return acima já cobre)
 
-    if (!chosen && !urlIsStaging) chosen = {
-      apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
-      authDomain: "verificador-lacre.firebaseapp.com",
-      projectId: "verificador-lacre",
-      storageBucket: "verificador-lacre.firebasestorage.app",
-      messagingSenderId: "868626072222",
-      appId: "1:868626072222:web:b26599efa525476522b18f"
-    };
-    // Reusar app se já inicializado com mesmo projeto
+      // Config fixa de produção como fallback final
+      if (!chosen) chosen = {
+        apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
+        authDomain: "verificador-lacre.firebaseapp.com",
+        projectId: PROD_PROJECT_ID,
+        storageBucket: "verificador-lacre.firebasestorage.app",
+        messagingSenderId: "868626072222",
+        appId: "1:868626072222:web:b26599efa525476522b18f"
+      };
+
+      // Dupla verificação: nunca conectar em staging a partir de produção
+      if (chosen.projectId !== PROD_PROJECT_ID) {
+        console.error('[PROD] Config inválida — projectId não bate. Abortando.');
+        return;
+      }
+    }
+
+    // ── Inicializar Firebase ─────────────────────────────────────
     if (firebase.apps.length > 0 && firebase.apps[0].options.projectId === chosen.projectId) {
       db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage();
       return;
     }
     if (!firebase.apps.length) firebase.initializeApp(chosen);
     db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage();
-    console.log('Firebase:', chosen.projectId);
+    console.log('[Firebase] Conectado:', chosen.projectId);
   } catch(e) {
     // Só mostrar banner se não for erro de app duplicado
     if (!e.message.includes('already exists') && !e.message.includes('duplicate')) {
@@ -1887,7 +1928,7 @@ async function verificarDestino(resultDestino) {
       db.collection('processos').where('placa','==',placaDest).where('status','==','aguardando_confirmacao').orderBy('registradoEm','desc').limit(1).get(),
       db.collection('processos').where('placa','==',placaDest).where('status','==','aguardando_confirmacao_desvio').orderBy('registradoEm','desc').limit(1).get()
     ]);
-    const allSnap = [...s1.docs,...s2.docs,...s3.docs].sort((a,b)=>(b.data().registradoEm?.seconds||0)-(a.data().registradoEm?.seconds||0));
+    const allSnap = filtrarDadosReais([...s1.docs,...s2.docs,...s3.docs]).sort((a,b)=>(b.data().registradoEm?.seconds||0)-(a.data().registradoEm?.seconds||0));
     const snap = { docs: allSnap, empty: allSnap.length === 0 };
     if (snap.empty) {
       box.className = 'status-box error show';
@@ -2733,7 +2774,7 @@ async function loadProcessos() {
       db.collection('processos').where('status','==','aguardando_confirmacao').get(),
       db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get()
     ]);
-    const allDocs = [...snapAberto.docs, ...snapConfOk.docs, ...snapConfDesvio.docs]
+    const allDocs = filtrarDadosReais([...snapAberto.docs, ...snapConfOk.docs, ...snapConfDesvio.docs])
       .sort((a,b) => (b.data().registradoEm?.seconds||0) - (a.data().registradoEm?.seconds||0));
     const snap = { docs: allDocs, empty: allDocs.length === 0 };
     const tbody = document.getElementById('processos-tbody');
@@ -2902,7 +2943,7 @@ async function loadHistorico() {
       db.collection('processos').where('status','==','encerrado').get(),
       db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
-    const allEncDocs = [...snapEnc.docs,...snapManual.docs]
+    const allEncDocs = filtrarDadosReais([...snapEnc.docs,...snapManual.docs])
       .sort((a,b)=>{
         const ta = b.data().encerradoEm?.seconds || b.data().registradoEm?.seconds || 0;
         const tb = a.data().encerradoEm?.seconds || a.data().registradoEm?.seconds || 0;
@@ -3369,7 +3410,7 @@ async function exportarCSV() {
       db.collection('processos').where('status','==','encerrado').get(),
       db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
-    const docs = [...snapEnc.docs, ...snapManual.docs]
+    const docs = filtrarDadosReais([...snapEnc.docs, ...snapManual.docs])
       .sort((a,b)=>(b.data().encerradoEm?.seconds||b.data().registradoEm?.seconds||0)-(a.data().encerradoEm?.seconds||a.data().registradoEm?.seconds||0));
 
     if (!docs.length) {
@@ -3460,7 +3501,11 @@ async function loadDashboard() {
       db.collection('processos').where('status','==','encerrado').get(),
       db.collection('processos').where('status','==','encerrado_manual').get()
     ]);
-    const todosEnc = [...sEnc.docs,...sEncManual.docs];
+    // Filtrar dados de teste — nunca devem aparecer em produção
+    const todosEnc = filtrarDadosReais([...sEnc.docs,...sEncManual.docs]);
+    const _s1size = filtrarDadosReais(s1.docs).length;
+    const _s2size = filtrarDadosReais(s2.docs).length;
+    const _s3size = filtrarDadosReais(s3.docs).length;
     const encPeriodo = todosEnc.filter(d=>{
       const ts = d.data().timestamp||'';
       return ts >= inicioPeriodo && ts <= fimPeriodo;
@@ -3468,8 +3513,8 @@ async function loadDashboard() {
     const desviosPeriodo = encPeriodo.filter(d=>d.data().resultado==='desvio').length;
     const pct = encPeriodo.length > 0 ? ((desviosPeriodo/encPeriodo.length)*100).toFixed(1) : '0.0';
 
-    document.getElementById('dash-abertos').textContent = s1.size;
-    const pendentes = s2.size + s3.size;
+    document.getElementById('dash-abertos').textContent = _s1size;
+    const pendentes = _s2size + _s3size;
     document.getElementById('dash-pendentes').textContent = pendentes;
     // Pulse the Processos tab when there are pending confirmations
     document.querySelectorAll('.admin-tab').forEach(t => {
@@ -3528,7 +3573,7 @@ async function checkProcessosExpirados() {
       db.collection('processos').where('status','==','aguardando_confirmacao').get(),
       db.collection('processos').where('status','==','aguardando_confirmacao_desvio').get()
     ]);
-    const snap = { docs: [...s1.docs,...s2.docs,...s3.docs] };
+    const snap = { docs: filtrarDadosReais([...s1.docs,...s2.docs,...s3.docs]) };
     for (const doc of snap.docs) {
       const d = doc.data();
       if (d.timestamp < limite && !d.alertaExpirado) {
@@ -3583,6 +3628,7 @@ async function limparFotosAntigas() {
     const snap = await db.collection('processos')
       .where('status', 'in', ['encerrado', 'encerrado_manual'])
       .get();
+    // Nunca deletar fotos de dados de teste — eles têm seu próprio ciclo de vida
 
     let deletados = 0;
     for (const doc of snap.docs) {
@@ -4508,8 +4554,7 @@ async function removerPerfilCustomizado(id,nome){
 
 // ── STAGING / DEPLOY / CHANGELOG / CHECKLIST ─────────────────
 const PRODUCTION_PROJECT_ID='verificador-lacre';
-function isProduction(){try{const c=JSON.parse(getCfg('firebase_staging_config','{}'));if(c.apiKey)return false;}catch(_){}if(IS_STAGING_BUILD&&STAGING_FIREBASE_CONFIG)return false;return true;}
-function isStagingConfigured(){try{return!!(JSON.parse(getCfg('firebase_staging_config','{}')).apiKey)||(IS_STAGING_BUILD&&!!STAGING_FIREBASE_CONFIG);}catch(_){return false;}}
+// isProduction, isStagingConfigured, filtrarDadosReais definidas junto às constantes do Firebase (início do script)
 function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
@@ -4852,4 +4897,52 @@ function jsToJson(raw) {
 function salvarStagingSetup() {
   let raw = document.getElementById('staging-setup-input').value.trim();
   const errEl = document.getElementById('staging-setup-err');
-  const status = document.getElementById('staging-setup-status'
+  const status = document.getElementById('staging-setup-status');
+  errEl.style.display = 'none';
+  if (!raw) { errEl.textContent = 'Cole o config do Firebase antes de salvar.'; errEl.style.display = 'block'; return; }
+  // Auto-convert JS format to JSON
+  try { JSON.parse(raw); } catch(e) {
+    try { raw = jsToJson(raw); JSON.parse(raw); }
+    catch(e2) { errEl.textContent = 'Formato inválido: ' + e2.message; errEl.style.display = 'block'; return; }
+  }
+  const cfg = JSON.parse(raw);
+  if (!cfg.apiKey || !cfg.projectId) {
+    errEl.textContent = 'Config incompleto — verifique se copiou tudo do Firebase Console.';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem('firebase_staging_config', raw);
+  status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
+  status.textContent = '✅ Staging configurado: ' + cfg.projectId + ' — Recarregue a página para conectar.';
+  setTimeout(() => {
+    document.getElementById('staging-setup-modal').style.display = 'none';
+    location.reload();
+  }, 2000);
+}
+
+function limparStagingSetup() {
+  if (!confirm('Remover configuração de staging? O sistema voltará a usar o banco de produção.')) return;
+  localStorage.removeItem('firebase_staging_config');
+  document.getElementById('staging-setup-input').value = '';
+  const status = document.getElementById('staging-setup-status');
+  if (status) { status.style.cssText = 'display:block;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#c0392b;'; status.textContent = '🗑 Config removido — Recarregando...'; }
+  setTimeout(() => location.reload(), 1500);
+}
+
+// Show staging config button only in staging environment OR if URL contains 'staging'
+(function checkShowStagingBtn() {
+  function _show() {
+    const isStaging = window.location.href.includes('/staging') || IS_STAGING_BUILD;
+    if (!isStaging) return;
+    const wrap = document.getElementById('btn-configurar-staging-wrap');
+    if (wrap) wrap.style.display = 'block';
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _show);
+  } else {
+    _show();
+  }
+})();
+
+</script>
+</body>
+</html>
