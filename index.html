@@ -3031,6 +3031,22 @@ async function encerrarProcessoManual(id, lacreNum) {
   }
 }
 
+// ── LIMPAR PROCESSOS DE TESTE ─────────────────────────────
+async function limparProcessosTeste() {
+  if (!db) return;
+  if (!confirm('Remover todos os processos marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
+  try {
+    const snap = await db.collection('processos').where('_testData','==',true).get();
+    if (snap.empty) { showTopAlert('Nenhum processo de teste encontrado.', 'ok'); return; }
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    showTopAlert(`✅ ${snap.size} processos de teste removidos`, 'ok');
+    await registrarLog('limpar_testes', `${snap.size} processos de teste removidos`);
+    loadProcessos();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
 async function loadEmails() {
   if (!db) return;
   try {
