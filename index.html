@@ -799,6 +799,7 @@ tbody tr:hover{background:var(--surface2);}
                 <option value="operacional">Operacional (somente abertura/fechamento de processos)</option>
                 <option value="operador">Operador (Dashboard + Lacres, Placas, Processos, Histórico)</option>
                 <option value="admin">Administrador (Acesso total)</option>
+                <option value="developer">Developer (Acesso total + Painel de Deploy)</option>
               </select>
             </div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:12px;" onclick="criarUsuario()">+ Criar Usuário</button>
@@ -2283,7 +2284,7 @@ async function criarUsuario() {
   if (senha.length < 6) { alert('Senha deve ter no mínimo 6 caracteres.'); return; }
   
   // Apenas admin pode criar outros admins
-  if (perfil === 'admin' && currentUserRole !== 'admin') {
+  if ((perfil === 'admin' || perfil === 'developer') && currentUserRole !== 'admin' && currentUserRole !== 'developer') {
     alert('Apenas administradores podem criar usuários com perfil Admin.');
     return;
   }
@@ -4039,6 +4040,19 @@ function renderFornecedores(lista) {
       <td>${btns}</td>
     </tr>`;
   }).join('');
+}
+
+
+// ── ATUALIZAR SELECT DE PERFIS ────────────────────────────
+async function atualizarSelectPerfis() {
+  const select = document.getElementById('novo-user-perfil');
+  if (!select) return;
+  const isAdmin = currentUserRole === 'admin' || currentUserRole === 'developer';
+  // Garante que Developer só aparece para admin
+  const devOpt = select.querySelector('option[value="developer"]');
+  if (devOpt) devOpt.style.display = isAdmin ? '' : 'none';
+  const adminOpt = select.querySelector('option[value="admin"]');
+  if (adminOpt) adminOpt.style.display = isAdmin ? '' : 'none';
 }
 
 // ── LIMPAR PROCESSOS DE TESTE ─────────────────────────────
