@@ -3666,7 +3666,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r18';
+    const BUILD_HASH = 'v20260322-r19';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -4133,7 +4133,7 @@ function loadDeployPanel() {
   const envInfo = document.getElementById('deploy-env-info');
   const isProd = isProduction();
   const isStagingCfg = isStagingConfigured();
-  const buildHash = 'v20260322-r18';
+  const buildHash = 'v20260322-r19';
   if (envInfo) {
     envInfo.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px;">
@@ -4413,7 +4413,7 @@ function atualizarChecklist(mostrarResultado = false) {
 // ── CHANGELOG ────────────────────────────────────────────
 const CHANGELOG = [
   {
-    version: 'v20260322-r18',
+    version: 'v20260322-r19',
     data: '22/03/2026',
     novidades: [
       'Perfil Developer com aba de Deploy',
@@ -5433,18 +5433,8 @@ function verDetalhesChamado(id) {
           <input type="email" id="sup-email" placeholder="SEU@EMAIL.COM" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-email')">
           <small id="sup-email-err" style="color:var(--danger);font-size:11px;display:none;">Informe um e-mail válido</small>
         </div>
-        <!-- Perfil -->
-        <div class="input-group">
-          <label>Seu perfil no sistema <span style="color:var(--danger);">*</span></label>
-          <select id="sup-perfil" style="font-size:14px;letter-spacing:0;text-transform:none;" onchange="limparErroCampo('sup-perfil')">
-            <option value="">— Selecione seu perfil —</option>
-            <option value="operacional">Operacional</option>
-            <option value="operador">Operador</option>
-            <option value="admin">Administrador</option>
-            <option value="developer">Developer</option>
-          </select>
-          <small id="sup-perfil-err" style="color:var(--danger);font-size:11px;display:none;">Selecione seu perfil</small>
-        </div>
+        <!-- Perfil: campo oculto, preenchido automaticamente pelo sistema -->
+        <input type="hidden" id="sup-perfil" value="">
         <!-- Prioridade -->
         <div class="input-group">
           <label>Prioridade <span style="color:var(--danger);">*</span></label>
@@ -5542,9 +5532,6 @@ async function abrirSuporte(evt) {
   // Detectar ambiente automaticamente
   const ambienteEl = document.getElementById('sup-ambiente');
   if (ambienteEl) ambienteEl.value = isProduction() ? 'producao' : 'staging';
-
-  // Popular lista de perfis customizados
-  await popularPerfilsSuporte();
 
   // Resetar estado
   document.getElementById('suporte-sucesso').style.display = 'none';
@@ -5679,7 +5666,6 @@ async function enviarSuporte() {
     { id:'sup-nome',       label:'Nome' },
     { id:'sup-tel',        label:'Telefone' },
     { id:'sup-email',      label:'E-mail' },
-    { id:'sup-perfil',     label:'Perfil' },
     { id:'sup-prioridade', label:'Prioridade' },
     { id:'sup-assunto',    label:'Assunto' },
     { id:'sup-descricao',  label:'Descrição' },
@@ -5725,6 +5711,18 @@ async function enviarSuporte() {
     temAnexo:   !!_supAnexoBase64,
     anexoNome:  _supAnexoNome || null,
   };
+
+  // Buscar perfil do usuário pelo e-mail no Firestore
+  try {
+    if (db) {
+      const usersSnap = await db.collection('usuarios').where('email','==', dados.email).limit(1).get();
+      if (!usersSnap.empty) {
+        dados.perfil = usersSnap.docs[0].data().perfil || 'desconhecido';
+      } else {
+        dados.perfil = 'não encontrado no sistema';
+      }
+    }
+  } catch(e) { dados.perfil = 'erro ao buscar'; }
 
   try {
     // Salvar no Firestore
@@ -5774,7 +5772,7 @@ async function enviarSuporte() {
     try {
       if (svc && tpl) {
         await emailjs.send(svc, tpl, {
-          to_email: 'rodrigo.santos16@gerdau.com.br',
+          to_email: 'desenvolvedorcs@outlook.com',
           subject: `[SUPORTE ${(prioridades[dados.prioridade]||dados.prioridade).toUpperCase()}] ${dados.assunto}`,
           message: `Nova solicitação de ${dados.nome} (${dados.email}) — ${dados.assunto}`,
           body_html: corpo
