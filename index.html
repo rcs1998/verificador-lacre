@@ -1043,16 +1043,18 @@ const STAGING_FIREBASE_CONFIG = null;
 
 function initFirebase() {
   try {
-    // Staging (hardcoded flag) > staging localStorage > produção localStorage > config fixa
     let chosen = null;
-    if (typeof IS_STAGING_BUILD !== 'undefined' && IS_STAGING_BUILD && typeof STAGING_FIREBASE_CONFIG !== 'undefined' && STAGING_FIREBASE_CONFIG) {
+
+    if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
+      // Modo staging hardcoded — usa config do código
       chosen = STAGING_FIREBASE_CONFIG;
     } else {
-      try { const s = JSON.parse(getCfg('firebase_staging_config','{}')); if (s.apiKey) chosen = s; } catch(_) {}
-    }
-    if (!chosen) {
+      // Modo produção — limpa staging config do localStorage se existir
+      // (evita conectar no banco errado após uma sessão de testes)
+      localStorage.removeItem('firebase_staging_config');
       try { const c = JSON.parse(getCfg('firebase_config','{}')); if (c.apiKey) chosen = c; } catch(_) {}
     }
+
     if (!chosen) chosen = {
       apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
       authDomain: "verificador-lacre.firebaseapp.com",
@@ -3622,7 +3624,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r22';
+    const BUILD_HASH = 'v20260322-r23';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -4477,7 +4479,7 @@ function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
-  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v20260322-r22</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
+  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v20260322-r23</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
   const warn=document.getElementById('staging-env-warning');if(warn)warn.style.display=isProd?'block':'none';
 }
 function jsConfigToJson(raw){return raw.replace(/\/\/.*/g,'').replace(/,\s*\}/g,'}').replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g,'$1"$2":');}
@@ -4526,7 +4528,7 @@ function atualizarChecklist(show=false){
   r.style.cssText=checked===total?'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);':'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
   r.innerHTML=checked===total?'✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar. Lembre de atualizar o BUILD_HASH!</span>':`⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
 }
-const CHANGELOG=[{version:'v20260322-r22',data:'22/03/2026',novidades:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial de chamado','Perfil detectado automaticamente pelo e-mail','Banner de feedback persistente — erros não somem sozinhos','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy'],correcoes:['Correção crítica: funções JS não executavam (bloco corrompido)','Duplicatas de botão Suporte removidas','Erro de initFirebase ao sair resolvido']},{version:'v20260320-r14',data:'20/03/2026',novidades:['Painel de staging','Checklist pré-deploy','Changelog de versões'],correcoes:['Timeout padrão 2h','E-mail só em desvios']},{version:'v20260319-r13',data:'19/03/2026',novidades:['Inativar/reativar lacres, placas, usuários','Aba Logs','Fornecedores: editar, inativar, reativar'],correcoes:[]}];
+const CHANGELOG=[{version:'v20260322-r23',data:'22/03/2026',novidades:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial de chamado','Perfil detectado automaticamente pelo e-mail','Banner de feedback persistente — erros não somem sozinhos','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy'],correcoes:['Correção crítica: funções JS não executavam (bloco corrompido)','Duplicatas de botão Suporte removidas','Erro de initFirebase ao sair resolvido']},{version:'v20260320-r14',data:'20/03/2026',novidades:['Painel de staging','Checklist pré-deploy','Changelog de versões'],correcoes:['Timeout padrão 2h','E-mail só em desvios']},{version:'v20260319-r13',data:'19/03/2026',novidades:['Inativar/reativar lacres, placas, usuários','Aba Logs','Fornecedores: editar, inativar, reativar'],correcoes:[]}];
 function verChangelog(){
   let m=document.getElementById('changelog-modal');if(!m){m=document.createElement('div');m.id='changelog-modal';document.body.appendChild(m);}
   m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
