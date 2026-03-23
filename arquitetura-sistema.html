@@ -99,6 +99,7 @@
   <button class="tab" onclick="showSection('seguranca')">Segurança</button>
   <button class="tab" onclick="showSection('fluxo')">Fluxo Operacional</button>
   <button class="tab" onclick="showSection('perfis')">Perfis & Acessos</button>
+  <button class="tab" onclick="showSection('suporte')">Suporte</button>
   <button class="tab" onclick="showSection('infra')">Infraestrutura</button>
 </div>
 <div class="content">
@@ -108,8 +109,8 @@
   <div class="section-title">Visão Geral do Sistema</div>
   <div class="section-sub">Plataforma de controle e rastreabilidade de lacres de segurança para transporte de cargas</div>
   <div class="stat-grid">
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Perfis de Acesso</div></div>
-    <div class="stat"><div class="stat-num">8</div><div class="stat-label">Coleções no Firestore</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Perfis de Acesso</div></div>
+    <div class="stat"><div class="stat-num">9</div><div class="stat-label">Coleções no Firestore</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">Servidores Próprios</div></div>
     <div class="stat"><div class="stat-num">2h</div><div class="stat-label">Timeout de Sessão</div></div>
   </div>
@@ -127,8 +128,8 @@
   </div>
   <div class="divider"></div>
   <div class="grid-2">
-    <div class="card" style="--accent:var(--green);"><div class="card-title">✅ O que o sistema faz</div><div class="card-body" style="line-height:2;">• Registro fotográfico do lacre na origem com análise por IA<br>• Validação de placa, lacre e NF antes de cada saída<br>• Verificação de integridade do lacre no destino<br>• Detecção automática de desvios (lacre trocado ou violado)<br>• <strong style="color:#fff;">Notificação por e-mail apenas em desvios</strong> (economia de cota)<br>• Geolocalização com reverse geocoding em cada registro<br>• Histórico imutável de auditoria (logs indeléveis)<br>• Exportação de processos em CSV com 21 campos</div></div>
-    <div class="card" style="--accent:var(--yellow);"><div class="card-title">🏗 Decisões de Arquitetura</div><div class="card-body" style="line-height:2;">• <strong style="color:#fff;">Sem servidor próprio</strong> — zero custo de infraestrutura<br>• <strong style="color:#fff;">Single HTML file</strong> — deploy simples via GitHub, sem build<br>• <strong style="color:#fff;">Offline-first</strong> — operação contínua sem internet por 7 dias<br>• <strong style="color:#fff;">Firestore real-time</strong> — dados sincronizados entre todos dispositivos<br>• <strong style="color:#fff;">PWA instalável</strong> — experiência nativa sem App Store<br>• <strong style="color:#fff;">Logs imutáveis</strong> — auditoria à prova de manipulação<br>• <strong style="color:#fff;">IA com fallback manual</strong> — processo nunca trava por falha da IA<br>• <strong style="color:#fff;">Timeout de sessão: 2h</strong> por inatividade (configurável)</div></div>
+    <div class="card" style="--accent:var(--green);"><div class="card-title">✅ O que o sistema faz</div><div class="card-body" style="line-height:2;">• Registro fotográfico do lacre na origem com análise por IA<br>• Validação de placa, lacre e NF antes de cada saída<br>• Verificação de integridade do lacre no destino<br>• Detecção automática de desvios (lacre trocado ou violado)<br>• <strong style="color:#fff;">Notificação por e-mail apenas em desvios</strong> (economia de cota)<br>• Geolocalização com reverse geocoding em cada registro<br>• Histórico imutável de auditoria (logs indeléveis)<br>• Exportação de processos em CSV com 21 campos<br>• <strong style="color:#fff;">Sistema de suporte com tickets SUP-AANNNN</strong></div></div>
+    <div class="card" style="--accent:var(--yellow);"><div class="card-title">🏗 Decisões de Arquitetura</div><div class="card-body" style="line-height:2;">• <strong style="color:#fff;">Sem servidor próprio</strong> — zero custo de infraestrutura<br>• <strong style="color:#fff;">Single HTML file</strong> — deploy simples via GitHub, sem build<br>• <strong style="color:#fff;">Offline-first</strong> — operação contínua sem internet por 7 dias<br>• <strong style="color:#fff;">Firestore real-time</strong> — dados sincronizados entre todos dispositivos<br>• <strong style="color:#fff;">PWA instalável</strong> — experiência nativa sem App Store<br>• <strong style="color:#fff;">Logs imutáveis</strong> — auditoria à prova de manipulação<br>• <strong style="color:#fff;">IA com fallback manual</strong> — processo nunca trava por falha da IA<br>• <strong style="color:#fff;">Timeout de sessão: 2h</strong> por inatividade (configurável)<br>• <strong style="color:#fff;">Ambiente staging</strong> separado do produção no mesmo device</div></div>
   </div>
 </div>
 
@@ -147,7 +148,8 @@
       <div class="collection"><div class="collection-header"><span class="collection-icon">👤</span><div class="collection-name">USUÁRIOS</div></div><div class="collection-fields"><span class="field key">uid</span><span class="field">email</span><span class="field">perfil</span><span class="field">nome</span><span class="field">empresa</span><span class="field">inativo</span><span class="field">criadoEm</span></div></div>
       <div class="collection"><div class="collection-header"><span class="collection-icon">📋</span><div class="collection-name">LOGS</div><div class="collection-desc">Auditoria imutável</div></div><div class="collection-fields"><span class="field">acao</span><span class="field">detalhe</span><span class="field">usuario</span><span class="field">timestamp</span></div><div style="padding:0 18px 14px;"><span class="tag tag-red">update: NEGADO</span><span class="tag tag-red">delete: NEGADO</span></div></div>
       <div class="collection"><div class="collection-header"><span class="collection-icon">📧</span><div class="collection-name">EMAILS</div><div class="collection-desc">Destinatários — alertas de desvio</div></div><div class="collection-fields"><span class="field">email</span><span class="field">adicionadoEm</span></div></div>
-      <div class="collection"><div class="collection-header"><span class="collection-icon">⚙️</span><div class="collection-name">CONFIG</div></div><div class="collection-fields"><span class="field key">config/app</span><span class="field key">config/gemini</span><span class="field key">config/permissoes</span><span class="field key">config/perfis-customizados</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">⚙️</span><div class="collection-name">CONFIG</div></div><div class="collection-fields"><span class="field key">config/app</span><span class="field key">config/gemini</span><span class="field key">config/permissoes</span><span class="field key">config/perfis-customizados</span><span class="field key">config/suporte-contador</span></div></div>
+      <div class="collection"><div class="collection-header"><span class="collection-icon">🎧</span><div class="collection-name">SUPORTE</div><div class="collection-desc">Chamados — tickets SUP-AANNNN</div></div><div class="collection-fields"><span class="field key">numeroChamado</span><span class="field">nome</span><span class="field">telefone</span><span class="field">email</span><span class="field">perfil</span><span class="field">prioridade</span><span class="field">assunto</span><span class="field">descricao</span><span class="field">dataHoraAbertura</span><span class="field">status</span><span class="field">temAnexo</span><span class="field">anexoNome</span></div></div>
       <div class="alert-box" style="margin-top:16px;">📧 <strong>Política de e-mail:</strong> notificações enviadas exclusivamente em caso de <strong>desvio detectado</strong> (lacre divergente ou violado). Saídas e chegadas normais não geram e-mail — conserva a cota de 200 e-mails/mês do EmailJS.</div>
       <div class="card" style="--accent:var(--teal);"><div class="card-title">📁 Firebase Storage</div><div class="card-body">Fotos em <code style="color:var(--yellow);">processos/{id}/origem_*.jpg</code> e <code style="color:var(--yellow);">destino_*.jpg</code>. Limpeza automática após <strong style="color:#fff;">5 meses</strong>. URLs salvas no documento do processo.</div></div>
     </div>
@@ -196,25 +198,91 @@
 <div class="section" id="section-perfis">
   <div class="section-title">Perfis & Controle de Acesso</div>
   <div class="section-sub">Sistema hierárquico com permissões configuráveis via painel Admin</div>
-  <div class="grid-3" style="margin-bottom:28px;">
+  <div class="grid-4" style="margin-bottom:28px;">
     <div class="card" style="--accent:var(--green);"><span class="card-icon">👷</span><div class="card-title">OPERACIONAL</div><div class="card-body" style="line-height:2;">Acesso exclusivo ao app.<br>• Câmera + leitura de lacres<br>• Registro de saída na origem<br>• Verificação de chegada no destino<br>• NF / fornecedor<br><br>❌ Sem acesso ao painel Admin</div></div>
     <div class="card" style="--accent:var(--blue);"><span class="card-icon">🔧</span><div class="card-title">OPERADOR</div><div class="card-body" style="line-height:2;">App + painel Admin com abas configuráveis.<br>• Padrão: Lacres, Placas, Processos, Histórico<br>• Admin pode adicionar/remover abas<br>• Pode criar usuários Operacional e Operador<br><br>❌ Não cria perfil Admin</div></div>
     <div class="card" style="--accent:var(--yellow);"><span class="card-icon">👑</span><div class="card-title">ADMIN</div><div class="card-body" style="line-height:2;">Acesso total a todas as abas.<br>• Gerencia perfis e permissões<br>• Cria perfis customizados<br>• Config avançada (Gemini, EmailJS, Firebase)<br>• Único que pode criar outros Admins</div></div>
+    <div class="card" style="--accent:var(--purple);"><span class="card-icon">💻</span><div class="card-title">DEVELOPER</div><div class="card-body" style="line-height:2;">Acesso total + painel técnico.<br>• Tudo do Admin<br>• Painel de Deploy<br>• Config ambiente Staging<br>• Gerador de dados de teste<br>• Checklist pré-deploy</div></div>
   </div>
   <table class="matrix">
-    <thead><tr><th>FUNCIONALIDADE</th><th>OPERACIONAL</th><th>OPERADOR</th><th>ADMIN</th></tr></thead>
+    <thead><tr><th>FUNCIONALIDADE</th><th>OPERACIONAL</th><th>OPERADOR</th><th>ADMIN</th><th>DEVELOPER</th></tr></thead>
     <tbody>
-      <tr><td>App — Câmera e leitura de lacres</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
-      <tr><td>App — Registrar saída / verificar chegada</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
-      <tr><td>Painel Admin — Dashboard KPIs</td><td class="cross">—</td><td class="check">✅</td><td class="check">✅</td></tr>
-      <tr><td>Lacres, Placas, Processos, Histórico</td><td class="cross">—</td><td class="check">✅ configurável</td><td class="check">✅</td></tr>
-      <tr><td>Fornecedores, E-mails, Logs</td><td class="cross">—</td><td class="check">✅ configurável</td><td class="check">✅</td></tr>
-      <tr><td>Aba Perfis (configurar permissões)</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
-      <tr><td>Aba Usuários (criar, inativar, editar)</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
-      <tr><td>Config Avançada (Gemini, Firebase)</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
-      <tr><td>Criar usuário Admin / criar perfis</td><td class="cross">—</td><td class="cross">—</td><td class="check admin-only">✅ ADMIN</td></tr>
+      <tr><td>App — Câmera e leitura de lacres</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>App — Registrar saída / verificar chegada</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>Painel Admin — Dashboard KPIs</td><td class="cross">—</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>Lacres, Placas, Processos, Histórico</td><td class="cross">—</td><td class="check">✅ configurável</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>Fornecedores, E-mails, Logs</td><td class="cross">—</td><td class="check">✅ configurável</td><td class="check">✅</td><td class="check">✅</td></tr>
+      <tr><td>Aba Perfis (configurar permissões)</td><td class="cross">—</td><td class="cross">—</td><td class="admin-only">✅ ADMIN</td><td class="check">✅</td></tr>
+      <tr><td>Aba Usuários (criar, inativar, editar)</td><td class="cross">—</td><td class="cross">—</td><td class="admin-only">✅ ADMIN</td><td class="check">✅</td></tr>
+      <tr><td>Config Avançada (Gemini, Firebase)</td><td class="cross">—</td><td class="cross">—</td><td class="admin-only">✅ ADMIN</td><td class="check">✅</td></tr>
+      <tr><td>Criar usuário Admin / criar perfis</td><td class="cross">—</td><td class="cross">—</td><td class="admin-only">✅ ADMIN</td><td class="check">✅</td></tr>
+      <tr><td>Painel Deploy + Staging + Dados de teste</td><td class="cross">—</td><td class="cross">—</td><td class="cross">—</td><td style="color:#c084fc;font-size:11px;font-weight:700;">✅ DEVELOPER</td></tr>
     </tbody>
   </table>
+</div>
+
+<!-- SUPORTE -->
+<div class="section" id="section-suporte">
+  <div class="section-title">Sistema de Suporte</div>
+  <div class="section-sub">Canal de atendimento integrado — tickets SUP-AANNNN gerados diretamente no app</div>
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card" style="--accent:var(--teal);">
+      <div class="card-title">🎧 Fluxo do Chamado</div>
+      <div class="card-body" style="line-height:2;">
+        • Botão flutuante <strong style="color:#fff;">🎧 Suporte</strong> visível em todas as telas<br>
+        • Campos: nome, telefone, e-mail, prioridade, assunto, descrição<br>
+        • Perfil detectado automaticamente pelo e-mail do usuário<br>
+        • Prioridade Urgente exige anexo obrigatório (foto/arquivo)<br>
+        • Número gerado via transação atômica no Firestore<br>
+        • Chamado salvo em <code style="color:var(--yellow);">suporte/{numeroChamado}</code><br>
+        • Anexo salvo em <code style="color:var(--yellow);">suporte/{numeroChamado}/{arquivo}</code><br>
+        • E-mail enviado ao suporte via EmailJS imediatamente
+      </div>
+    </div>
+    <div class="card" style="--accent:var(--yellow);">
+      <div class="card-title">🎫 Numeração SUP-AANNNN</div>
+      <div style="text-align:center;padding:16px 0;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;letter-spacing:4px;color:var(--yellow);">SUP-260001</div>
+        <div style="font-size:12px;color:#6b7fa0;margin-top:6px;letter-spacing:1px;">FORMATO: SUP-AANNNN</div>
+      </div>
+      <div class="card-body" style="line-height:2;">
+        • <strong style="color:#fff;">AA</strong> — ano abreviado (ex: 26 = 2026)<br>
+        • <strong style="color:#fff;">NNNN</strong> — sequencial global, nunca se reinicia<br>
+        • Contador em <code style="color:var(--yellow);">config/suporte-contador</code><br>
+        • Fallback por timestamp se Firestore falhar
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card" style="--accent:var(--purple);">
+      <div class="card-title">📁 Estrutura do Documento</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+        <span style="background:#1a2840;border:1px solid rgba(245,166,35,.3);border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:var(--yellow);">numeroChamado</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">nome</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">telefone</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">email</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">perfil</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">prioridade</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">assunto</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">descricao</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">url</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">userAgent</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">dataHoraAbertura</span>
+        <span style="background:#1a2840;border:1px solid rgba(245,166,35,.3);border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:var(--yellow);">status: aberto</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">temAnexo</span>
+        <span style="background:#1a2840;border:1px solid #1e3d6b;border-radius:6px;padding:4px 10px;font-size:12px;font-family:'Courier New',monospace;color:#7ea8d8;">anexoNome</span>
+      </div>
+    </div>
+    <div class="card" style="--accent:var(--red);">
+      <div class="card-title">🚦 Prioridades</div>
+      <div style="margin-top:10px;">
+        <div class="arch-item" style="border-color:rgba(26,140,78,.3);">🟢 <strong style="color:#5ecb8a;">Baixa</strong> — dúvida ou sugestão de melhoria</div>
+        <div class="arch-item" style="border-color:rgba(245,166,35,.3);">🟡 <strong style="color:var(--yellow);">Média</strong> — afeta o trabalho, há solução alternativa</div>
+        <div class="arch-item" style="border-color:rgba(192,57,43,.3);">🔴 <strong style="color:#f08080;">Alta</strong> — impede o uso do sistema</div>
+        <div class="arch-item" style="border-color:rgba(192,57,43,.5);">🚨 <strong style="color:#f08080;">Urgente</strong> — sistema parado <span class="tag tag-red">Anexo obrigatório</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- INFRA -->
