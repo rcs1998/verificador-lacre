@@ -265,7 +265,7 @@ tbody tr:hover{background:var(--surface2);}
       <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
-        <a href="manual.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Sistema</a>
+        <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
       </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
@@ -280,7 +280,7 @@ tbody tr:hover{background:var(--surface2);}
       <div id="op-nome-display">—</div>
     </div>
     <div class="header-buttons">
-      <a href="manual-operacional.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
+      <a href="manual-admin.html" target="_blank" class="admin-btn" id="btn-ajuda-admin" style="text-decoration:none;display:none;">❓ Ajuda</a>
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
       <button class="admin-btn" onclick="doAppLogoutComOffline()">🚪 Sair</button>
     </div>
@@ -799,6 +799,7 @@ tbody tr:hover{background:var(--surface2);}
                 <option value="operacional">Operacional (somente abertura/fechamento de processos)</option>
                 <option value="operador">Operador (Dashboard + Lacres, Placas, Processos, Histórico)</option>
                 <option value="admin">Administrador (Acesso total)</option>
+                <option value="developer">Developer (Acesso total + Painel de Deploy)</option>
               </select>
             </div>
             <button class="btn btn-primary btn-sm" style="width:auto;margin-top:12px;" onclick="criarUsuario()">+ Criar Usuário</button>
@@ -1116,8 +1117,8 @@ async function doAppLogin() {
     const adminBtn = document.querySelector('.admin-btn');
     console.log('Perfil do usuário:', perfil, 'Email:', email);
     if (adminBtn) {
-      // Mostrar admin button para admin e operador, ocultar apenas para operacional
-      if (perfil === 'admin' || perfil === 'operador') {
+      // Mostrar admin button para admin, operador e developer
+      if (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') {
         adminBtn.style.display = 'block';
         adminBtn.style.visibility = 'visible';
       } else {
@@ -1146,8 +1147,9 @@ function doAppLogout() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  const adminBtn = document.querySelector('.admin-btn');
-  if (adminBtn) adminBtn.style.display = 'block';
+  // Esconde o botão Ajuda no logout (só aparece para admin/operador/developer após login)
+  const ajudaBtnLogout = document.getElementById('btn-ajuda-admin');
+  if (ajudaBtnLogout) ajudaBtnLogout.style.display = 'none';
   // Stop cameras
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
@@ -2124,7 +2126,7 @@ function openAdmin() {
     const uid = auth.currentUser.uid;
     db.collection('usuarios').doc(uid).get().then(doc => {
       const perfil = doc.exists ? doc.data().perfil : 'admin';
-      if (perfil === 'admin' || perfil === 'operador') {
+      if (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') {
         currentUserRole = perfil;
         document.getElementById('admin-login').style.display = 'none';
         document.getElementById('admin-body').style.display = 'block';
@@ -2283,7 +2285,7 @@ async function criarUsuario() {
   if (senha.length < 6) { alert('Senha deve ter no mínimo 6 caracteres.'); return; }
   
   // Apenas admin pode criar outros admins
-  if (perfil === 'admin' && currentUserRole !== 'admin') {
+  if ((perfil === 'admin' || perfil === 'developer') && currentUserRole !== 'admin' && currentUserRole !== 'developer') {
     alert('Apenas administradores podem criar usuários com perfil Admin.');
     return;
   }
@@ -3066,7 +3068,7 @@ async function loadConfig() {
     vEl.innerHTML = `
       <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
         <span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);">Versão 2.0</span>
-        <span style="font-size:13px;color:var(--text3);">· Lançada em 20/03/2026</span>
+        <span style="font-size:13px;color:var(--text3);">· Lançada em 22/03/2026</span>
       </div>`;
   }
   // Load from Firestore first (synced across all devices), fallback to localStorage
@@ -3595,7 +3597,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260320-r14';
+    const BUILD_HASH = 'v20260322-r16';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -3756,10 +3758,14 @@ async function doAppLoginComOffline() {
     document.getElementById('op-nome-display').textContent = nome;
     document.getElementById('app-login-screen').style.display = 'none';
     document.getElementById('app-main').style.display = 'block';
-    const adminBtn = document.querySelector('.admin-btn');
+    const adminBtn = document.querySelector('.admin-btn:not(#btn-ajuda-admin)');
     if (adminBtn) {
-      adminBtn.style.display = (perfil === 'admin' || perfil === 'operador') ? 'block' : 'none';
+      adminBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'block' : 'none';
       adminBtn.style.visibility = 'visible';
+    }
+    const ajudaBtn = document.getElementById('btn-ajuda-admin');
+    if (ajudaBtn) {
+      ajudaBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'inline-block' : 'none';
     }
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
@@ -3788,8 +3794,9 @@ function doAppLogoutComOffline() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  const adminBtn = document.querySelector('.admin-btn');
-  if (adminBtn) adminBtn.style.display = 'block';
+  // Esconde o botão Ajuda no logout (só aparece para admin/operador/developer após login)
+  const ajudaBtnLogout = document.getElementById('btn-ajuda-admin');
+  if (ajudaBtnLogout) ajudaBtnLogout.style.display = 'none';
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t => t.stop());
     state[lado].stream = null;
@@ -4020,11 +4027,10 @@ function renderFornecedores(lista) {
     const statusBadge = d.inativo
       ? '<span class="badge badge-err">Inativo</span>'
       : '<span class="badge badge-ok">Ativo</span>';
-    const inativadoPor = d.inativo && d.inativadoPorNome ? `<br><small style="font-size:11px;color:var(--text3);">por ${d.inativadoPorNome}</small>` : '';
     const btns = d.inativo
       ? `<button class="btn btn-outline btn-sm" onclick="reativarFornecedor('${d.cnpj}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
       : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
-           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,'\'\'')}')">✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')">✏️ Editar</button>
            <button class="btn btn-outline btn-sm" onclick="inativarFornecedor('${d.cnpj}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>
          </div>`;
     return `<tr style="${d.inativo ? 'opacity:.6;' : ''}">
@@ -4037,723 +4043,72 @@ function renderFornecedores(lista) {
     </tr>`;
   }).join('');
 }
-async function loadFornecedores() {
-  if (!db) return;
-  try {
-    const snap = await db.collection('fornecedores').orderBy('nome').get();
-    _todosFornecedores = snap.docs.map(d=>({id:d.id,...d.data()}));
-    filtroFornStatus(_filtroForn || 'ativos');
-  } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); }
-}
 
-async function adicionarFornecedor() {
-  if (!db) { alert('Firebase não configurado. Configure o Firebase no painel Admin → Config.'); return; }
 
-  const cnpjRaw = document.getElementById('novo-forn-cnpj').value.replace(/\D/g, '');
-  const nome = document.getElementById('novo-forn-nome').value.trim().toUpperCase();
-
-  if (!nome) { alert('Informe o nome do fornecedor.'); return; }
-  if (!cnpjRaw) { alert('Informe o CNPJ do fornecedor.'); return; }
-  if (cnpjRaw.length !== 14) {
-    alert(`CNPJ incompleto: ${cnpjRaw.length} dígitos digitados, esperado 14.\nDigite os 14 dígitos numéricos.`);
-    return;
-  }
-  if (!validarCNPJ(cnpjRaw)) {
-    const resp = confirm(`O CNPJ ${formatarCNPJ(cnpjRaw)} parece inválido (dígito verificador incorreto).\n\nDeseja cadastrar mesmo assim?`);
-    if (!resp) return;
-  }
-
-  const btn = document.querySelector('[onclick="adicionarFornecedor()"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
-
-  try {
-    const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
-    if (existing.exists) {
-      if (existing.data().inativo) {
-        if (!confirm(`CNPJ já cadastrado mas está inativo como "${existing.data().nome}".\nDeseja reativar com o nome "${nome}"?`)) {
-          if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
-          return;
-        }
-        await db.collection('fornecedores').doc(cnpjRaw).update({ nome, inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null });
-        document.getElementById('novo-forn-cnpj').value = '';
-        document.getElementById('novo-forn-nome').value = '';
-        showTopAlert(`✅ Fornecedor "${nome}" reativado`, 'ok');
-        loadFornecedores();
-        if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
-        return;
-      }
-      if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".\nDeseja atualizar o nome para "${nome}"?`)) {
-        if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
-        return;
-      }
-    }
-
-    const cadastradoPor = currentOperador?.nome || currentOperador?.email
-      || auth?.currentUser?.email || 'Admin';
-
-    await db.collection('fornecedores').doc(cnpjRaw).set({
-      cnpj: cnpjRaw,
-      nome,
-      cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
-      cadastradoPor
-    });
-
-    document.getElementById('novo-forn-cnpj').value = '';
-    document.getElementById('novo-forn-nome').value = '';
-    showTopAlert(`✅ Fornecedor "${nome}" cadastrado!`, 'ok');
-    loadFornecedores();
-    try { await registrarLog('cadastro_fornecedor', `CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`); } catch(_) {}
-  } catch(e) {
-    console.error('Erro ao cadastrar fornecedor:', e);
-    alert(`❌ Erro ao salvar fornecedor:\n\n${e.message}\n\nVerifique se as regras do Firestore permitem escrita na coleção "fornecedores".`);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '+ Cadastrar'; }
-  }
-}
-
-async function inativarFornecedor(cnpj) {
-  if (!confirm(`Inativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?\n\nPoderá ser reativado quando necessário.`)) return;
-  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
-  await db.collection('fornecedores').doc(cnpj).update({
-    inativo: true,
-    inativadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-    inativadoPor: operador.email || '',
-    inativadoPorNome: operador.nome || 'Admin'
-  });
-  await registrarLog('inativar_fornecedor', `CNPJ ${formatarCNPJ(cnpj)} inativado por ${operador.nome}`);
-  showTopAlert(`🚫 Fornecedor inativado`, 'warning');
-  loadFornecedores();
-}
-
-async function reativarFornecedor(cnpj) {
-  if (!confirm(`Reativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?`)) return;
-  const operador = currentOperador || (auth?.currentUser ? { nome: auth.currentUser.email, email: auth.currentUser.email } : { nome: 'Admin', email: '' });
-  await db.collection('fornecedores').doc(cnpj).update({
-    inativo: false, inativadoEm: null, inativadoPor: null, inativadoPorNome: null
-  });
-  await registrarLog('reativar_fornecedor', `CNPJ ${formatarCNPJ(cnpj)} reativado por ${operador.nome}`);
-  showTopAlert(`✅ Fornecedor reativado`, 'ok');
-  loadFornecedores();
-}
-
-function editarFornecedor(cnpj, nomeAtual) {
-  const modal = document.getElementById('edit-forn-modal');
-  const criar = !modal;
-  const m = modal || document.createElement('div');
-  m.id = 'edit-forn-modal';
-  m.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
-  m.innerHTML = `
-    <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR FORNECEDOR</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">CNPJ: <strong>${formatarCNPJ(cnpj)}</strong></div>
-      <input type="hidden" id="edit-forn-cnpj">
-      <div class="input-group">
-        <label>Nome Cadastrado</label>
-        <input type="text" id="edit-forn-nome" placeholder="NOME DO FORNECEDOR" style="font-size:15px;letter-spacing:0;text-transform:uppercase;">
-      </div>
-      <div style="display:flex;gap:10px;margin-top:8px;">
-        <button class="btn btn-primary" onclick="salvarEdicaoFornecedor()" style="flex:1;">💾 Salvar</button>
-        <button class="btn btn-outline" onclick="document.getElementById('edit-forn-modal').style.display='none'" style="flex:1;">Cancelar</button>
-      </div>
-    </div>`;
-  if (criar) document.body.appendChild(m);
-  document.getElementById('edit-forn-cnpj').value = cnpj;
-  document.getElementById('edit-forn-nome').value = nomeAtual;
-  m.style.display = 'flex';
-}
-
-async function salvarEdicaoFornecedor() {
-  const cnpj = document.getElementById('edit-forn-cnpj').value;
-  const nome = document.getElementById('edit-forn-nome').value.trim().toUpperCase();
-  if (!nome) { alert('Informe o nome.'); return; }
-  try {
-    await db.collection('fornecedores').doc(cnpj).update({ nome });
-    await registrarLog('editar_fornecedor', `CNPJ ${formatarCNPJ(cnpj)} → nome: ${nome}`);
-    document.getElementById('edit-forn-modal').style.display = 'none';
-    showTopAlert(`✅ Fornecedor atualizado`, 'ok');
-    loadFornecedores();
-  } catch(e) { alert('Erro: ' + e.message); }
-}
-
-async function buscarFornecedorPorCNPJ(cnpj) {
-  if (!db || !cnpj) return null;
-  const cnpjLimpo = cnpj.replace(/\D/g, '');
-  if (cnpjLimpo.length !== 14) return null;
-  try {
-    const doc = await db.collection('fornecedores').doc(cnpjLimpo).get();
-    return (doc.exists && !doc.data().inativo) ? doc.data() : null;
-  } catch(e) {
-    console.warn('Erro ao buscar fornecedor:', e.message);
-    return null;
-  }
-}
-
-// ──────────────────────────────────────────────────────────
-// VALIDAÇÃO INLINE DE PLACA (feedback imediato no campo)
-// ──────────────────────────────────────────────────────────
-async function validarPlacaInline(lado) {
-  const input  = document.getElementById(`placa-${lado}`);
-  const status = document.getElementById(`placa-${lado}-status`);
-  if (!input || !status) return;
-
-  const placa = input.value.trim().toUpperCase();
-  const reAntiga   = /^[A-Z]{3}-?\d{4}$/;
-  const reMercosul = /^[A-Z]{3}\d[A-Z]\d{2}$/;
-
-  if (!placa) { status.style.display = 'none'; return; }
-
-  if (!reAntiga.test(placa) && !reMercosul.test(placa)) {
-    status.style.cssText = 'display:block;color:var(--danger);';
-    status.textContent = '⚠️ Formato inválido (ex: ABC-1234 ou ABC1D23)';
-    return;
-  }
-
-  if (!db) return;
-  status.style.cssText = 'display:block;color:var(--text2);';
-  status.textContent = '⏳ Verificando...';
-  try {
-    const placaLimpa = placa.replace(/[^A-Z0-9]/g, '');
-    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
-    if (doc.exists) {
-      const desc = doc.data().descricao ? ` — ${doc.data().descricao}` : '';
-      status.style.cssText = 'display:block;color:var(--success);font-weight:600;';
-      status.textContent = `✅ Placa autorizada${desc}`;
-    } else {
-      status.style.cssText = 'display:block;color:var(--danger);font-weight:600;';
-      status.textContent = '❌ Placa não autorizada — contate o administrador';
-    }
-  } catch(e) {
-    status.style.cssText = 'display:block;color:var(--text2);';
-    status.textContent = 'Não foi possível verificar agora';
-  }
-}
-
-// ──────────────────────────────────────────────────────────
-// CÂMERA DA NF COM DETECÇÃO AUTOMÁTICA DE DOCUMENTO
-// ──────────────────────────────────────────────────────────
-let _nfStream = null;
-let _nfCaptured = false;
-
-async function capturarFotoNF(lado = 'origem') {
-  const video     = document.getElementById(`video-nf-${lado}`);
-  const canvas    = document.getElementById(`canvas-nf-${lado}`);
-  const preview   = document.getElementById(`preview-nf-${lado}`);
-  const camArea   = document.getElementById(`cam-nf-${lado}`);
-  const indicator = document.getElementById('nf-doc-indicator');
-  const captBtn   = document.getElementById(`btn-capturar-nf-${lado}`);
-
-  if (!video || !canvas || !camArea) return;
-
-  // Se já tem preview, resetar para nova foto
-  if (!video.style.display || video.style.display === 'none') {
-    preview.style.display = 'none';
-    preview.src = '';
-    stateNF[lado].photoBase64 = null;
-    _nfCaptured = false;
-  }
-
-  try {
-    if (_nfStream) { _nfStream.getTracks().forEach(t => t.stop()); _nfStream = null; }
-
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
-    });
-    _nfStream = stream;
-    video.srcObject = stream;
-    video.style.display = 'block';
-    preview.style.display = 'none';
-    camArea.style.display = 'block';
-
-    if (captBtn) {
-      captBtn.textContent = '📸 Capturar Agora';
-      captBtn.onclick = () => _tirarFotoNF(lado);
-    }
-    if (indicator) {
-      indicator.style.display = 'block';
-      indicator.textContent = '📄 APONTE PARA A NF/DANFE';
-    }
-
-    await video.play();
-    _detectarDocumentoNF(lado);
-
-  } catch(err) {
-    alert('Não foi possível acessar a câmera. Verifique as permissões.');
-    console.error(err);
-  }
-}
-
-function _detectarDocumentoNF(lado) {
-  const video     = document.getElementById(`video-nf-${lado}`);
-  const canvas    = document.getElementById(`canvas-nf-${lado}`);
-  const indicator = document.getElementById('nf-doc-indicator');
-  if (!video || !canvas || _nfCaptured) return;
-  if (video.style.display === 'none') return; // preview já mostrado
-
-  const ctx = canvas.getContext('2d');
-  let docFrames = 0; // contagem de frames com documento detectado
-
-  const tick = () => {
-    if (_nfCaptured || video.style.display === 'none') return;
-
-    if (video.readyState >= 2) {
-      canvas.width  = video.videoWidth  || 640;
-      canvas.height = video.videoHeight || 480;
-      ctx.drawImage(video, 0, 0);
-
-      try {
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imgData.data;
-        const total = data.length / 4;
-
-        // Calcular brilho médio do centro (área da NF)
-        const cx = Math.floor(canvas.width  * 0.2);
-        const cy = Math.floor(canvas.height * 0.2);
-        const cw = Math.floor(canvas.width  * 0.6);
-        const ch = Math.floor(canvas.height * 0.6);
-
-        let brightSum = 0, brightCount = 0;
-        let darkPixels = 0;
-        for (let y = cy; y < cy + ch; y += 4) {
-          for (let x = cx; x < cx + cw; x += 4) {
-            const i = (y * canvas.width + x) * 4;
-            const lum = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
-            brightSum += lum;
-            brightCount++;
-            if (lum < 80) darkPixels++;
-          }
-        }
-        const avgBright  = brightCount > 0 ? brightSum / brightCount : 0;
-        const darkRatio  = brightCount > 0 ? darkPixels / brightCount : 0;
-
-        // Documento detectado: centro claro (papel branco) com algum texto (pixels escuros = ~5-40%)
-        const documentoDetectado = avgBright > 160 && darkRatio > 0.03 && darkRatio < 0.55;
-
-        if (documentoDetectado) {
-          docFrames++;
-          if (indicator) {
-            indicator.style.background = 'rgba(26,140,78,.75)';
-            indicator.textContent = `✅ DOCUMENTO DETECTADO — MANTENDO FIRME... (${docFrames}/8)`;
-          }
-          if (docFrames >= 8) {
-            // 8 frames consecutivos com documento → capturar automaticamente
-            _tirarFotoNF(lado);
-            return;
-          }
-        } else {
-          docFrames = 0;
-          if (indicator) {
-            indicator.style.background = 'rgba(0,0,0,.45)';
-            const msg = avgBright < 80  ? '🌑 MUITO ESCURO — ILUMINE A NF'
-                      : avgBright > 230 ? '☀️ MUITO CLARO — REDUZA O BRILHO'
-                      : '📄 APONTE PARA A NF/DANFE';
-            indicator.textContent = msg;
-          }
-        }
-      } catch(e) {}
-    }
-    setTimeout(() => requestAnimationFrame(tick), 120); // ~8fps — não interfere no QR
-  };
-
-  requestAnimationFrame(tick);
-}
-
-function _tirarFotoNF(lado) {
-  if (_nfCaptured) return;
-  _nfCaptured = true;
-
-  const video   = document.getElementById(`video-nf-${lado}`);
-  const canvas  = document.getElementById(`canvas-nf-${lado}`);
-  const preview = document.getElementById(`preview-nf-${lado}`);
-  const captBtn = document.getElementById(`btn-capturar-nf-${lado}`);
-  const indicator = document.getElementById('nf-doc-indicator');
-
-  if (!video || !canvas) return;
-
-  const ctx = canvas.getContext('2d');
-  canvas.width  = video.videoWidth  || 640;
-  canvas.height = video.videoHeight || 480;
-  ctx.drawImage(video, 0, 0);
-
-  stateNF[lado].photoBase64 = canvas.toDataURL('image/jpeg', 0.9);
-  preview.src = stateNF[lado].photoBase64;
-  preview.style.display = 'block';
-  video.style.display   = 'none';
-  if (indicator) indicator.style.display = 'none';
-
-  if (_nfStream) { _nfStream.getTracks().forEach(t => t.stop()); _nfStream = null; }
-
-  if (captBtn) {
-    captBtn.textContent = '🔄 Nova Foto da NF';
-    captBtn.onclick = () => { _nfCaptured = false; capturarFotoNF(lado); };
-  }
-
-  // Analisar automaticamente
-  analisarNF(lado);
-}
-
-// ──────────────────────────────────────────────────────────
-// ABA LOGS
-// ──────────────────────────────────────────────────────────
-let _todosLogs = [];
-async function loadLogs() {
-  if (!db) return;
-  try {
-    const snap = await db.collection('logs').orderBy('timestamp','desc').limit(200).get();
-    _todosLogs = snap.docs.map(d=>({id:d.id,...d.data()}));
-    filtrarLogs();
-  } catch(e) { console.warn('Logs error:', e.message); }
-}
-function filtrarLogs() {
-  const filtro = document.getElementById('logs-filtro-acao')?.value || '';
-  const lista = filtro ? _todosLogs.filter(l=>l.acao===filtro) : _todosLogs;
-  const tbody = document.getElementById('logs-tbody');
-  if (!lista.length) {
-    tbody.innerHTML = `<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:20px;">Nenhum log encontrado</td></tr>`;
-    return;
-  }
-  const LABELS = {
-    cadastro_lacres:'Cadastro lacres', inativar_lacre:'Inativar lacre', reativar_lacre:'Reativar lacre',
-    cadastro_placa:'Cadastro placa', inativar_placa:'Inativar placa', reativar_placa:'Reativar placa',
-    cadastro_fornecedor:'Cadastro fornecedor', remocao_fornecedor:'Remoção fornecedor',
-    inativar_usuario:'Inativar usuário', reativar_usuario:'Reativar usuário',
-  };
-  tbody.innerHTML = lista.map(l => {
-    const ts = l.timestamp?.toDate?.()?.toLocaleString('pt-BR') || '—';
-    const label = LABELS[l.acao] || l.acao || '—';
-    const isAlert = l.acao?.includes('inativar') || l.acao?.includes('remoc');
-    const isOk = l.acao?.includes('reativar') || l.acao?.includes('cadastro');
-    const badgeStyle = isAlert ? 'background:var(--danger);color:#fff;'
-                     : isOk   ? 'background:var(--success);color:#fff;'
-                     : 'background:var(--gerdau-blue);color:#fff;';
-    return `<tr>
-      <td style="white-space:nowrap;color:var(--text2)">${ts}</td>
-      <td><span class="badge" style="${badgeStyle}">${label}</span></td>
-      <td style="color:var(--text)">${l.detalhe||'—'}</td>
-      <td style="color:var(--text2)">${l.usuario||'—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ─── RECUPERAÇÃO DE SENHA ─────────────────────────────────
-async function enviarRecuperacaoSenha(evt) {
-  if (evt) evt.preventDefault();
-  const emailInput = document.getElementById('op-email');
-  const email = emailInput ? emailInput.value.trim() : '';
-  const dest = email || prompt('Digite seu e-mail para receber o link de recuperação:');
-  if (!dest) return;
-  if (!auth) { alert('Firebase não configurado.'); return; }
-  try {
-    await auth.sendPasswordResetEmail(dest);
-    alert(`✅ Link de recuperação enviado para ${dest}\n\nVerifique sua caixa de entrada (e a pasta de spam).`);
-  } catch(e) {
-    const msg = e.code === 'auth/user-not-found' ? 'E-mail não encontrado no sistema.'
-              : e.code === 'auth/invalid-email'  ? 'E-mail inválido.'
-              : e.message;
-    alert('❌ Erro: ' + msg);
-  }
-}
-
-// Admin pode resetar senha de qualquer usuário
-async function resetarSenhaUsuario(email) {
-  if (!confirm(`Enviar link de recuperação de senha para ${email}?`)) return;
-  if (!auth) { alert('Firebase não configurado.'); return; }
-  try {
-    await auth.sendPasswordResetEmail(email);
-    showTopAlert(`✅ Link enviado para ${email}`, 'ok');
-    await registrarLog('reset_senha', `Link de recuperação enviado para ${email}`);
-  } catch(e) {
-    alert('Erro: ' + e.message);
-  }
-}
-
-// ─── EDITAR USUÁRIO ───────────────────────────────────────
-function abrirEdicaoUsuario(uid, nome, empresa, perfil) {
-  const modal = document.getElementById('edit-user-modal');
-  if (!modal) {
-    // Create modal on first call
-    const m = document.createElement('div');
-    m.id = 'edit-user-modal';
-    m.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
-    m.innerHTML = `
-      <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:20px;">✏️ EDITAR USUÁRIO</div>
-        <input type="hidden" id="edit-uid">
-        <div class="input-group">
-          <label>Nome</label>
-          <input type="text" id="edit-nome" placeholder="Nome completo" style="font-size:15px;letter-spacing:0;text-transform:none;">
-        </div>
-        <div class="input-group">
-          <label>Empresa</label>
-          <input type="text" id="edit-empresa" placeholder="Empresa" style="font-size:15px;letter-spacing:0;text-transform:none;">
-        </div>
-        <div class="input-group">
-          <label>Perfil</label>
-          <select id="edit-perfil" style="font-size:15px;letter-spacing:0;text-transform:none;">
-            <option value="operacional">Operacional</option>
-            <option value="operador">Operador</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:8px;">
-          <button class="btn btn-primary" onclick="salvarEdicaoUsuario()" style="flex:1;">💾 Salvar</button>
-          <button class="btn btn-outline" onclick="document.getElementById('edit-user-modal').style.display='none'" style="flex:1;">Cancelar</button>
-        </div>
-      </div>`;
-    document.body.appendChild(m);
-  }
-  const el = document.getElementById('edit-user-modal');
-  document.getElementById('edit-uid').value = uid;
-  document.getElementById('edit-nome').value = nome.replace(/&#39;/g,"'");
-  document.getElementById('edit-empresa').value = empresa.replace(/&#39;/g,"'");
-  document.getElementById('edit-perfil').value = perfil;
-  el.style.display = 'flex';
-}
-
-async function salvarEdicaoUsuario() {
-  const uid = document.getElementById('edit-uid').value;
-  const nome = document.getElementById('edit-nome').value.trim();
-  const empresa = document.getElementById('edit-empresa').value.trim();
-  const perfil = document.getElementById('edit-perfil').value;
-  if (!nome) { alert('Informe o nome.'); return; }
-  try {
-    await db.collection('usuarios').doc(uid).update({ nome, empresa, perfil });
-    await registrarLog('editar_usuario', `Usuário ${uid} editado: nome=${nome}, perfil=${perfil}`);
-    document.getElementById('edit-user-modal').style.display = 'none';
-    showTopAlert('✅ Usuário atualizado', 'ok');
-    loadUsuarios();
-  } catch(e) { alert('Erro: ' + e.message); }
-}
-
-// ─── FORNECEDOR DROPDOWN ──────────────────────────────────
-let _fornecedoresCache = null;
-
-async function carregarFornecedoresDropdown() {
-  if (!db) return [];
-  if (_fornecedoresCache) return _fornecedoresCache;
-  try {
-    const snap = await db.collection('fornecedores')
-      .where('inativo','==',false).orderBy('nome').get();
-    _fornecedoresCache = snap.docs.map(d => ({ cnpj: d.data().cnpj, nome: d.data().nome }));
-    // Also load docs without inativo field (older records)
-    const snap2 = await db.collection('fornecedores').orderBy('nome').get();
-    const extras = snap2.docs
-      .filter(d => d.data().inativo === undefined || d.data().inativo === false)
-      .map(d => ({ cnpj: d.data().cnpj, nome: d.data().nome }));
-    // Deduplicate
-    const seen = new Set(_fornecedoresCache.map(f => f.cnpj));
-    extras.forEach(f => { if (!seen.has(f.cnpj)) { _fornecedoresCache.push(f); seen.add(f.cnpj); } });
-    _fornecedoresCache.sort((a,b) => a.nome.localeCompare(b.nome));
-  } catch(e) {
-    console.warn('Erro ao carregar fornecedores:', e.message);
-    _fornecedoresCache = [];
-  }
-  return _fornecedoresCache;
-}
-
-async function popularFornecedoresDatalist() {
-  const lista = await carregarFornecedoresDropdown();
-  // Populate all datalists on the page
-  document.querySelectorAll('.fornecedores-datalist-target').forEach(dl => {
-    dl.innerHTML = lista.map(f => `<option value="${f.nome}" data-cnpj="${f.cnpj}">${f.nome}</option>`).join('');
-  });
-  const dl = document.getElementById('fornecedores-datalist');
-  if (dl) dl.innerHTML = lista.map(f =>
-    `<option value="${f.nome}">${f.nome} — CNPJ: ${formatarCNPJ(f.cnpj)}</option>`
-  ).join('');
-}
-
-function verificarFornecedorSelecionado(lado, valor) {
-  if (!valor || !_fornecedoresCache) return;
-  const match = _fornecedoresCache.find(f =>
-    f.nome.toLowerCase() === valor.toLowerCase()
-  );
-  const badge = document.getElementById(`forn-badge-${lado}`);
-  if (badge) {
-    badge.style.display = match ? 'inline' : 'none';
-  }
-  if (match && stateNF && stateNF[lado]) {
-    stateNF[lado].cnpjEmissor = match.cnpj;
-  }
-}
-
-// Populate on app load + after fornecedores tab is loaded
-// popularFornecedoresDatalist is called post-login instead of on page load
-// (fornecedores now requires auth to read)
-
-// ─── GESTÃO DE PERFIS CUSTOMIZADOS ───────────────────────
-async function criarNovoPerfil() {
-  const id   = document.getElementById('novo-perfil-id')?.value.trim();
-  const nome = document.getElementById('novo-perfil-nome')?.value.trim();
-  if (!id)   { showTopAlert('❌ Informe o ID do perfil', 'error'); return; }
-  if (!nome) { showTopAlert('❌ Informe o nome de exibição', 'error'); return; }
-  if (['admin','operador','operacional'].includes(id)) {
-    showTopAlert('❌ Esse ID já é um perfil padrão do sistema', 'error'); return;
-  }
-  try {
-    // Salva o perfil na coleção config/perfis-customizados
-    await db.collection('config').doc('perfis-customizados').set(
-      { [id]: nome }, { merge: true }
-    );
-    // Inicializa permissões vazias para o novo perfil
-    await db.collection('config').doc('permissoes').set(
-      { [id]: [] }, { merge: true }
-    );
-    _cachedPerms = null;
-    document.getElementById('novo-perfil-id').value = '';
-    document.getElementById('novo-perfil-nome').value = '';
-    showTopAlert(`✅ Perfil "${nome}" criado! Configure as abas acima.`, 'ok');
-    await registrarLog('criar_perfil', `Perfil customizado criado: ${id} = ${nome}`);
-    loadPerfis(); // refresh
-    atualizarSelectPerfis(); // refresh user creation dropdown
-  } catch(e) { alert('Erro: ' + e.message); }
-}
-
-async function removerPerfilCustomizado(id, nome) {
-  if (!confirm(`Remover perfil "${nome}"?
-
-Usuários com esse perfil perderão acesso ao admin.`)) return;
-  try {
-    // Remove from perfis-customizados
-    await db.collection('config').doc('perfis-customizados').update(
-      { [id]: firebase.firestore.FieldValue.delete() }
-    );
-    await db.collection('config').doc('permissoes').update(
-      { [id]: firebase.firestore.FieldValue.delete() }
-    );
-    _cachedPerms = null;
-    showTopAlert(`🚫 Perfil "${nome}" removido`, 'warning');
-    loadPerfis();
-    atualizarSelectPerfis();
-  } catch(e) { alert('Erro: ' + e.message); }
-}
-
-async function getPerfisCustomizados() {
-  try {
-    const doc = await db.collection('config').doc('perfis-customizados').get();
-    return doc.exists ? doc.data() : {};
-  } catch(e) { return {}; }
-}
-
-// Update loadPerfis to also show custom profiles
-const _loadPerfisOriginal = loadPerfis;
-loadPerfis = async function() {
-  await _loadPerfisOriginal();
-
-  // Load and display custom profiles
-  const customPerfis = await getPerfisCustomizados();
-  const perms = await getPermissoes();
-  const lista = document.getElementById('perfis-customizados-lista');
-  if (!lista) return;
-
-  const entries = Object.entries(customPerfis);
-  if (!entries.length) {
-    lista.innerHTML = '<div style="font-size:13px;color:var(--text2);">Nenhum perfil customizado criado ainda.</div>';
-    return;
-  }
-
-  lista.innerHTML = `
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">Perfis criados:</div>
-    ${entries.map(([id, nome]) => {
-      const allowed = perms[id] || [];
-      return `
-        <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-            <div>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">${nome}</span>
-              <span style="font-size:12px;color:var(--text2);margin-left:8px;">ID: ${id}</span>
-            </div>
-            <button class="btn btn-outline btn-sm" onclick="removerPerfilCustomizado('${id}','${nome}')"
-              style="border-color:var(--danger);color:var(--danger);font-size:12px;">🗑 Remover</button>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
-            ${ALL_TABS.map(t => `
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:13px;background:var(--surface);">
-                <input type="checkbox" id="perm-${id}-${t}" ${allowed.includes(t) ? 'checked' : ''}
-                  style="width:15px;height:15px;cursor:pointer;accent-color:var(--gerdau-blue);">
-                ${TAB_LABELS[t]}
-              </label>`).join('')}
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="salvarPermissoesPerfil('${id}')" style="width:100%;">
-            💾 Salvar Permissões de "${nome}"
-          </button>
-        </div>`;
-    }).join('')}`;
-};
-
-// Update criarUsuario dropdown dynamically based on who is logged in
+// ── ATUALIZAR SELECT DE PERFIS ────────────────────────────
 async function atualizarSelectPerfis() {
   const select = document.getElementById('novo-user-perfil');
   if (!select) return;
-
-  const customPerfis = await getPerfisCustomizados();
-  const isAdmin = currentUserRole === 'admin';
-
-  // Perfis sempre disponíveis para operador: operacional, operador
-  let options = [
-    { value: 'operacional', label: 'Operacional — somente abertura/fechamento de processos' },
-    { value: 'operador',    label: 'Operador — Dashboard + abas configuradas' },
-  ];
-
-  // Perfis customizados (sempre disponíveis para quem pode criar usuários)
-  Object.entries(customPerfis).forEach(([id, nome]) => {
-    options.push({ value: id, label: `${nome} — perfil customizado` });
-  });
-
-  // Apenas admin pode criar outros admins e developers
-  if (isAdmin) {
-    options.push({ value: 'admin', label: 'Admin — acesso total' });
-    options.push({ value: 'developer', label: 'Developer — acesso total + painel de deploy' });
-  }
-
-  select.innerHTML = options.map(o =>
-    `<option value="${o.value}">${o.label}</option>`
-  ).join('');
+  const isAdmin = currentUserRole === 'admin' || currentUserRole === 'developer';
+  // Garante que Developer só aparece para admin
+  const devOpt = select.querySelector('option[value="developer"]');
+  if (devOpt) devOpt.style.display = isAdmin ? '' : 'none';
+  const adminOpt = select.querySelector('option[value="admin"]');
+  if (adminOpt) adminOpt.style.display = isAdmin ? '' : 'none';
 }
 
+// ── LIMPAR PROCESSOS DE TESTE ─────────────────────────────
+async function limparProcessosTeste() {
+  if (!db) return;
+  if (!confirm('Remover todos os processos marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
+  try {
+    const snap = await db.collection('processos').where('_testData','==',true).get();
+    if (snap.empty) { showTopAlert('Nenhum processo de teste encontrado.', 'ok'); return; }
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    showTopAlert(`✅ ${snap.size} processos de teste removidos`, 'ok');
+    await registrarLog('limpar_testes', `${snap.size} processos de teste removidos`);
+    loadProcessos();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+
 // ══════════════════════════════════════════════════════════════
-// DEPLOY PANEL — developer only
+// FUNÇÕES DE STAGING / DEPLOY / CHANGELOG / PERFIS
 // ══════════════════════════════════════════════════════════════
+
 const PRODUCTION_PROJECT_ID = 'verificador-lacre';
 
 function isProduction() {
-  const raw = getCfg('firebase_config','{}');
-  try {
-    const cfg = JSON.parse(raw);
-    if (cfg.projectId) return cfg.projectId === PRODUCTION_PROJECT_ID;
-  } catch(_) {}
-  // Default firebase config in code is production
+  const raw = getCfg('firebase_staging_config','{}');
+  try { if (JSON.parse(raw).apiKey) return false; } catch(_) {}
   return true;
 }
 
 function isStagingConfigured() {
-  const raw = getCfg('firebase_staging_config','{}');
-  try { return !!JSON.parse(raw).apiKey; } catch(_) { return false; }
+  try { return !!JSON.parse(getCfg('firebase_staging_config','{}')).apiKey; } catch(_) { return false; }
 }
 
 function loadDeployPanel() {
-  // Show/hide deploy tab based on profile
   const deployTab = document.getElementById('tab-deploy-btn');
   if (deployTab) deployTab.style.display = currentUserRole === 'developer' ? '' : 'none';
-
-  // Load staging config textarea
   const stagingTxt = document.getElementById('cfg-firebase-staging');
   if (stagingTxt) stagingTxt.value = getCfg('firebase_staging_config', '{}');
-
-  // Environment info
   const envInfo = document.getElementById('deploy-env-info');
   const isProd = isProduction();
   const isStagingCfg = isStagingConfigured();
-  const buildHash = 'v20260320-r14'; // keep in sync with BUILD_HASH
+  const buildHash = 'v20260322-r16';
   if (envInfo) {
     envInfo.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px;">
         <div style="background:var(--surface2);border-radius:8px;padding:12px;">
           <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">AMBIENTE</div>
           <div style="font-weight:700;color:${isProd ? 'var(--danger)' : 'var(--success)'};">${isProd ? '🔴 PRODUÇÃO' : '🟢 STAGING'}</div>
         </div>
         <div style="background:var(--surface2);border-radius:8px;padding:12px;">
           <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">BUILD</div>
-          <div style="font-weight:700;color:var(--text);font-family:monospace;">${buildHash}</div>
+          <div style="font-weight:700;font-family:monospace;">${buildHash}</div>
         </div>
         <div style="background:var(--surface2);border-radius:8px;padding:12px;">
           <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">STAGING CONFIG</div>
@@ -4765,8 +4120,6 @@ function loadDeployPanel() {
         </div>
       </div>`;
   }
-
-  // Show warning if prod
   const warn = document.getElementById('staging-env-warning');
   if (warn) warn.style.display = isProd ? 'block' : 'none';
 }
@@ -4776,7 +4129,7 @@ function salvarStagingConfig() {
   try {
     JSON.parse(raw);
     setCfg('firebase_staging_config', raw);
-    showTopAlert('✅ Config staging salva! Recarregue para aplicar.', 'ok');
+    showTopAlert('✅ Config staging salva! Recarregue a página para conectar ao banco de staging.', 'ok');
   } catch(e) { alert('JSON inválido: ' + e.message); }
 }
 
@@ -4814,10 +4167,8 @@ const DADOS_TESTE = {
 async function gerarDadosTeste(tipo = 'todos') {
   if (!db) { alert('Firebase não configurado.'); return; }
   if (isProduction()) { alert('⛔ Bloqueado em produção. Configure o banco de staging primeiro.'); return; }
-
   const log = document.getElementById('staging-gen-log');
   log.textContent = '⏳ Gerando dados...';
-
   try {
     if (tipo === 'todos' || tipo === 'placas') {
       const batch = db.batch();
@@ -4829,10 +4180,8 @@ async function gerarDadosTeste(tipo = 'todos') {
         });
       });
       await batch.commit();
-      log.textContent += `
-✅ ${DADOS_TESTE.placas.length} placas criadas`;
+      log.textContent += `\n✅ ${DADOS_TESTE.placas.length} placas criadas`;
     }
-
     if (tipo === 'todos' || tipo === 'lacres') {
       const batch = db.batch();
       DADOS_TESTE.lacres.forEach(num => {
@@ -4843,10 +4192,8 @@ async function gerarDadosTeste(tipo = 'todos') {
         });
       });
       await batch.commit();
-      log.textContent += `
-✅ ${DADOS_TESTE.lacres.length} lacres criados`;
+      log.textContent += `\n✅ ${DADOS_TESTE.lacres.length} lacres criados`;
     }
-
     if (tipo === 'todos') {
       const batch2 = db.batch();
       DADOS_TESTE.fornecedores.forEach(f => {
@@ -4857,18 +4204,15 @@ async function gerarDadosTeste(tipo = 'todos') {
         });
       });
       await batch2.commit();
-      log.textContent += `
-✅ ${DADOS_TESTE.fornecedores.length} fornecedores criados`;
+      log.textContent += `\n✅ ${DADOS_TESTE.fornecedores.length} fornecedores criados`;
     }
-
     if (tipo === 'todos' || tipo === 'processos') {
-      // Generate 5 sample processes in various states
       const processos = [
-        { placa:'ABC1234', lacre:'00001', status:'aberto', resultado:null, motorista:'JOÃO DA SILVA', horas: -2 },
-        { placa:'XYZ5678', lacre:'00002', status:'encerrado', resultado:'ok', motorista:'CARLOS PEREIRA', horas: -25 },
-        { placa:'DEF1E23', lacre:'00003', status:'aguardando_confirmacao_desvio', resultado:'desvio', motorista:'MARCOS SOUZA', horas: -5 },
-        { placa:'GHI4567', lacre:'00004', status:'encerrado_manual', resultado:null, motorista:'PEDRO OLIVEIRA', horas: -100 },
-        { placa:'JKL8901', lacre:'00005', status:'encerrado', resultado:'ok', motorista:'LUCAS SANTOS', horas: -48 },
+        { placa:'ABC1234', lacre:'00001', status:'aberto', resultado:null, motorista:'JOÃO DA SILVA', horas:-2 },
+        { placa:'XYZ5678', lacre:'00002', status:'encerrado', resultado:'ok', motorista:'CARLOS PEREIRA', horas:-25 },
+        { placa:'DEF1E23', lacre:'00003', status:'aguardando_confirmacao_desvio', resultado:'desvio', motorista:'MARCOS SOUZA', horas:-5 },
+        { placa:'GHI4567', lacre:'00004', status:'encerrado_manual', resultado:null, motorista:'PEDRO OLIVEIRA', horas:-100 },
+        { placa:'JKL8901', lacre:'00005', status:'encerrado', resultado:'ok', motorista:'LUCAS SANTOS', horas:-48 },
       ];
       for (const p of processos) {
         const ts = new Date(Date.now() + p.horas * 3600000);
@@ -4877,102 +4221,81 @@ async function gerarDadosTeste(tipo = 'todos') {
         const dest = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
         await db.collection('processos').doc(docId).set({
           processId: docId, placa: p.placa, lacreNumero: p.lacre, motorista: p.motorista,
-          status: p.status, resultado: p.resultado,
-          transportadora: 'TRANSPORTADORA TESTE LTDA',
-          timestamp: ts.toISOString(),
-          locOrigem: orig.loc, locOrigemCoords: orig.coords,
+          status: p.status, resultado: p.resultado, transportadora: 'TRANSPORTADORA TESTE LTDA',
+          timestamp: ts.toISOString(), locOrigem: orig.loc, locOrigemCoords: orig.coords,
           locDestino: p.status !== 'aberto' ? dest.loc : null,
           locDestinoCoords: p.status !== 'aberto' ? dest.coords : null,
           tsDestino: p.status !== 'aberto' ? new Date(ts.getTime() + 8*3600000).toISOString() : null,
           abertoPorNome: 'Operador Teste', abertoPor: 'teste@staging.com',
-          fechadoPorNome: p.status !== 'aberto' ? 'Operador Destino Teste' : null,
+          fechadoPorNome: p.status !== 'aberto' ? 'Destino Teste' : null,
           numeroNF: `NF-${Math.floor(Math.random()*99999).toString().padStart(6,'0')}`,
-          registradoEm: firebase.firestore.FieldValue.serverTimestamp(),
-          _testData: true
+          registradoEm: firebase.firestore.FieldValue.serverTimestamp(), _testData: true
         });
       }
-      log.textContent += `
-✅ ${processos.length} processos de teste criados (aberto, encerrado, desvio, manual)`;
+      log.textContent += `\n✅ ${processos.length} processos de teste criados`;
     }
-
-    log.textContent += '
-
-🎉 Dados de teste gerados com sucesso!';
+    log.textContent += '\n\n🎉 Dados de teste gerados com sucesso!';
     await registrarLog('staging_gerar_dados', `Dados de teste gerados: ${tipo}`);
-  } catch(e) {
-    log.textContent += `
-❌ Erro: ${e.message}`;
-  }
+  } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
 }
 
 async function limparDadosTeste() {
   if (!db) return;
   if (isProduction()) { alert('⛔ Bloqueado em produção.'); return; }
-  if (!confirm('Apagar todos os dados marcados como teste?\n\nIsso remove processos, lacres, placas e fornecedores com a flag _testData ou cadastrado por Developer.')) return;
-
+  if (!confirm('Apagar todos os dados marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
   const log = document.getElementById('staging-gen-log');
   log.textContent = '⏳ Limpando...';
   try {
-    // Delete test processes
     const snap = await db.collection('processos').where('_testData','==',true).get();
     const b1 = db.batch();
     snap.docs.forEach(d => b1.delete(d.ref));
     if (!snap.empty) await b1.commit();
-    log.textContent += `
-✅ ${snap.size} processos removidos`;
-
-    // Delete test lacres
+    log.textContent += `\n✅ ${snap.size} processos removidos`;
     const sL = await db.collection('lacresValidos').where('cadastradoPorNome','==','Developer — Dados de Teste').get();
-    if (!sL.empty) {
-      const b2 = db.batch();
-      sL.docs.forEach(d => b2.delete(d.ref));
-      await b2.commit();
-    }
-    log.textContent += `
-✅ ${sL.size} lacres removidos`;
-
+    if (!sL.empty) { const b2 = db.batch(); sL.docs.forEach(d => b2.delete(d.ref)); await b2.commit(); }
+    log.textContent += `\n✅ ${sL.size} lacres removidos`;
     log.textContent += '\n\n🧹 Limpeza concluída!';
   } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
 }
 
 // ── CHECKLIST PRÉ-DEPLOY ──────────────────────────────────
 const CHECKLIST_BASE = [
-  { id:'login',        categoria:'🔑 Autenticação',     item:'Login com e-mail e senha funciona corretamente' },
-  { id:'login_err',    categoria:'🔑 Autenticação',     item:'Mensagem de erro ao inserir credenciais erradas' },
-  { id:'login_inativo',categoria:'🔑 Autenticação',     item:'Usuário inativo é bloqueado no login' },
-  { id:'offline',      categoria:'🔑 Autenticação',     item:'Login offline funciona (após primeiro login online)' },
-  { id:'timeout',      categoria:'🔑 Autenticação',     item:'Sessão expira após inatividade configurada' },
-  { id:'cam_origem',   categoria:'📷 Câmera',           item:'Câmera abre na aba Origem' },
-  { id:'qr_detect',    categoria:'📷 Câmera',           item:'QR Code é detectado e capturado automaticamente' },
-  { id:'refoto',       categoria:'📷 Câmera',           item:'Botão "Tirar Nova Foto" reseta câmera corretamente' },
-  { id:'manual_foto',  categoria:'📷 Câmera',           item:'Entrada manual bloqueia sem foto tirada primeiro' },
-  { id:'manual_num',   categoria:'📷 Câmera',           item:'Após foto, campo manual aceita o número do lacre' },
-  { id:'placa_val',    categoria:'🚗 Validações',       item:'Placa não autorizada é bloqueada com mensagem' },
-  { id:'placa_inativa',categoria:'🚗 Validações',       item:'Placa inativa é rejeitada' },
-  { id:'lacre_val',    categoria:'🔐 Lacres',           item:'Lacre não cadastrado é rejeitado no registro' },
-  { id:'lacre_uso',    categoria:'🔐 Lacres',           item:'Lacre em uso não pode ser reutilizado' },
-  { id:'registro_ok',  categoria:'🚛 Processo Origem',  item:'Registro de saída salva no Firestore com todos os campos' },
-  { id:'gps_orig',     categoria:'🚛 Processo Origem',  item:'Geolocalização é capturada e exibida' },
-  { id:'nf_ia',        categoria:'📄 Nota Fiscal',      item:'Câmera da NF detecta documento automaticamente' },
-  { id:'nf_manual',    categoria:'📄 Nota Fiscal',      item:'NF manual funciona com dropdown de fornecedores' },
-  { id:'destino_ok',   categoria:'✅ Processo Destino', item:'Verificação no destino encontra o processo pelo placa' },
-  { id:'destino_aprv', categoria:'✅ Processo Destino', item:'Lacre correto e íntegro → processo encerrado automaticamente' },
-  { id:'desvio',       categoria:'🚨 Desvios',          item:'Lacre diferente gera status de desvio' },
-  { id:'desvio_email', categoria:'🚨 Desvios',          item:'E-mail de alerta de desvio é enviado' },
-  { id:'expiry_email', categoria:'🚨 Desvios',          item:'E-mail de processo expirado é enviado após o tempo configurado' },
-  { id:'admin_login',  categoria:'🏛 Admin',            item:'Login no painel admin funciona' },
-  { id:'perfil_perms', categoria:'🏛 Admin',            item:'Abas corretas aparecem para cada perfil' },
-  { id:'dash_kpis',    categoria:'🏛 Admin',            item:'Dashboard mostra KPIs corretos' },
-  { id:'lacres_crud',  categoria:'🏛 Admin',            item:'Cadastrar, inativar e reativar lacres funciona' },
-  { id:'placas_crud',  categoria:'🏛 Admin',            item:'Cadastrar, inativar e reativar placas funciona' },
-  { id:'usuarios_crud',categoria:'🏛 Admin',            item:'Criar, editar, inativar e reativar usuários funciona' },
-  { id:'forn_crud',    categoria:'🏛 Admin',            item:'Criar, editar, inativar e reativar fornecedores funciona' },
-  { id:'logs_audit',   categoria:'🏛 Admin',            item:'Aba Logs mostra registros com ação, detalhe e usuário' },
-  { id:'export_csv',   categoria:'🏛 Admin',            item:'Exportação CSV do histórico funciona' },
-  { id:'config_sync',  categoria:'🏛 Admin',            item:'Config salva no Firestore e sincroniza em outro dispositivo' },
-  { id:'pwa_install',  categoria:'📱 PWA',              item:'App instala na tela inicial do Android' },
-  { id:'pwa_ios',      categoria:'📱 PWA',              item:'App instala na tela inicial do iPhone' },
-  { id:'pwa_update',   categoria:'📱 PWA',              item:'PWA instalado atualiza após mudança do BUILD_HASH' },
+  { id:'login',         categoria:'🔑 Autenticação',    item:'Login com e-mail e senha funciona corretamente' },
+  { id:'login_err',     categoria:'🔑 Autenticação',    item:'Mensagem de erro ao inserir credenciais erradas' },
+  { id:'login_inativo', categoria:'🔑 Autenticação',    item:'Usuário inativo é bloqueado no login' },
+  { id:'offline',       categoria:'🔑 Autenticação',    item:'Login offline funciona (após primeiro login online)' },
+  { id:'timeout',       categoria:'🔑 Autenticação',    item:'Sessão expira após inatividade configurada' },
+  { id:'cam_origem',    categoria:'📷 Câmera',          item:'Câmera abre na aba Origem' },
+  { id:'qr_detect',     categoria:'📷 Câmera',          item:'QR Code é detectado e capturado automaticamente' },
+  { id:'refoto',        categoria:'📷 Câmera',          item:'Botão "Tirar Nova Foto" reseta câmera corretamente' },
+  { id:'manual_foto',   categoria:'📷 Câmera',          item:'Entrada manual bloqueia sem foto tirada primeiro' },
+  { id:'manual_num',    categoria:'📷 Câmera',          item:'Após foto, campo manual aceita o número do lacre' },
+  { id:'placa_val',     categoria:'🚗 Validações',      item:'Placa não autorizada é bloqueada com mensagem' },
+  { id:'placa_inativa', categoria:'🚗 Validações',      item:'Placa inativa é rejeitada' },
+  { id:'lacre_val',     categoria:'🔐 Lacres',          item:'Lacre não cadastrado é rejeitado no registro' },
+  { id:'lacre_uso',     categoria:'🔐 Lacres',          item:'Lacre em uso não pode ser reutilizado' },
+  { id:'registro_ok',   categoria:'🚛 Processo Origem', item:'Registro de saída salva no Firestore com todos os campos' },
+  { id:'gps_orig',      categoria:'🚛 Processo Origem', item:'Geolocalização é capturada e exibida' },
+  { id:'nf_ia',         categoria:'📄 Nota Fiscal',     item:'Câmera da NF detecta documento automaticamente' },
+  { id:'nf_manual',     categoria:'📄 Nota Fiscal',     item:'NF manual funciona com dropdown de fornecedores' },
+  { id:'destino_ok',    categoria:'✅ Processo Destino',item:'Verificação no destino encontra o processo pela placa' },
+  { id:'destino_aprv',  categoria:'✅ Processo Destino',item:'Lacre correto e íntegro → processo encerrado automaticamente' },
+  { id:'desvio',        categoria:'🚨 Desvios',         item:'Lacre diferente gera status de desvio' },
+  { id:'desvio_email',  categoria:'🚨 Desvios',         item:'E-mail de alerta de desvio é enviado' },
+  { id:'expiry_email',  categoria:'🚨 Desvios',         item:'E-mail de processo expirado é enviado após o tempo configurado' },
+  { id:'admin_login',   categoria:'🏛 Admin',           item:'Login no painel admin funciona' },
+  { id:'perfil_perms',  categoria:'🏛 Admin',           item:'Abas corretas aparecem para cada perfil' },
+  { id:'dash_kpis',     categoria:'🏛 Admin',           item:'Dashboard mostra KPIs corretos' },
+  { id:'lacres_crud',   categoria:'🏛 Admin',           item:'Cadastrar, inativar e reativar lacres funciona' },
+  { id:'placas_crud',   categoria:'🏛 Admin',           item:'Cadastrar, inativar e reativar placas funciona' },
+  { id:'usuarios_crud', categoria:'🏛 Admin',           item:'Criar, editar, inativar e reativar usuários funciona' },
+  { id:'forn_crud',     categoria:'🏛 Admin',           item:'Criar, editar, inativar e reativar fornecedores funciona' },
+  { id:'logs_audit',    categoria:'🏛 Admin',           item:'Aba Logs mostra registros com ação, detalhe e usuário' },
+  { id:'export_csv',    categoria:'🏛 Admin',           item:'Exportação CSV do histórico funciona' },
+  { id:'config_sync',   categoria:'🏛 Admin',           item:'Config salva no Firestore e sincroniza em outro dispositivo' },
+  { id:'pwa_install',   categoria:'📱 PWA',             item:'App instala na tela inicial do Android' },
+  { id:'pwa_ios',       categoria:'📱 PWA',             item:'App instala na tela inicial do iPhone' },
+  { id:'pwa_update',    categoria:'📱 PWA',             item:'PWA instalado atualiza após mudança do BUILD_HASH' },
 ];
 
 function gerarChecklist() {
@@ -4980,55 +4303,37 @@ function gerarChecklist() {
   const container = document.getElementById('checklist-container');
   const resultado = document.getElementById('checklist-resultado');
   if (resultado) resultado.style.display = 'none';
-
-  // Build extra items based on what changed
   const extras = [];
   const cl = changes.toLowerCase();
   if (cl.includes('login') || cl.includes('senha') || cl.includes('auth'))
-    extras.push({ id:'extra_auth', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Testar todos os fluxos de autenticação com atenção especial' });
+    extras.push({ id:'extra_auth', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar todos os fluxos de autenticação com atenção especial' });
   if (cl.includes('nf') || cl.includes('nota') || cl.includes('fornecedor'))
-    extras.push({ id:'extra_nf', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Testar leitura de NF e cruzamento de CNPJ com fornecedores cadastrados' });
-  if (cl.includes('email') || cl.includes('e-mail') || cl.includes('alerta'))
-    extras.push({ id:'extra_email', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Verificar envio de e-mail de desvio e de processo expirado' });
-  if (cl.includes('perfil') || cl.includes('permiss') || cl.includes('usuario'))
-    extras.push({ id:'extra_perfil', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Testar todos os perfis (operacional, operador, admin, developer)' });
-  if (cl.includes('pwa') || cl.includes('service worker') || cl.includes('hash') || cl.includes('build'))
-    extras.push({ id:'extra_pwa', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Instalar PWA no celular e verificar se atualizou corretamente' });
-  if (cl.includes('config') || cl.includes('firebase') || cl.includes('staging'))
-    extras.push({ id:'extra_config', categoria:'⚠️ Itens Extras (Relacionados à Mudança)', item:'Verificar sincronização de configurações entre dispositivos' });
-
+    extras.push({ id:'extra_nf', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar leitura de NF e cruzamento de CNPJ' });
+  if (cl.includes('email') || cl.includes('alerta'))
+    extras.push({ id:'extra_email', categoria:'⚠️ Itens Extras (Mudança)', item:'Verificar envio de e-mail de desvio e processo expirado' });
+  if (cl.includes('perfil') || cl.includes('usuario'))
+    extras.push({ id:'extra_perfil', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar todos os perfis (operacional, operador, admin, developer)' });
+  if (cl.includes('pwa') || cl.includes('build') || cl.includes('hash'))
+    extras.push({ id:'extra_pwa', categoria:'⚠️ Itens Extras (Mudança)', item:'Instalar PWA no celular e verificar se atualizou' });
   const allItems = [...extras, ...CHECKLIST_BASE];
-
-  // Group by category
   const groups = {};
-  allItems.forEach(item => {
-    if (!groups[item.categoria]) groups[item.categoria] = [];
-    groups[item.categoria].push(item);
-  });
-
+  allItems.forEach(item => { if (!groups[item.categoria]) groups[item.categoria] = []; groups[item.categoria].push(item); });
   let html = '';
-  if (changes) {
-    html += `<div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--warning);">
-      📝 <strong>Mudanças desta versão:</strong> ${changes}
-    </div>`;
-  }
-
+  if (changes) html += `<div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--warning);">📝 <strong>Mudanças:</strong> ${changes}</div>`;
   html += `<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Marque cada item após testar. O checklist deve estar 100% concluído antes de publicar em produção.</div>`;
-
   Object.entries(groups).forEach(([cat, items]) => {
     const isExtra = cat.includes('Extras');
     html += `<div style="background:${isExtra ? 'rgba(245,166,35,.06)' : 'var(--surface2)'};border:1px solid ${isExtra ? 'rgba(245,166,35,.2)' : 'var(--border)'};border-radius:12px;margin-bottom:14px;overflow:hidden;">
-      <div style="padding:12px 16px;background:${isExtra ? 'rgba(245,166,35,.1)' : 'rgba(255,255,255,.04)'};font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:${isExtra ? 'var(--warning)' : 'var(--text)'};">${cat}</div>
+      <div style="padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:${isExtra ? 'var(--warning)' : 'var(--text)'};">${cat}</div>
       <div style="padding:8px 16px 12px;">`;
     items.forEach(it => {
-      html += `<label style="display:flex;align-items:flex-start;gap:12px;padding:8px 4px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);" onclick="atualizarChecklist()">
+      html += `<label style="display:flex;align-items:flex-start;gap:12px;padding:8px 4px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.05);" onclick="atualizarChecklist()">
         <input type="checkbox" id="chk-${it.id}" style="width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--success);cursor:pointer;">
         <span id="chk-lbl-${it.id}" style="font-size:14px;color:var(--text2);line-height:1.5;">${it.item}</span>
       </label>`;
     });
     html += `</div></div>`;
   });
-
   html += `<button class="btn btn-primary" onclick="atualizarChecklist(true)" style="margin-top:8px;">📊 Ver Resultado</button>`;
   container.innerHTML = html;
 }
@@ -5041,41 +4346,52 @@ function atualizarChecklist(mostrarResultado = false) {
       ? 'font-size:14px;color:var(--success);text-decoration:line-through;opacity:.7;line-height:1.5;'
       : 'font-size:14px;color:var(--text2);line-height:1.5;';
   });
-
   if (!mostrarResultado) return;
-
   const total = all.length;
   const checked = Array.from(all).filter(c => c.checked).length;
   const resultado = document.getElementById('checklist-resultado');
   if (!resultado) return;
   resultado.style.display = 'block';
-
   if (checked === total) {
     resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);';
     resultado.innerHTML = '✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar em produção. Lembre de atualizar o BUILD_HASH!</span>';
   } else {
     const pct = Math.round((checked/total)*100);
     resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
-    resultado.innerHTML = `⚠️ ${checked}/${total} itens concluídos (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar em produção.</span>`;
+    resultado.innerHTML = `⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
   }
 }
 
 // ── CHANGELOG ────────────────────────────────────────────
 const CHANGELOG = [
   {
+    version: 'v20260322-r16',
+    data: '22/03/2026',
+    novidades: [
+      'Perfil Developer com aba de Deploy',
+      'Painel de Staging com geração de dados de teste',
+      'Checklist pré-deploy automático',
+      'Botão Ajuda (manual-admin) visível somente para admin/operador/developer',
+      'Link Manual do Operador na tela de login',
+      'Changelog de versões',
+    ],
+    correcoes: [
+      'Correção crítica: funções de login não executavam (bloco JS corrompido)',
+      'Recuperação de senha voltou a funcionar',
+      'limparProcessosTeste adicionada ao painel de processos',
+    ]
+  },
+  {
     version: 'v20260320-r14',
     data: '20/03/2026',
     novidades: [
       'Aba Perfis: criar e editar perfis customizados',
-      'Painel de Deploy para perfil Developer',
-      'Checklist pré-deploy automático',
-      'Geração de dados fictícios para staging',
       'Exibição de versão na aba Config',
+      'Editar placa: botão e modal de edição',
     ],
     correcoes: [
-      'Correção de bug crítico (return ilegal no script)',
       'Timeout padrão ajustado para 2 horas',
-      'E-mail enviado apenas em desvios (economia de cota)',
+      'E-mail enviado apenas em desvios',
     ]
   },
   {
@@ -5083,21 +4399,10 @@ const CHANGELOG = [
     data: '19/03/2026',
     novidades: [
       'Inativar/reativar lacres, placas e usuários',
-      'Filtros Ativos/Inativos/Todos nas três seções',
-      'Aba Logs de auditoria no painel admin',
+      'Filtros Ativos/Inativos/Todos',
+      'Aba Logs de auditoria',
       'Botões Editar e Redefinir Senha em usuários',
       'Fornecedores: editar, inativar e reativar',
-    ],
-    correcoes: []
-  },
-  {
-    version: 'v20260318-r10',
-    data: '18/03/2026',
-    novidades: [
-      'Entrada manual de lacre com foto obrigatória',
-      'Fallback manual para NF quando IA falha',
-      'Campo fornecedor com lista suspensa dos cadastrados',
-      'Alerta de processo expirado por e-mail',
     ],
     correcoes: []
   },
@@ -5105,7 +4410,7 @@ const CHANGELOG = [
     version: 'v20260316-r7',
     data: '16/03/2026',
     novidades: [
-      'Sistema base: câmera, IA, NF, geolocalização',
+      'Sistema base: câmera, IA Gemini, NF, geolocalização',
       'Painel admin com dashboard KPIs',
       'Controle de acesso por perfil',
       'Notificações por e-mail',
@@ -5116,66 +4421,49 @@ const CHANGELOG = [
 ];
 
 function verChangelog() {
-  const modal = document.getElementById('changelog-modal');
-  const criar = !modal;
-  const m = modal || document.createElement('div');
-  m.id = 'changelog-modal';
+  let m = document.getElementById('changelog-modal');
+  if (!m) { m = document.createElement('div'); m.id = 'changelog-modal'; document.body.appendChild(m); }
   m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-
   const html = CHANGELOG.map((v, i) => `
-    <div style="background:${i===0 ? 'rgba(27,58,107,.2)' : 'transparent'};border:1px solid ${i===0 ? 'var(--gerdau-blue)' : 'var(--border)'};border-radius:12px;padding:18px;margin-bottom:14px;">
+    <div style="background:${i===0 ? 'rgba(27,58,107,.15)' : 'transparent'};border:1px solid ${i===0 ? 'var(--gerdau-blue)' : 'var(--border)'};border-radius:12px;padding:18px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--text);">${v.version}</span>
-        ${i===0 ? '<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:1px;">ATUAL</span>' : ''}
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;">${v.version}</span>
+        ${i===0 ? '<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">ATUAL</span>' : ''}
         <span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span>
       </div>
-      ${v.novidades.length ? `<div style="margin-bottom:8px;">
-        <div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:6px;">NOVIDADES</div>
-        ${v.novidades.map(n => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}
-      </div>` : ''}
-      ${v.correcoes.length ? `<div>
-        <div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:6px;">CORREÇÕES</div>
-        ${v.correcoes.map(c => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}
-      </div>` : ''}
+      ${v.novidades.length ? `<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:6px;">NOVIDADES</div>${v.novidades.map(n => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}</div>` : ''}
+      ${v.correcoes.length ? `<div><div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:6px;">CORREÇÕES</div>${v.correcoes.map(c => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}</div>` : ''}
     </div>`).join('');
-
   m.innerHTML = `
     <div style="background:var(--surface);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);">
       <div style="padding:20px 24px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:var(--text);">📋 CHANGELOG</div>
-        <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;">✕</button>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;">📋 CHANGELOG</div>
+        <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;">✕</button>
       </div>
       <div style="overflow-y:auto;padding:20px 24px;">${html}</div>
     </div>`;
-
-  if (criar) document.body.appendChild(m);
   m.style.display = 'flex';
 }
 
+// ── EDITAR E SALVAR PLACA ─────────────────────────────────
 async function editarPlaca(placa, descricaoAtual) {
-  const modal = document.getElementById('edit-placa-modal');
-  const criar = !modal;
-  const m = modal || document.createElement('div');
-  m.id = 'edit-placa-modal';
-  m.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  let m = document.getElementById('edit-placa-modal');
+  if (!m) { m = document.createElement('div'); m.id = 'edit-placa-modal'; document.body.appendChild(m); }
+  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
   m.innerHTML = `
     <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR PLACA</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Placa: <strong style="font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">${placa}</strong></div>
-      <input type="hidden" id="edit-placa-id">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Placa: <strong style="letter-spacing:2px;">${placa}</strong></div>
+      <input type="hidden" id="edit-placa-id" value="${placa}">
       <div class="input-group">
         <label>Descrição / Transportadora</label>
-        <input type="text" id="edit-placa-desc" placeholder="EX: CARRETA TANQUE — TRANSPORTADORA ALFA" style="font-size:14px;letter-spacing:0;text-transform:uppercase;">
+        <input type="text" id="edit-placa-desc" value="${descricaoAtual}" placeholder="EX: CARRETA TANQUE" style="font-size:14px;letter-spacing:0;text-transform:uppercase;">
       </div>
       <div style="display:flex;gap:10px;margin-top:8px;">
         <button class="btn btn-primary" onclick="salvarEdicaoPlaca()" style="flex:1;">💾 Salvar</button>
         <button class="btn btn-outline" onclick="document.getElementById('edit-placa-modal').style.display='none'" style="flex:1;">Cancelar</button>
       </div>
     </div>`;
-  if (criar) document.body.appendChild(m);
-  document.getElementById('edit-placa-id').value = placa;
-  document.getElementById('edit-placa-desc').value = descricaoAtual.toUpperCase();
-  m.style.display = 'flex';
 }
 
 async function salvarEdicaoPlaca() {
@@ -5187,9 +4475,44 @@ async function salvarEdicaoPlaca() {
     document.getElementById('edit-placa-modal').style.display = 'none';
     showTopAlert(`✅ Placa ${placa} atualizada`, 'ok');
     loadPlacas();
-    _todasPlacas = null; // reset cache
   } catch(e) { alert('Erro: ' + e.message); }
 }
+
+// ── GESTÃO DE PERFIS CUSTOMIZADOS ────────────────────────
+async function getPerfisCustomizados() {
+  try { const doc = await db.collection('config').doc('perfis-customizados').get(); return doc.exists ? doc.data() : {}; }
+  catch(e) { return {}; }
+}
+
+async function criarNovoPerfil() {
+  const id = document.getElementById('novo-perfil-id')?.value.trim();
+  const nome = document.getElementById('novo-perfil-nome')?.value.trim();
+  if (!id) { showTopAlert('❌ Informe o ID do perfil', 'error'); return; }
+  if (!nome) { showTopAlert('❌ Informe o nome de exibição', 'error'); return; }
+  if (['admin','operador','operacional','developer'].includes(id)) { showTopAlert('❌ Esse ID já é um perfil padrão', 'error'); return; }
+  try {
+    await db.collection('config').doc('perfis-customizados').set({ [id]: nome }, { merge: true });
+    await db.collection('config').doc('permissoes').set({ [id]: [] }, { merge: true });
+    _cachedPerms = null;
+    document.getElementById('novo-perfil-id').value = '';
+    document.getElementById('novo-perfil-nome').value = '';
+    showTopAlert(`✅ Perfil "${nome}" criado!`, 'ok');
+    await registrarLog('criar_perfil', `Perfil: ${id} = ${nome}`);
+    loadPerfis();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function removerPerfilCustomizado(id, nome) {
+  if (!confirm(`Remover perfil "${nome}"?\n\nUsuários com esse perfil perderão acesso ao admin.`)) return;
+  try {
+    await db.collection('config').doc('perfis-customizados').update({ [id]: firebase.firestore.FieldValue.delete() });
+    await db.collection('config').doc('permissoes').update({ [id]: firebase.firestore.FieldValue.delete() });
+    _cachedPerms = null;
+    showTopAlert(`🚫 Perfil "${nome}" removido`, 'warning');
+    loadPerfis();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
 </script>
 </body>
 </html>
