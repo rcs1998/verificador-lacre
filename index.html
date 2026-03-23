@@ -932,6 +932,14 @@ tbody tr:hover{background:var(--surface2);}
             </div>
           </div>
 
+          <!-- LIMPAR DADOS DE TESTE DA PRODUÇÃO -->
+          <div class="card" style="margin-bottom:16px;border-left:3px solid var(--danger);">
+            <div class="card-title" style="color:var(--danger);">🧹 Limpar Dados de Teste — Produção</div>
+            <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove permanentemente todos os documentos marcados como <code>_testData</code> do banco de <strong>produção</strong>. Use quando dados de teste vazaram para o ambiente real.</div>
+            <button class="btn btn-sm" style="width:auto;background:var(--danger);color:#fff;" onclick="limparDadosTesteProducao()">🗑 Deletar dados de teste da produção</button>
+            <div id="limpar-prod-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;"></div>
+          </div>
+
           <!-- GERAR DADOS DE TESTE -->
           <div class="card" style="margin-bottom:16px;">
             <div class="card-title">🎲 Gerar Dados de Teste</div>
@@ -942,7 +950,7 @@ tbody tr:hover{background:var(--surface2);}
               <button class="btn btn-outline btn-sm" style="width:auto;" onclick="gerarDadosTeste('lacres')">🔐 Só Lacres</button>
               <button class="btn btn-outline btn-sm" style="width:auto;" onclick="gerarDadosTeste('placas')">🚗 Só Placas</button>
               <button class="btn btn-outline btn-sm" style="width:auto;" onclick="gerarDadosTeste('processos')">🚛 Só Processos</button>
-              <button class="btn btn-outline btn-sm" style="width:auto;border-color:var(--danger);color:var(--danger);" onclick="limparDadosTeste()">🗑 Limpar Dados de Teste</button>
+              <button class="btn btn-outline btn-sm" style="width:auto;border-color:var(--danger);color:var(--danger);" onclick="limparDadosTeste()">🗑 Limpar Dados de Teste (staging)</button>
             </div>
             <div id="staging-gen-log" style="margin-top:12px;font-size:13px;color:var(--text2);min-height:20px;"></div>
           </div>
@@ -1174,7 +1182,21 @@ async function loadConfigOnStartup() {
 }
 // Run after Firebase init (with short delay to ensure db is ready)
 setTimeout(loadConfigOnStartup, 1500);
+setTimeout(loadEmailJSFromFirestore, 2000);
 
+async function loadEmailJSFromFirestore() {
+  if (!db) return;
+  try {
+    const ejsDoc = await db.collection('config').doc('emailjs').get();
+    if (ejsDoc.exists) {
+      const e = ejsDoc.data();
+      if (e.pub) setCfg('ejs_pub', e.pub);
+      if (e.svc) setCfg('ejs_svc', e.svc);
+      if (e.tpl) setCfg('ejs_tpl', e.tpl);
+      initEmailJS();
+    }
+  } catch(err) { console.warn('EmailJS load error:', err.message); }
+}
 function initEmailJS() {
   const pub = getCfg('ejs_pub', 'HTO7hOr-_3BU0mUcG');
   if (pub) emailjs.init(pub);
@@ -2517,7 +2539,7 @@ async function loadLacres() {
   if (!db) return;
   try {
     const snap = await db.collection('lacresValidos').orderBy('numero').get();
-    todosLacres = snap.docs.map(d=>({id:d.id,...d.data()}));
+    todosLacres = filtrarDadosReais(snap.docs).map(d=>({id:d.id,...d.data()}));
     filtroLacresStatus(_filtroLacres || 'ativos');
   } catch(e) { console.warn(e.message); }
 }
@@ -2691,7 +2713,7 @@ async function loadPlacas() {
   if (!db) return;
   try {
     const snap = await db.collection('placasAutorizadas').orderBy('placa').get();
-    _todasPlacas = snap.docs.map(d=>({id:d.id,...d.data()}));
+    _todasPlacas = filtrarDadosReais(snap.docs).map(d=>({id:d.id,...d.data()}));
     filtroPlacasStatus(_filtroPlacas || 'ativas');
   } catch(e) { console.warn(e.message); }
 }
@@ -3185,6 +3207,19 @@ async function loadConfig() {
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
   document.getElementById('cfg-firebase').value = getCfg('firebase_config','{}');
+  // Carregar EmailJS do Firestore (fonte de verdade) — substitui valores do localStorage
+  if (db) {
+    try {
+      const ejsDoc = await db.collection('config').doc('emailjs').get();
+      if (ejsDoc.exists) {
+        const e = ejsDoc.data();
+        if (e.pub) { setCfg('ejs_pub', e.pub); document.getElementById('cfg-ejs-pub').value = e.pub; }
+        if (e.svc) { setCfg('ejs_svc', e.svc); document.getElementById('cfg-ejs-svc').value = e.svc; }
+        if (e.tpl) { setCfg('ejs_tpl', e.tpl); document.getElementById('cfg-ejs-tpl').value = e.tpl; }
+        initEmailJS();
+      }
+    } catch(e) { console.warn('EmailJS Firestore load error:', e.message); }
+  }
 }
 
 async function salvarGeminiKey() {
@@ -3227,12 +3262,21 @@ async function salvarTimeoutConfig() {
   showTopAlert('✅ Timeout de sessão atualizado para ' + timeout + ' horas!', 'ok');
 }
 
-function salvarEmailJS() {
-  setCfg('ejs_pub', document.getElementById('cfg-ejs-pub').value.trim());
-  setCfg('ejs_svc', document.getElementById('cfg-ejs-svc').value.trim());
-  setCfg('ejs_tpl', document.getElementById('cfg-ejs-tpl').value.trim());
+async function salvarEmailJS() {
+  const pub = document.getElementById('cfg-ejs-pub').value.trim();
+  const svc = document.getElementById('cfg-ejs-svc').value.trim();
+  const tpl = document.getElementById('cfg-ejs-tpl').value.trim();
+  if (!pub || !svc || !tpl) { showTopAlert('⚠️ Preencha todos os campos do EmailJS.', 'warning'); return; }
+  setCfg('ejs_pub', pub); setCfg('ejs_svc', svc); setCfg('ejs_tpl', tpl);
+  // Salvar no Firestore para sincronizar em todos os dispositivos
+  if (db) {
+    try {
+      await db.collection('config').doc('emailjs').set({ pub, svc, tpl,
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+    } catch(e) { console.warn('EmailJS Firestore save error:', e.message); }
+  }
   initEmailJS();
-  showTopAlert('✅ EmailJS configurado com sucesso!', 'ok');
+  showTopAlert('✅ EmailJS configurado e sincronizado!', 'ok');
 }
 
 function salvarFirebase() {
@@ -3546,8 +3590,8 @@ async function loadDashboard() {
       ]);
       const placasEl = document.getElementById('dash-placas-ativas');
       const lacresEl = document.getElementById('dash-lacres-disp');
-      if (placasEl) placasEl.textContent = snapPlacas.size;
-      if (lacresEl) lacresEl.textContent = snapLacres.size;
+      if (placasEl) placasEl.textContent = filtrarDadosReais(snapPlacas.docs).filter(d=>!d.data().inativa).length;
+      if (lacresEl) lacresEl.textContent = filtrarDadosReais(snapLacres.docs).length;
     } catch(e2) { console.warn('KPI extra error:', e2.message); }
 
   } catch(e) { console.warn('Dashboard error:', e.message); }
@@ -4390,7 +4434,7 @@ async function carregarFornecedoresDropdown() {
   if (_fornecedoresCache) return _fornecedoresCache;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
-    _fornecedoresCache = snap.docs.filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
+    _fornecedoresCache = filtrarDadosReais(snap.docs).filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
   } catch(e) { console.warn(e.message); _fornecedoresCache=[]; }
   return _fornecedoresCache;
 }
@@ -4412,7 +4456,7 @@ async function loadFornecedores() {
   if (!db) return;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
-    _todosFornecedores = snap.docs.map(d=>({id:d.id,...d.data()}));
+    _todosFornecedores = filtrarDadosReais(snap.docs).map(d=>({id:d.id,...d.data()}));
     filtroFornStatus(_filtroForn||'ativos');
   } catch(e) { console.warn(e.message); }
 }
@@ -4570,6 +4614,33 @@ function salvarStagingConfig(){
   setCfg('firebase_staging_config',raw);showTopAlert('✅ Config staging salva! Recarregue a página.','ok');
 }
 function limparStagingConfig(){if(!confirm('Remover config do staging?'))return;localStorage.removeItem('firebase_staging_config');showTopAlert('✅ Staging removido','ok');loadDeployPanel();}
+
+async function limparDadosTesteProducao() {
+  if (!isProduction()) { showTopAlert('⛔ Esta função só executa em produção.', 'error'); return; }
+  if (!confirm('⚠️ Isso vai DELETAR permanentemente todos os documentos marcados como _testData do banco de PRODUÇÃO.\n\nEsta ação é irreversível. Confirmar?')) return;
+  if (!db) return;
+  const logEl = document.getElementById('limpar-prod-log');
+  if (logEl) logEl.textContent = '⏳ Removendo...';
+  let total = 0;
+  const colecoes = ['lacresValidos','placasAutorizadas','fornecedores','processos'];
+  for (const col of colecoes) {
+    try {
+      const snap = await db.collection(col).where('_testData','==',true).get();
+      if (!snap.empty) {
+        const b = db.batch();
+        snap.docs.forEach(d => b.delete(d.ref));
+        await b.commit();
+        total += snap.size;
+        if (logEl) logEl.textContent = `⏳ Removidos ${total} até agora...`;
+      }
+    } catch(e) { console.warn(`Erro em ${col}:`, e.message); }
+  }
+  if (logEl) logEl.textContent = `✅ ${total} documento(s) de teste removidos da produção.`;
+  showTopAlert(`✅ ${total} documento(s) de teste deletados da produção.`, 'ok');
+  try { await registrarLog('limpar_dados_teste', `${total} documentos _testData deletados da produção`); } catch(_) {}
+  _fornecedoresCache = null;
+  loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
+}
 const DADOS_TESTE={placas:[{placa:'ABC1234',descricao:'CARRETA TANQUE — ALFA'},{placa:'XYZ5678',descricao:'BITREM — BETA'},{placa:'DEF1E23',descricao:'CARRETA SIDER — GAMA'},{placa:'GHI4567',descricao:'CARRETA BAÚ — DELTA'},{placa:'JKL8901',descricao:'TRUCK — ÉPSILON'}],lacres:Array.from({length:30},(_,i)=>String(i+1).padStart(5,'0')),fornecedores:[{cnpj:'12345678000195',nome:'FORNECEDOR ALFA LTDA'},{cnpj:'98765432000100',nome:'DISTRIBUIDORA BETA S/A'},{cnpj:'11223344000155',nome:'INDUSTRIA GAMA EIRELI'}],locais:[{loc:'São Paulo, SP',coords:'-23.5505,-46.6333'},{loc:'Campinas, SP',coords:'-22.9056,-47.0608'},{loc:'Sorocaba, SP',coords:'-23.5015,-47.4526'}]};
 async function gerarDadosTeste(tipo='todos'){
   if(!db){alert('Firebase não configurado.');return;}if(isProduction()){alert('⛔ Bloqueado em produção.');return;}
