@@ -164,9 +164,9 @@ input[type="text"]:focus,input[type="email"]:focus,input[type="password"]:focus,
 .danger-bar{background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:var(--radius);padding:11px 14px;font-size:12px;color:var(--danger);margin-bottom:14px;font-weight:500;}
 
 /* ADMIN OVERLAY */
-.overlay{position:fixed;inset:0;background:rgba(10,20,40,0.6);z-index:100;display:none;overflow-y:auto;backdrop-filter:blur(4px);}
+.overlay{position:fixed;inset:0;background:var(--bg,#f0f2f5);z-index:100;display:none;overflow-y:auto;}
 .overlay.show{display:block;}
-.admin-panel{background:var(--bg);min-height:100vh;width:100%;}
+.admin-panel{min-height:100vh;background:var(--surface);display:flex;flex-direction:column;}
 
 /* ADMIN HEADER */
 .admin-header{background:var(--gerdau-blue);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-md);border-bottom:3px solid var(--gerdau-yellow);}
@@ -465,7 +465,15 @@ tbody tr:hover{background:var(--surface2);}
     <!-- Admin Header -->
     <div class="admin-header">
       <h1>GERDAU — VERIFICA LACRE</h1>
-      <button class="admin-btn" onclick="closeAdmin()">✕ Fechar</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a href="manual-admin.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
+        <button class="admin-btn" onclick="closeAdmin()" style="display:flex;align-items:center;gap:6px;">← Voltar ao Sistema</button>
+      </div>
+    </div>
+
+    <!-- Staging Banner (only shown when connected to staging) -->
+    <div id="staging-banner" style="display:none;background:linear-gradient(90deg,#1a6b3a,#0f4a28);color:#5ecb8a;text-align:center;padding:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;font-size:13px;border-bottom:2px solid #1a8c4e;">
+      🟢 AMBIENTE DE STAGING — verificador-lacre-staging
     </div>
 
     <!-- Login -->
@@ -1046,13 +1054,15 @@ function initFirebase() {
     let chosen = null;
 
     if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
-      // Modo staging hardcoded — usa config do código
+      // Modo staging via código (arquivo staging/)
       chosen = STAGING_FIREBASE_CONFIG;
     } else {
-      // Modo produção — limpa staging config do localStorage se existir
-      // (evita conectar no banco errado após uma sessão de testes)
-      localStorage.removeItem('firebase_staging_config');
-      try { const c = JSON.parse(getCfg('firebase_config','{}')); if (c.apiKey) chosen = c; } catch(_) {}
+      // Modo padrão: lê staging config do localStorage se disponível
+      // (configurado via Painel Deploy — persiste entre sessões)
+      try { const s = JSON.parse(localStorage.getItem('firebase_staging_config')||'{}'); if (s.apiKey) chosen = s; } catch(_) {}
+      if (!chosen) {
+        try { const c = JSON.parse(getCfg('firebase_config','{}')); if (c.apiKey) chosen = c; } catch(_) {}
+      }
     }
 
     if (!chosen) chosen = {
@@ -1174,9 +1184,8 @@ function doAppLogout() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  // Esconde Ajuda no logout — só aparece para admin/operador/developer após login
   const ajudaBtnL = document.getElementById('btn-ajuda-admin');
-  if (ajudaBtnL) ajudaBtnL.style.display = 'none';
+  if (ajudaBtnL) ajudaBtnL.style.display = 'none'; // esconde na tela de login
   // Stop cameras
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
@@ -1988,17 +1997,7 @@ async function verificarDestino(resultDestino) {
 // ============================================================
 // HELPERS
 // ============================================================
-function showTopAlert(msg, type) {
-  const alert = document.getElementById('top-alert');
-  alert.textContent = msg;
-  alert.className = `info-bar ${type === 'error' ? 'danger-bar' : 'info-bar'}`;
-  alert.style.display = 'block';
-  setTimeout(() => alert.style.display = 'none', 5000);
-}
-
-function hideTopAlert() {
-  document.getElementById('top-alert').style.display = 'none';
-}
+// showTopAlert e hideTopAlert definidos abaixo com versão completa
 
 function mostrarEntradaManual(lado) {
   if (document.getElementById(`manual-entry-${lado}`)) return;
@@ -2142,7 +2141,10 @@ function openAdmin() {
     return;
   }
   const overlay = document.getElementById('admin-overlay');
-  overlay.classList.add('show');
+  overlay.style.display = 'block';
+  overlay.scrollTop = 0;
+  const sb = document.getElementById('staging-banner');
+  if (sb) sb.style.display = isStagingConfigured() ? 'block' : 'none';
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-body').style.display = 'none';
   document.getElementById('admin-email').value = '';
@@ -2168,7 +2170,7 @@ function openAdmin() {
   }
 }
 
-function closeAdmin() { document.getElementById('admin-overlay').classList.remove('show'); }
+function closeAdmin() { document.getElementById('admin-overlay').style.display = 'none';; }
 
 let currentUserRole = 'operador';
 
@@ -3624,7 +3626,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r23';
+    const BUILD_HASH = 'v2.0';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -3795,9 +3797,7 @@ async function doAppLoginComOffline() {
       adminBtn.style.visibility = 'visible';
     }
     const ajudaBtnLogin = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtnLogin) {
-      ajudaBtnLogin.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'inline-block' : 'none';
-    }
+    if (ajudaBtnLogin) ajudaBtnLogin.style.display = 'inline-block'; // visível para todos
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
     if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
@@ -3830,9 +3830,8 @@ function doAppLogoutComOffline() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  // Esconde Ajuda no logout — só aparece para admin/operador/developer após login
   const ajudaBtnL = document.getElementById('btn-ajuda-admin');
-  if (ajudaBtnL) ajudaBtnL.style.display = 'none';
+  if (ajudaBtnL) ajudaBtnL.style.display = 'none'; // esconde na tela de login
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t => t.stop());
     state[lado].stream = null;
@@ -4479,7 +4478,7 @@ function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
-  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v20260322-r23</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
+  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v2.0</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
   const warn=document.getElementById('staging-env-warning');if(warn)warn.style.display=isProd?'block':'none';
 }
 function jsConfigToJson(raw){return raw.replace(/\/\/.*/g,'').replace(/,\s*\}/g,'}').replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g,'$1"$2":');}
@@ -4528,12 +4527,33 @@ function atualizarChecklist(show=false){
   r.style.cssText=checked===total?'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);':'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
   r.innerHTML=checked===total?'✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar. Lembre de atualizar o BUILD_HASH!</span>':`⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
 }
-const CHANGELOG=[{version:'v20260322-r23',data:'22/03/2026',novidades:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial de chamado','Perfil detectado automaticamente pelo e-mail','Banner de feedback persistente — erros não somem sozinhos','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy'],correcoes:['Correção crítica: funções JS não executavam (bloco corrompido)','Duplicatas de botão Suporte removidas','Erro de initFirebase ao sair resolvido']},{version:'v20260320-r14',data:'20/03/2026',novidades:['Painel de staging','Checklist pré-deploy','Changelog de versões'],correcoes:['Timeout padrão 2h','E-mail só em desvios']},{version:'v20260319-r13',data:'19/03/2026',novidades:['Inativar/reativar lacres, placas, usuários','Aba Logs','Fornecedores: editar, inativar, reativar'],correcoes:[]}];
+const CHANGELOG=[  {    version:'2.0', data:'22/03/2026',    novidades_admin:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial (SUP-AANNNN)','Perfil detectado automaticamente pelo e-mail no suporte','Banner de feedback persistente — erros não somem automaticamente','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy e checklist pré-deploy','Painel Admin em tela dedicada (sem sobreposição)','Botão Ajuda visível para todos os perfis'],    correcoes_admin:['Correção crítica: funções JS não executavam (bloco corrompido)','Login: auth/invalid-login-credentials mapeado corretamente','Staging não interfere mais com configuração de produção','Duplicatas de botão Suporte removidas','Banner de erro não sumia automaticamente'],    novidades_user:['Botão de suporte disponível em todas as telas','Câmera da nota fiscal com captura automática','Botão para mostrar/ocultar senha no login'],    correcoes_user:['Correções de estabilidade no login','Melhorias na aba Origem','Correções gerais de interface']  },  {    version:'1.3', data:'20/03/2026',    novidades_admin:['Painel de staging','Checklist pré-deploy','Changelog de versões'],    correcoes_admin:['Timeout padrão ajustado para 2h','E-mail enviado apenas em desvios'],    novidades_user:['Melhorias na aba de configurações'],    correcoes_user:['Correções gerais de estabilidade']  },  {    version:'1.2', data:'19/03/2026',    novidades_admin:['Inativar/reativar lacres, placas e usuários','Aba de Logs de auditoria','Fornecedores: editar, inativar e reativar','Exportação CSV do histórico'],    correcoes_admin:[],    novidades_user:['Melhorias no histórico de processos'],    correcoes_user:['Correções na verificação de lacres']  },  {    version:'1.0', data:'16/03/2026',    novidades_admin:['Sistema base: câmera, IA Gemini, NF, geolocalização','Painel admin com dashboard KPIs','Controle de acesso por perfil','Notificações por e-mail','Exportação CSV'],    correcoes_admin:[],    novidades_user:['Lançamento do sistema VerificaLacre','Registro de saída e verificação de chegada','Leitura de lacre por câmera'],    correcoes_user:[]  }];
 function verChangelog(){
-  let m=document.getElementById('changelog-modal');if(!m){m=document.createElement('div');m.id='changelog-modal';document.body.appendChild(m);}
+  const isAdmin = currentUserRole==='admin'||currentUserRole==='developer';
+  let m=document.getElementById('changelog-modal');
+  if(!m){m=document.createElement('div');m.id='changelog-modal';document.body.appendChild(m);}
   m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  const html=CHANGELOG.map((v,i)=>`<div style="background:${i===0?'rgba(27,58,107,.15)':'transparent'};border:1px solid ${i===0?'var(--gerdau-blue)':'var(--border)'};border-radius:12px;padding:16px;margin-bottom:12px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;"><span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;">${v.version}</span>${i===0?'<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">ATUAL</span>':''}<span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span></div>${v.novidades.length?`<div style="margin-bottom:6px;"><div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:4px;">NOVIDADES</div>${v.novidades.map(n=>`<div style="font-size:13px;color:var(--text2);padding:2px 0;display:flex;gap:6px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}</div>`:''} ${v.correcoes.length?`<div><div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:4px;">CORREÇÕES</div>${v.correcoes.map(c=>`<div style="font-size:13px;color:var(--text2);padding:2px 0;display:flex;gap:6px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}</div>`:''}</div>`).join('');
-  m.innerHTML=`<div style="background:var(--surface);border-radius:16px;width:100%;max-width:540px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);"><div style="padding:18px 22px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;">📋 CHANGELOG</div><button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-weight:700;">✕</button></div><div style="overflow-y:auto;padding:18px 22px;">${html}</div></div>`;
+  const novKey = isAdmin ? 'novidades_admin' : 'novidades_user';
+  const corKey = isAdmin ? 'correcoes_admin' : 'correcoes_user';
+  const html=CHANGELOG.map((v,i)=>{
+    const nov=v[novKey]||[];const cor=v[corKey]||[];
+    return `<div style="background:${i===0?'rgba(27,58,107,.15)':'transparent'};border:1px solid ${i===0?'var(--gerdau-blue)':'var(--border)'};border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;">v${v.version}</span>
+        ${i===0?'<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">ATUAL</span>':''}
+        <span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span>
+      </div>
+      ${nov.length?`<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:4px;">NOVIDADES</div>${nov.map(n=>`<div style="font-size:13px;color:var(--text2);padding:2px 0;display:flex;gap:6px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}</div>`:''}
+      ${cor.length?`<div><div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:4px;">CORREÇÕES</div>${cor.map(c=>`<div style="font-size:13px;color:var(--text2);padding:2px 0;display:flex;gap:6px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+  m.innerHTML=`<div style="background:var(--surface);border-radius:16px;width:100%;max-width:540px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);">
+    <div style="padding:18px 22px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;">📋 CHANGELOG</div>
+      <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-weight:700;">✕</button>
+    </div>
+    <div style="overflow-y:auto;padding:18px 22px;">${html}</div>
+  </div>`;
   m.style.display='flex';
 }
 
@@ -4722,5 +4742,120 @@ async function enviarSuporte(){
 
 </script>
 
+
+<!-- MODAL CONFIGURAR STAGING -->
+<div id="staging-setup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border-radius:14px;width:92%;max-width:500px;box-shadow:0 16px 60px rgba(0,0,0,.5);overflow:hidden;">
+    <div style="background:#0f4a28;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1a8c4e;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#5ecb8a;letter-spacing:2px;">⚙ CONFIGURAR STAGING</div>
+      <button onclick="document.getElementById('staging-setup-modal').style.display='none'" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;">✕</button>
+    </div>
+    <div style="padding:20px;">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
+        Cole o objeto de configuração do Firebase Staging abaixo. <strong style="color:var(--text)">Isso é feito uma única vez</strong> neste dispositivo — o sistema lembrará automaticamente.
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7;">
+        {<br>
+        &nbsp;&nbsp;apiKey: "...",<br>
+        &nbsp;&nbsp;authDomain: "verificador-lacre-staging.firebaseapp.com",<br>
+        &nbsp;&nbsp;projectId: "verificador-lacre-staging",<br>
+        &nbsp;&nbsp;...<br>
+        }
+      </div>
+      <textarea id="staging-setup-input" rows="8" placeholder='Cole aqui o config do Firebase Staging...' style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px 13px;width:100%;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <div id="staging-setup-err" style="color:var(--danger);font-size:12px;margin-top:6px;display:none;"></div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn btn-primary" onclick="salvarStagingSetup()" style="flex:1;background:#1a8c4e;">💾 Salvar e Conectar</button>
+        <button class="btn btn-outline" onclick="limparStagingSetup()" style="border-color:var(--danger);color:var(--danger);">🗑 Limpar</button>
+      </div>
+      <div id="staging-setup-status" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html
+
+// ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
+function abrirConfigurarStaging(evt) {
+  if (evt) evt.preventDefault();
+  const modal = document.getElementById('staging-setup-modal');
+  if (!modal) return;
+  // Pre-fill if already configured
+  const existing = localStorage.getItem('firebase_staging_config');
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing);
+      document.getElementById('staging-setup-input').value =
+        JSON.stringify(parsed, null, 2);
+    } catch(_) {}
+  }
+  const status = document.getElementById('staging-setup-status');
+  if (status) {
+    const cfg = localStorage.getItem('firebase_staging_config');
+    if (cfg) {
+      try {
+        const p = JSON.parse(cfg);
+        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
+        status.textContent = '✅ Staging já configurado: ' + (p.projectId || '');
+      } catch(_) {}
+    } else {
+      status.style.display = 'none';
+    }
+  }
+  modal.style.display = 'flex';
+}
+
+function jsToJson(raw) {
+  return raw
+    .replace(/\/\/[^
+]*/g, '')
+    .replace(/,(\s*[}\]])/g, '$1')
+    .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":');
+}
+
+function salvarStagingSetup() {
+  let raw = document.getElementById('staging-setup-input').value.trim();
+  const errEl = document.getElementById('staging-setup-err');
+  const status = document.getElementById('staging-setup-status');
+  errEl.style.display = 'none';
+  if (!raw) { errEl.textContent = 'Cole o config do Firebase antes de salvar.'; errEl.style.display = 'block'; return; }
+  // Auto-convert JS format to JSON
+  try { JSON.parse(raw); } catch(e) {
+    try { raw = jsToJson(raw); JSON.parse(raw); }
+    catch(e2) { errEl.textContent = 'Formato inválido: ' + e2.message; errEl.style.display = 'block'; return; }
+  }
+  const cfg = JSON.parse(raw);
+  if (!cfg.apiKey || !cfg.projectId) {
+    errEl.textContent = 'Config incompleto — verifique se copiou tudo do Firebase Console.';
+    errEl.style.display = 'block'; return;
+  }
+  localStorage.setItem('firebase_staging_config', raw);
+  status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
+  status.textContent = '✅ Staging configurado: ' + cfg.projectId + ' — Recarregue a página para conectar.';
+  setTimeout(() => {
+    document.getElementById('staging-setup-modal').style.display = 'none';
+    location.reload();
+  }, 2000);
+}
+
+function limparStagingSetup() {
+  if (!confirm('Remover configuração de staging? O sistema voltará a usar o banco de produção.')) return;
+  localStorage.removeItem('firebase_staging_config');
+  document.getElementById('staging-setup-input').value = '';
+  const status = document.getElementById('staging-setup-status');
+  if (status) { status.style.cssText = 'display:block;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);color:#c0392b;'; status.textContent = '🗑 Config removido — Recarregando...'; }
+  setTimeout(() => location.reload(), 1500);
+}
+
+// Show staging config button only in staging environment OR if URL contains 'staging'
+(function checkShowStagingBtn() {
+  const btn = document.getElementById('btn-configurar-staging');
+  if (!btn) return;
+  const isStaging = window.location.href.includes('/staging') || IS_STAGING_BUILD;
+  if (isStaging) btn.style.display = 'inline';
+})();
+
+</script>
 </body>
 </html>
