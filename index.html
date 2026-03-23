@@ -265,7 +265,7 @@ tbody tr:hover{background:var(--surface2);}
       <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
-        <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Sistema</a>
+        <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
       </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
@@ -280,7 +280,7 @@ tbody tr:hover{background:var(--surface2);}
       <div id="op-nome-display">—</div>
     </div>
     <div class="header-buttons">
-      <a href="manual-admin.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
+      <a href="manual-admin.html" target="_blank" class="admin-btn" id="btn-ajuda-admin" style="text-decoration:none;display:none;">❓ Ajuda</a>
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
       <button class="admin-btn" onclick="doAppLogoutComOffline()">🚪 Sair</button>
     </div>
@@ -3031,7 +3031,7 @@ async function encerrarProcessoManual(id, lacreNum) {
   }
 }
 
-// ── LIMPAR PROCESSOS DE TESTE ─────────────────────────────
+// ── LIMPAR PROCESSOS DE TESTE ─────────────────────────────────────────
 async function limparProcessosTeste() {
   if (!db) return;
   if (!confirm('Remover todos os processos marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
@@ -3727,6 +3727,11 @@ async function doAppLoginComOffline() {
       document.getElementById('app-login-screen').style.display = 'none';
       document.getElementById('app-main').style.display = 'block';
       applyRolePermissions(offlineData.perfil);
+      const ajudaBtnOff = document.getElementById('btn-ajuda-admin');
+      if (ajudaBtnOff) {
+        const pf = offlineData.perfil;
+        ajudaBtnOff.style.display = (pf === 'admin' || pf === 'operador' || pf === 'developer') ? 'inline-block' : 'none';
+      }
       initSessionTimeout();
       setTimeout(() => startCamera('origem'), 300);
       showTopAlert('⚠️ Modo Offline — Dados podem estar desatualizados', 'warning');
@@ -3772,10 +3777,15 @@ async function doAppLoginComOffline() {
     document.getElementById('op-nome-display').textContent = nome;
     document.getElementById('app-login-screen').style.display = 'none';
     document.getElementById('app-main').style.display = 'block';
-    const adminBtn = document.querySelector('.admin-btn');
+    const adminBtn = document.querySelector('.admin-btn:not(#btn-ajuda-admin)');
     if (adminBtn) {
       adminBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'block' : 'none';
       adminBtn.style.visibility = 'visible';
+    }
+    // Botão Ajuda (manual-admin): somente para quem tem acesso ao admin
+    const ajudaBtn = document.getElementById('btn-ajuda-admin');
+    if (ajudaBtn) {
+      ajudaBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'inline-block' : 'none';
     }
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
