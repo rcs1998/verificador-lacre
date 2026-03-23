@@ -1147,8 +1147,9 @@ function doAppLogout() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  const adminBtn = document.querySelector('.admin-btn');
-  if (adminBtn) adminBtn.style.display = 'block';
+  // Esconde o botão Ajuda no logout (só aparece para admin/operador/developer após login)
+  const ajudaBtnLogout = document.getElementById('btn-ajuda-admin');
+  if (ajudaBtnLogout) ajudaBtnLogout.style.display = 'none';
   // Stop cameras
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
@@ -3596,7 +3597,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r15';
+    const BUILD_HASH = 'v20260322-r16';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -3793,8 +3794,9 @@ function doAppLogoutComOffline() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  const adminBtn = document.querySelector('.admin-btn');
-  if (adminBtn) adminBtn.style.display = 'block';
+  // Esconde o botão Ajuda no logout (só aparece para admin/operador/developer após login)
+  const ajudaBtnLogout = document.getElementById('btn-ajuda-admin');
+  if (ajudaBtnLogout) ajudaBtnLogout.style.display = 'none';
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t => t.stop());
     state[lado].stream = null;
@@ -4070,6 +4072,447 @@ async function limparProcessosTeste() {
     loadProcessos();
   } catch(e) { alert('Erro: ' + e.message); }
 }
+
+
+// ══════════════════════════════════════════════════════════════
+// FUNÇÕES DE STAGING / DEPLOY / CHANGELOG / PERFIS
+// ══════════════════════════════════════════════════════════════
+
+const PRODUCTION_PROJECT_ID = 'verificador-lacre';
+
+function isProduction() {
+  const raw = getCfg('firebase_staging_config','{}');
+  try { if (JSON.parse(raw).apiKey) return false; } catch(_) {}
+  return true;
+}
+
+function isStagingConfigured() {
+  try { return !!JSON.parse(getCfg('firebase_staging_config','{}')).apiKey; } catch(_) { return false; }
+}
+
+function loadDeployPanel() {
+  const deployTab = document.getElementById('tab-deploy-btn');
+  if (deployTab) deployTab.style.display = currentUserRole === 'developer' ? '' : 'none';
+  const stagingTxt = document.getElementById('cfg-firebase-staging');
+  if (stagingTxt) stagingTxt.value = getCfg('firebase_staging_config', '{}');
+  const envInfo = document.getElementById('deploy-env-info');
+  const isProd = isProduction();
+  const isStagingCfg = isStagingConfigured();
+  const buildHash = 'v20260322-r16';
+  if (envInfo) {
+    envInfo.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px;">
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">AMBIENTE</div>
+          <div style="font-weight:700;color:${isProd ? 'var(--danger)' : 'var(--success)'};">${isProd ? '🔴 PRODUÇÃO' : '🟢 STAGING'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">BUILD</div>
+          <div style="font-weight:700;font-family:monospace;">${buildHash}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">STAGING CONFIG</div>
+          <div style="font-weight:700;color:${isStagingCfg ? 'var(--success)' : 'var(--warning)'};">${isStagingCfg ? '✅ Configurado' : '⚠️ Não configurado'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">URL</div>
+          <div style="font-size:12px;color:var(--text2);word-break:break-all;">${window.location.hostname}</div>
+        </div>
+      </div>`;
+  }
+  const warn = document.getElementById('staging-env-warning');
+  if (warn) warn.style.display = isProd ? 'block' : 'none';
+}
+
+function salvarStagingConfig() {
+  const raw = document.getElementById('cfg-firebase-staging')?.value.trim();
+  try {
+    JSON.parse(raw);
+    setCfg('firebase_staging_config', raw);
+    showTopAlert('✅ Config staging salva! Recarregue a página para conectar ao banco de staging.', 'ok');
+  } catch(e) { alert('JSON inválido: ' + e.message); }
+}
+
+function limparStagingConfig() {
+  if (!confirm('Remover config do staging e voltar para produção?')) return;
+  localStorage.removeItem('firebase_staging_config');
+  showTopAlert('✅ Staging removido — usando produção', 'ok');
+  loadDeployPanel();
+}
+
+// ── GERAR DADOS DE TESTE ──────────────────────────────────
+const DADOS_TESTE = {
+  placas: [
+    { placa:'ABC1234', descricao:'CARRETA TANQUE — TRANSPORTADORA ALFA' },
+    { placa:'XYZ5678', descricao:'BITREM — TRANSPORTADORA BETA' },
+    { placa:'DEF1E23', descricao:'CARRETA SIDER — TRANSPORTADORA GAMA' },
+    { placa:'GHI4567', descricao:'CARRETA BAÚ — TRANSPORTADORA DELTA' },
+    { placa:'JKL8901', descricao:'TRUCK — TRANSPORTADORA ÉPSILON' },
+  ],
+  lacres: Array.from({length:30}, (_,i) => String(i+1).padStart(5,'0')),
+  fornecedores: [
+    { cnpj:'12345678000195', nome:'FORNECEDOR ALFA LTDA' },
+    { cnpj:'98765432000100', nome:'DISTRIBUIDORA BETA S/A' },
+    { cnpj:'11223344000155', nome:'INDUSTRIA GAMA EIRELI' },
+  ],
+  motoristas: ['JOÃO DA SILVA','CARLOS PEREIRA','MARCOS SOUZA','PEDRO OLIVEIRA','LUCAS SANTOS'],
+  locais: [
+    { loc:'São Paulo, SP', coords:'-23.5505,-46.6333' },
+    { loc:'Campinas, SP', coords:'-22.9056,-47.0608' },
+    { loc:'Sorocaba, SP', coords:'-23.5015,-47.4526' },
+    { loc:'Guarulhos, SP', coords:'-23.4543,-46.5337' },
+  ]
+};
+
+async function gerarDadosTeste(tipo = 'todos') {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  if (isProduction()) { alert('⛔ Bloqueado em produção. Configure o banco de staging primeiro.'); return; }
+  const log = document.getElementById('staging-gen-log');
+  log.textContent = '⏳ Gerando dados...';
+  try {
+    if (tipo === 'todos' || tipo === 'placas') {
+      const batch = db.batch();
+      DADOS_TESTE.placas.forEach(p => {
+        batch.set(db.collection('placasAutorizadas').doc(p.placa), {
+          placa: p.placa, descricao: p.descricao, inativa: false,
+          adicionadaEm: firebase.firestore.FieldValue.serverTimestamp(),
+          cadastradoPorNome: 'Developer — Dados de Teste'
+        });
+      });
+      await batch.commit();
+      log.textContent += `\n✅ ${DADOS_TESTE.placas.length} placas criadas`;
+    }
+    if (tipo === 'todos' || tipo === 'lacres') {
+      const batch = db.batch();
+      DADOS_TESTE.lacres.forEach(num => {
+        batch.set(db.collection('lacresValidos').doc(num), {
+          numero: num, emUso: false, inutilizado: false, inativo: false,
+          cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          cadastradoPorNome: 'Developer — Dados de Teste'
+        });
+      });
+      await batch.commit();
+      log.textContent += `\n✅ ${DADOS_TESTE.lacres.length} lacres criados`;
+    }
+    if (tipo === 'todos') {
+      const batch2 = db.batch();
+      DADOS_TESTE.fornecedores.forEach(f => {
+        batch2.set(db.collection('fornecedores').doc(f.cnpj), {
+          cnpj: f.cnpj, nome: f.nome, inativo: false,
+          cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
+          cadastradoPor: 'Developer — Dados de Teste'
+        });
+      });
+      await batch2.commit();
+      log.textContent += `\n✅ ${DADOS_TESTE.fornecedores.length} fornecedores criados`;
+    }
+    if (tipo === 'todos' || tipo === 'processos') {
+      const processos = [
+        { placa:'ABC1234', lacre:'00001', status:'aberto', resultado:null, motorista:'JOÃO DA SILVA', horas:-2 },
+        { placa:'XYZ5678', lacre:'00002', status:'encerrado', resultado:'ok', motorista:'CARLOS PEREIRA', horas:-25 },
+        { placa:'DEF1E23', lacre:'00003', status:'aguardando_confirmacao_desvio', resultado:'desvio', motorista:'MARCOS SOUZA', horas:-5 },
+        { placa:'GHI4567', lacre:'00004', status:'encerrado_manual', resultado:null, motorista:'PEDRO OLIVEIRA', horas:-100 },
+        { placa:'JKL8901', lacre:'00005', status:'encerrado', resultado:'ok', motorista:'LUCAS SANTOS', horas:-48 },
+      ];
+      for (const p of processos) {
+        const ts = new Date(Date.now() + p.horas * 3600000);
+        const docId = `TEST_${p.placa}_${Date.now()}`;
+        const orig = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
+        const dest = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
+        await db.collection('processos').doc(docId).set({
+          processId: docId, placa: p.placa, lacreNumero: p.lacre, motorista: p.motorista,
+          status: p.status, resultado: p.resultado, transportadora: 'TRANSPORTADORA TESTE LTDA',
+          timestamp: ts.toISOString(), locOrigem: orig.loc, locOrigemCoords: orig.coords,
+          locDestino: p.status !== 'aberto' ? dest.loc : null,
+          locDestinoCoords: p.status !== 'aberto' ? dest.coords : null,
+          tsDestino: p.status !== 'aberto' ? new Date(ts.getTime() + 8*3600000).toISOString() : null,
+          abertoPorNome: 'Operador Teste', abertoPor: 'teste@staging.com',
+          fechadoPorNome: p.status !== 'aberto' ? 'Destino Teste' : null,
+          numeroNF: `NF-${Math.floor(Math.random()*99999).toString().padStart(6,'0')}`,
+          registradoEm: firebase.firestore.FieldValue.serverTimestamp(), _testData: true
+        });
+      }
+      log.textContent += `\n✅ ${processos.length} processos de teste criados`;
+    }
+    log.textContent += '\n\n🎉 Dados de teste gerados com sucesso!';
+    await registrarLog('staging_gerar_dados', `Dados de teste gerados: ${tipo}`);
+  } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
+}
+
+async function limparDadosTeste() {
+  if (!db) return;
+  if (isProduction()) { alert('⛔ Bloqueado em produção.'); return; }
+  if (!confirm('Apagar todos os dados marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
+  const log = document.getElementById('staging-gen-log');
+  log.textContent = '⏳ Limpando...';
+  try {
+    const snap = await db.collection('processos').where('_testData','==',true).get();
+    const b1 = db.batch();
+    snap.docs.forEach(d => b1.delete(d.ref));
+    if (!snap.empty) await b1.commit();
+    log.textContent += `\n✅ ${snap.size} processos removidos`;
+    const sL = await db.collection('lacresValidos').where('cadastradoPorNome','==','Developer — Dados de Teste').get();
+    if (!sL.empty) { const b2 = db.batch(); sL.docs.forEach(d => b2.delete(d.ref)); await b2.commit(); }
+    log.textContent += `\n✅ ${sL.size} lacres removidos`;
+    log.textContent += '\n\n🧹 Limpeza concluída!';
+  } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
+}
+
+// ── CHECKLIST PRÉ-DEPLOY ──────────────────────────────────
+const CHECKLIST_BASE = [
+  { id:'login',         categoria:'🔑 Autenticação',    item:'Login com e-mail e senha funciona corretamente' },
+  { id:'login_err',     categoria:'🔑 Autenticação',    item:'Mensagem de erro ao inserir credenciais erradas' },
+  { id:'login_inativo', categoria:'🔑 Autenticação',    item:'Usuário inativo é bloqueado no login' },
+  { id:'offline',       categoria:'🔑 Autenticação',    item:'Login offline funciona (após primeiro login online)' },
+  { id:'timeout',       categoria:'🔑 Autenticação',    item:'Sessão expira após inatividade configurada' },
+  { id:'cam_origem',    categoria:'📷 Câmera',          item:'Câmera abre na aba Origem' },
+  { id:'qr_detect',     categoria:'📷 Câmera',          item:'QR Code é detectado e capturado automaticamente' },
+  { id:'refoto',        categoria:'📷 Câmera',          item:'Botão "Tirar Nova Foto" reseta câmera corretamente' },
+  { id:'manual_foto',   categoria:'📷 Câmera',          item:'Entrada manual bloqueia sem foto tirada primeiro' },
+  { id:'manual_num',    categoria:'📷 Câmera',          item:'Após foto, campo manual aceita o número do lacre' },
+  { id:'placa_val',     categoria:'🚗 Validações',      item:'Placa não autorizada é bloqueada com mensagem' },
+  { id:'placa_inativa', categoria:'🚗 Validações',      item:'Placa inativa é rejeitada' },
+  { id:'lacre_val',     categoria:'🔐 Lacres',          item:'Lacre não cadastrado é rejeitado no registro' },
+  { id:'lacre_uso',     categoria:'🔐 Lacres',          item:'Lacre em uso não pode ser reutilizado' },
+  { id:'registro_ok',   categoria:'🚛 Processo Origem', item:'Registro de saída salva no Firestore com todos os campos' },
+  { id:'gps_orig',      categoria:'🚛 Processo Origem', item:'Geolocalização é capturada e exibida' },
+  { id:'nf_ia',         categoria:'📄 Nota Fiscal',     item:'Câmera da NF detecta documento automaticamente' },
+  { id:'nf_manual',     categoria:'📄 Nota Fiscal',     item:'NF manual funciona com dropdown de fornecedores' },
+  { id:'destino_ok',    categoria:'✅ Processo Destino',item:'Verificação no destino encontra o processo pela placa' },
+  { id:'destino_aprv',  categoria:'✅ Processo Destino',item:'Lacre correto e íntegro → processo encerrado automaticamente' },
+  { id:'desvio',        categoria:'🚨 Desvios',         item:'Lacre diferente gera status de desvio' },
+  { id:'desvio_email',  categoria:'🚨 Desvios',         item:'E-mail de alerta de desvio é enviado' },
+  { id:'expiry_email',  categoria:'🚨 Desvios',         item:'E-mail de processo expirado é enviado após o tempo configurado' },
+  { id:'admin_login',   categoria:'🏛 Admin',           item:'Login no painel admin funciona' },
+  { id:'perfil_perms',  categoria:'🏛 Admin',           item:'Abas corretas aparecem para cada perfil' },
+  { id:'dash_kpis',     categoria:'🏛 Admin',           item:'Dashboard mostra KPIs corretos' },
+  { id:'lacres_crud',   categoria:'🏛 Admin',           item:'Cadastrar, inativar e reativar lacres funciona' },
+  { id:'placas_crud',   categoria:'🏛 Admin',           item:'Cadastrar, inativar e reativar placas funciona' },
+  { id:'usuarios_crud', categoria:'🏛 Admin',           item:'Criar, editar, inativar e reativar usuários funciona' },
+  { id:'forn_crud',     categoria:'🏛 Admin',           item:'Criar, editar, inativar e reativar fornecedores funciona' },
+  { id:'logs_audit',    categoria:'🏛 Admin',           item:'Aba Logs mostra registros com ação, detalhe e usuário' },
+  { id:'export_csv',    categoria:'🏛 Admin',           item:'Exportação CSV do histórico funciona' },
+  { id:'config_sync',   categoria:'🏛 Admin',           item:'Config salva no Firestore e sincroniza em outro dispositivo' },
+  { id:'pwa_install',   categoria:'📱 PWA',             item:'App instala na tela inicial do Android' },
+  { id:'pwa_ios',       categoria:'📱 PWA',             item:'App instala na tela inicial do iPhone' },
+  { id:'pwa_update',    categoria:'📱 PWA',             item:'PWA instalado atualiza após mudança do BUILD_HASH' },
+];
+
+function gerarChecklist() {
+  const changes = document.getElementById('deploy-changes-input')?.value.trim() || '';
+  const container = document.getElementById('checklist-container');
+  const resultado = document.getElementById('checklist-resultado');
+  if (resultado) resultado.style.display = 'none';
+  const extras = [];
+  const cl = changes.toLowerCase();
+  if (cl.includes('login') || cl.includes('senha') || cl.includes('auth'))
+    extras.push({ id:'extra_auth', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar todos os fluxos de autenticação com atenção especial' });
+  if (cl.includes('nf') || cl.includes('nota') || cl.includes('fornecedor'))
+    extras.push({ id:'extra_nf', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar leitura de NF e cruzamento de CNPJ' });
+  if (cl.includes('email') || cl.includes('alerta'))
+    extras.push({ id:'extra_email', categoria:'⚠️ Itens Extras (Mudança)', item:'Verificar envio de e-mail de desvio e processo expirado' });
+  if (cl.includes('perfil') || cl.includes('usuario'))
+    extras.push({ id:'extra_perfil', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar todos os perfis (operacional, operador, admin, developer)' });
+  if (cl.includes('pwa') || cl.includes('build') || cl.includes('hash'))
+    extras.push({ id:'extra_pwa', categoria:'⚠️ Itens Extras (Mudança)', item:'Instalar PWA no celular e verificar se atualizou' });
+  const allItems = [...extras, ...CHECKLIST_BASE];
+  const groups = {};
+  allItems.forEach(item => { if (!groups[item.categoria]) groups[item.categoria] = []; groups[item.categoria].push(item); });
+  let html = '';
+  if (changes) html += `<div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--warning);">📝 <strong>Mudanças:</strong> ${changes}</div>`;
+  html += `<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Marque cada item após testar. O checklist deve estar 100% concluído antes de publicar em produção.</div>`;
+  Object.entries(groups).forEach(([cat, items]) => {
+    const isExtra = cat.includes('Extras');
+    html += `<div style="background:${isExtra ? 'rgba(245,166,35,.06)' : 'var(--surface2)'};border:1px solid ${isExtra ? 'rgba(245,166,35,.2)' : 'var(--border)'};border-radius:12px;margin-bottom:14px;overflow:hidden;">
+      <div style="padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:${isExtra ? 'var(--warning)' : 'var(--text)'};">${cat}</div>
+      <div style="padding:8px 16px 12px;">`;
+    items.forEach(it => {
+      html += `<label style="display:flex;align-items:flex-start;gap:12px;padding:8px 4px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.05);" onclick="atualizarChecklist()">
+        <input type="checkbox" id="chk-${it.id}" style="width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--success);cursor:pointer;">
+        <span id="chk-lbl-${it.id}" style="font-size:14px;color:var(--text2);line-height:1.5;">${it.item}</span>
+      </label>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `<button class="btn btn-primary" onclick="atualizarChecklist(true)" style="margin-top:8px;">📊 Ver Resultado</button>`;
+  container.innerHTML = html;
+}
+
+function atualizarChecklist(mostrarResultado = false) {
+  const all = document.querySelectorAll('[id^="chk-"]:not([id*="-lbl-"])');
+  all.forEach(chk => {
+    const lbl = document.getElementById(`chk-lbl-${chk.id.replace('chk-','')}`);
+    if (lbl) lbl.style.cssText = chk.checked
+      ? 'font-size:14px;color:var(--success);text-decoration:line-through;opacity:.7;line-height:1.5;'
+      : 'font-size:14px;color:var(--text2);line-height:1.5;';
+  });
+  if (!mostrarResultado) return;
+  const total = all.length;
+  const checked = Array.from(all).filter(c => c.checked).length;
+  const resultado = document.getElementById('checklist-resultado');
+  if (!resultado) return;
+  resultado.style.display = 'block';
+  if (checked === total) {
+    resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);';
+    resultado.innerHTML = '✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar em produção. Lembre de atualizar o BUILD_HASH!</span>';
+  } else {
+    const pct = Math.round((checked/total)*100);
+    resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
+    resultado.innerHTML = `⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
+  }
+}
+
+// ── CHANGELOG ────────────────────────────────────────────
+const CHANGELOG = [
+  {
+    version: 'v20260322-r16',
+    data: '22/03/2026',
+    novidades: [
+      'Perfil Developer com aba de Deploy',
+      'Painel de Staging com geração de dados de teste',
+      'Checklist pré-deploy automático',
+      'Botão Ajuda (manual-admin) visível somente para admin/operador/developer',
+      'Link Manual do Operador na tela de login',
+      'Changelog de versões',
+    ],
+    correcoes: [
+      'Correção crítica: funções de login não executavam (bloco JS corrompido)',
+      'Recuperação de senha voltou a funcionar',
+      'limparProcessosTeste adicionada ao painel de processos',
+    ]
+  },
+  {
+    version: 'v20260320-r14',
+    data: '20/03/2026',
+    novidades: [
+      'Aba Perfis: criar e editar perfis customizados',
+      'Exibição de versão na aba Config',
+      'Editar placa: botão e modal de edição',
+    ],
+    correcoes: [
+      'Timeout padrão ajustado para 2 horas',
+      'E-mail enviado apenas em desvios',
+    ]
+  },
+  {
+    version: 'v20260319-r13',
+    data: '19/03/2026',
+    novidades: [
+      'Inativar/reativar lacres, placas e usuários',
+      'Filtros Ativos/Inativos/Todos',
+      'Aba Logs de auditoria',
+      'Botões Editar e Redefinir Senha em usuários',
+      'Fornecedores: editar, inativar e reativar',
+    ],
+    correcoes: []
+  },
+  {
+    version: 'v20260316-r7',
+    data: '16/03/2026',
+    novidades: [
+      'Sistema base: câmera, IA Gemini, NF, geolocalização',
+      'Painel admin com dashboard KPIs',
+      'Controle de acesso por perfil',
+      'Notificações por e-mail',
+      'Exportação CSV',
+    ],
+    correcoes: []
+  },
+];
+
+function verChangelog() {
+  let m = document.getElementById('changelog-modal');
+  if (!m) { m = document.createElement('div'); m.id = 'changelog-modal'; document.body.appendChild(m); }
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  const html = CHANGELOG.map((v, i) => `
+    <div style="background:${i===0 ? 'rgba(27,58,107,.15)' : 'transparent'};border:1px solid ${i===0 ? 'var(--gerdau-blue)' : 'var(--border)'};border-radius:12px;padding:18px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;">${v.version}</span>
+        ${i===0 ? '<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">ATUAL</span>' : ''}
+        <span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span>
+      </div>
+      ${v.novidades.length ? `<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:6px;">NOVIDADES</div>${v.novidades.map(n => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}</div>` : ''}
+      ${v.correcoes.length ? `<div><div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:6px;">CORREÇÕES</div>${v.correcoes.map(c => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}</div>` : ''}
+    </div>`).join('');
+  m.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);">
+      <div style="padding:20px 24px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;">📋 CHANGELOG</div>
+        <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;">✕</button>
+      </div>
+      <div style="overflow-y:auto;padding:20px 24px;">${html}</div>
+    </div>`;
+  m.style.display = 'flex';
+}
+
+// ── EDITAR E SALVAR PLACA ─────────────────────────────────
+async function editarPlaca(placa, descricaoAtual) {
+  let m = document.getElementById('edit-placa-modal');
+  if (!m) { m = document.createElement('div'); m.id = 'edit-placa-modal'; document.body.appendChild(m); }
+  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR PLACA</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Placa: <strong style="letter-spacing:2px;">${placa}</strong></div>
+      <input type="hidden" id="edit-placa-id" value="${placa}">
+      <div class="input-group">
+        <label>Descrição / Transportadora</label>
+        <input type="text" id="edit-placa-desc" value="${descricaoAtual}" placeholder="EX: CARRETA TANQUE" style="font-size:14px;letter-spacing:0;text-transform:uppercase;">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary" onclick="salvarEdicaoPlaca()" style="flex:1;">💾 Salvar</button>
+        <button class="btn btn-outline" onclick="document.getElementById('edit-placa-modal').style.display='none'" style="flex:1;">Cancelar</button>
+      </div>
+    </div>`;
+}
+
+async function salvarEdicaoPlaca() {
+  const placa = document.getElementById('edit-placa-id').value;
+  const desc = document.getElementById('edit-placa-desc').value.trim().toUpperCase();
+  try {
+    await db.collection('placasAutorizadas').doc(placa).update({ descricao: desc });
+    await registrarLog('editar_placa', `Placa ${placa} → descrição: ${desc}`);
+    document.getElementById('edit-placa-modal').style.display = 'none';
+    showTopAlert(`✅ Placa ${placa} atualizada`, 'ok');
+    loadPlacas();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+// ── GESTÃO DE PERFIS CUSTOMIZADOS ────────────────────────
+async function getPerfisCustomizados() {
+  try { const doc = await db.collection('config').doc('perfis-customizados').get(); return doc.exists ? doc.data() : {}; }
+  catch(e) { return {}; }
+}
+
+async function criarNovoPerfil() {
+  const id = document.getElementById('novo-perfil-id')?.value.trim();
+  const nome = document.getElementById('novo-perfil-nome')?.value.trim();
+  if (!id) { showTopAlert('❌ Informe o ID do perfil', 'error'); return; }
+  if (!nome) { showTopAlert('❌ Informe o nome de exibição', 'error'); return; }
+  if (['admin','operador','operacional','developer'].includes(id)) { showTopAlert('❌ Esse ID já é um perfil padrão', 'error'); return; }
+  try {
+    await db.collection('config').doc('perfis-customizados').set({ [id]: nome }, { merge: true });
+    await db.collection('config').doc('permissoes').set({ [id]: [] }, { merge: true });
+    _cachedPerms = null;
+    document.getElementById('novo-perfil-id').value = '';
+    document.getElementById('novo-perfil-nome').value = '';
+    showTopAlert(`✅ Perfil "${nome}" criado!`, 'ok');
+    await registrarLog('criar_perfil', `Perfil: ${id} = ${nome}`);
+    loadPerfis();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function removerPerfilCustomizado(id, nome) {
+  if (!confirm(`Remover perfil "${nome}"?\n\nUsuários com esse perfil perderão acesso ao admin.`)) return;
+  try {
+    await db.collection('config').doc('perfis-customizados').update({ [id]: firebase.firestore.FieldValue.delete() });
+    await db.collection('config').doc('permissoes').update({ [id]: firebase.firestore.FieldValue.delete() });
+    _cachedPerms = null;
+    showTopAlert(`🚫 Perfil "${nome}" removido`, 'warning');
+    loadPerfis();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
 </script>
 </body>
 </html>
