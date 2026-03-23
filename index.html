@@ -3082,13 +3082,13 @@ async function loadConfig() {
         const d = appDoc.data();
         if (d.config_horas) setCfg('config_horas', d.config_horas);
         if (d.config_timeout) setCfg('config_timeout', d.config_timeout);
-        if (d.config_horas) sessionTimeoutMs = parseInt(d.config_timeout||5) * 60 * 60 * 1000;
+        if (d.config_timeout) sessionTimeoutMs = parseInt(d.config_timeout||2) * 60 * 60 * 1000;
       }
       if (geminiDoc.exists) document.getElementById('cfg-gemini-key').value = geminiDoc.data().key||'';
     } catch(e) { console.warn('Config load error:', e.message); }
   }
   document.getElementById('config-horas').value = getCfg('config_horas','96');
-  document.getElementById('config-timeout').value = getCfg('config_timeout','5');
+  document.getElementById('config-timeout').value = getCfg('config_timeout','2');
   document.getElementById('cfg-ejs-pub').value = getCfg('ejs_pub','');
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
@@ -3597,7 +3597,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r16';
+    const BUILD_HASH = 'v20260322-r17';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -4124,13 +4124,26 @@ function loadDeployPanel() {
   if (warn) warn.style.display = isProd ? 'block' : 'none';
 }
 
+function jsConfigToJson(raw) {
+  // Converts Firebase JS config format to valid JSON
+  // Adds quotes around unquoted keys: apiKey: "..." → "apiKey": "..."
+  return raw
+    .replace(/\/\/.*/g, '')                          // remove // comments
+    .replace(/,\s*\}/g, '}')                         // remove trailing commas
+    .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":'); // quote keys
+}
+
 function salvarStagingConfig() {
-  const raw = document.getElementById('cfg-firebase-staging')?.value.trim();
-  try {
-    JSON.parse(raw);
-    setCfg('firebase_staging_config', raw);
-    showTopAlert('✅ Config staging salva! Recarregue a página para conectar ao banco de staging.', 'ok');
-  } catch(e) { alert('JSON inválido: ' + e.message); }
+  let raw = document.getElementById('cfg-firebase-staging')?.value.trim();
+  if (!raw) { alert('Cole a configuração do Firebase antes de salvar.'); return; }
+  // Auto-convert JS format to JSON if needed
+  try { JSON.parse(raw); }
+  catch(e) {
+    try { raw = jsConfigToJson(raw); JSON.parse(raw); }
+    catch(e2) { alert('JSON inválido: ' + e2.message + '\n\nDica: Cole o JSON com aspas nas chaves, ex:\n{"apiKey": "...", "projectId": "..."}'); return; }
+  }
+  setCfg('firebase_staging_config', raw);
+  showTopAlert('✅ Config staging salva! Recarregue a página para conectar ao banco de staging.', 'ok');
 }
 
 function limparStagingConfig() {
