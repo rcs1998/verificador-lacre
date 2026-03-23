@@ -5273,8 +5273,7 @@ function abrirConfigurarStaging(evt) {
 
 function jsToJson(raw) {
   return raw
-    .replace(/\/\/[^
-]*/g, '')
+    .replace(/\/\/.*$/gm, '')
     .replace(/,(\s*[}\]])/g, '$1')
     .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":');
 }
