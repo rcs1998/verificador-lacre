@@ -906,6 +906,48 @@ tbody tr:hover{background:var(--surface2);}
           <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
         </div>
 
+        <!-- CONTADOR DE E-MAILS — só developer -->
+        <div class="card" id="email-counter-card" style="display:none;border-left:3px solid var(--gerdau-blue);margin-top:14px;">
+          <div class="card-title">📊 Contador de E-mails — Mensal</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px;">
+            <div style="background:var(--surface2);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:1px;margin-bottom:6px;">ENVIADOS NO MÊS</div>
+              <div id="email-count-mes" style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--gerdau-blue);">—</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:1px;margin-bottom:6px;">LIMITE EMAILJS</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--text2);">200</div>
+              <div style="font-size:10px;color:var(--text3);">plano gratuito/mês</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:11px;color:var(--text2);font-weight:700;letter-spacing:1px;margin-bottom:6px;">RESTANTES</div>
+              <div id="email-count-rest" style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;color:var(--success);">—</div>
+            </div>
+          </div>
+          <div id="email-count-barra-wrap" style="margin-bottom:10px;">
+            <div style="height:10px;background:var(--border);border-radius:99px;overflow:hidden;">
+              <div id="email-count-barra" style="height:100%;border-radius:99px;background:var(--success);width:0%;transition:width .5s;"></div>
+            </div>
+            <div id="email-count-pct" style="font-size:12px;color:var(--text2);margin-top:4px;text-align:right;"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div style="font-size:12px;color:var(--text2);">Mês de referência:</div>
+            <select id="email-counter-mes" onchange="loadEmailCounter()" style="font-size:13px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);cursor:pointer;">
+              <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+              <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+              <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+              <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+            </select>
+            <select id="email-counter-ano" onchange="loadEmailCounter()" style="font-size:13px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);cursor:pointer;">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+            <button class="btn btn-outline btn-sm" style="width:auto;" onclick="loadEmailCounter()">🔄 Atualizar</button>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text3);">
+            ℹ️ Contabiliza e-mails registrados nos Logs do sistema (desvios, alertas, chamados de suporte).
+          </div>
+        </div>
+
         <!-- DEPLOY (somente developer) -->
         <div class="admin-section" id="atab-deploy">
           <div class="info-bar" style="border-left-color:var(--gerdau-yellow);background:rgba(245,166,35,.08);">
@@ -1183,6 +1225,49 @@ async function loadConfigOnStartup() {
 // Run after Firebase init (with short delay to ensure db is ready)
 setTimeout(loadConfigOnStartup, 1500);
 setTimeout(loadEmailJSFromFirestore, 2000);
+
+async function loadEmailCounter() {
+  if (currentUserRole !== 'developer') return;
+  // Mostrar card
+  const card = document.getElementById('email-counter-card');
+  if (card) card.style.display = 'block';
+  // Inicializar seletores de mês/ano na primeira chamada
+  const mesEl = document.getElementById('email-counter-mes');
+  const anoEl = document.getElementById('email-counter-ano');
+  if (mesEl && !mesEl.dataset.init) {
+    mesEl.value = new Date().getMonth();
+    anoEl.value = new Date().getFullYear();
+    mesEl.dataset.init = '1';
+  }
+  const mes = parseInt(mesEl?.value ?? new Date().getMonth());
+  const ano = parseInt(anoEl?.value ?? new Date().getFullYear());
+  const inicio = new Date(ano, mes, 1);
+  const fim    = new Date(ano, mes + 1, 0, 23, 59, 59, 999);
+  if (!db) return;
+  try {
+    // Buscar logs de email enviado no período
+    const snap = await db.collection('logs')
+      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado'])
+      .get();
+    // Filtrar no cliente por período (Firestore não suporta range + in juntos sem índice composto)
+    const total = snap.docs.filter(d => {
+      const ts = d.data().timestamp?.toDate?.() || new Date(d.data().timestamp || 0);
+      return ts >= inicio && ts <= fim;
+    }).length;
+    const LIMITE = 200;
+    const restantes = Math.max(0, LIMITE - total);
+    const pct = Math.min(100, (total / LIMITE * 100)).toFixed(1);
+    const cor = total < 100 ? 'var(--success)' : total < 160 ? 'var(--warning)' : 'var(--danger)';
+    const countEl = document.getElementById('email-count-mes');
+    const restEl  = document.getElementById('email-count-rest');
+    const barEl   = document.getElementById('email-count-barra');
+    const pctEl   = document.getElementById('email-count-pct');
+    if (countEl) countEl.textContent = total;
+    if (restEl)  { restEl.textContent = restantes; restEl.style.color = cor; }
+    if (barEl)   { barEl.style.width = pct + '%'; barEl.style.background = cor; }
+    if (pctEl)   pctEl.textContent = `${pct}% do limite mensal utilizado`;
+  } catch(e) { console.warn('loadEmailCounter:', e.message); }
+}
 
 async function loadEmailJSFromFirestore() {
   if (!db) return;
@@ -2199,10 +2284,24 @@ async function enviarEmailTodos(emails, assunto, textoPlano, corpoHtml) {
   const svc = getCfg('ejs_svc','service_1e7gg3f');
   const tpl = getCfg('ejs_tpl','template_vdkbodd');
   if (!svc || !tpl) { console.warn('EmailJS não configurado'); return; }
+  let enviados = 0;
   for (const email of emails) {
     try {
       await emailjs.send(svc, tpl, { to_email:email, subject:assunto, message:textoPlano, body_html:corpoHtml });
+      enviados++;
     } catch(e) { console.warn('Erro e-mail para', email, e.message); }
+  }
+  // Registrar no log para contabilizar no contador mensal
+  if (enviados > 0 && db) {
+    try {
+      await db.collection('logs').add({
+        acao: 'email_enviado',
+        detalhe: `${enviados} e-mail(s) — ${assunto.substring(0,80)}`,
+        usuario: auth?.currentUser?.email || 'sistema',
+        quantidade: enviados,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch(_) {}
   }
 }
 
@@ -2342,6 +2441,9 @@ async function applyRolePermissions(perfil) {
 
 async function loadPerfis() {
   const perms = await getPermissoes();
+  const customPerfis = await getCustomPerfis();
+
+  // ── Perfis fixos ──────────────────────────────────────────
   ['operacional','operador','admin'].forEach(profile => {
     const container = document.getElementById(`perfis-${profile}-perms`);
     if (!container) return;
@@ -2365,6 +2467,57 @@ async function loadPerfis() {
       </label>`;
     }).join('');
   });
+
+  // ── Perfis customizados — renderizar cards dinâmicos ──────
+  const listaEl = document.getElementById('perfis-customizados-lista');
+  const gridEl  = document.querySelector('#atab-perfis > div[style*="grid"]');
+  // Remove cards de perfis custom anteriores para evitar duplicação
+  document.querySelectorAll('.card-perfil-custom').forEach(el => el.remove());
+
+  const customEntries = Object.entries(customPerfis);
+  if (customEntries.length === 0) {
+    if (listaEl) listaEl.innerHTML = '<div style="color:var(--text3);font-size:13px;">Nenhum perfil customizado criado ainda.</div>';
+    return;
+  }
+
+  if (listaEl) listaEl.innerHTML = customEntries.map(([id, nome]) =>
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="font-weight:700;font-size:14px;">${nome} <small style="color:var(--text3);font-weight:400;">(${id})</small></span>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--danger);color:var(--danger);width:auto;" onclick="removerPerfilCustomizado('${id}','${nome}')">🗑 Remover</button>
+    </div>`
+  ).join('');
+
+  // Inserir card de permissões para cada perfil customizado no grid
+  if (gridEl) {
+    customEntries.forEach(([id, nome]) => {
+      const allowed = perms[id] || [];
+      const card = document.createElement('div');
+      card.className = 'card card-perfil-custom';
+      card.innerHTML = `
+        <div class="card-title" style="color:var(--gerdau-blue);">🔷 ${nome.toUpperCase()}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Perfil customizado — configure as abas disponíveis.</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Abas disponíveis no Admin:</div>
+        <div id="perfis-${id}-perms" style="display:flex;flex-direction:column;gap:8px;">
+          ${ALL_TABS.map(t => {
+            const checked = allowed.includes(t);
+            return `<label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 8px;border-radius:8px;transition:background .15s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+              <input type="checkbox" id="perm-${id}-${t}" ${checked ? 'checked' : ''}
+                style="width:18px;height:18px;cursor:pointer;accent-color:var(--gerdau-blue);">
+              <span style="font-size:14px;font-weight:600;">${TAB_LABELS[t]}</span>
+            </label>`;
+          }).join('')}
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="salvarPermissoesPerfil('${id}')" style="margin-top:14px;width:100%;">💾 Salvar Permissões de ${nome}</button>`;
+      gridEl.appendChild(card);
+    });
+  }
+}
+
+async function getCustomPerfis() {
+  try {
+    const doc = await db.collection('config').doc('perfis-customizados').get();
+    return doc.exists ? doc.data() : {};
+  } catch(_) { return {}; }
 }
 
 async function salvarPermissoesPerfil(profile) {
@@ -3551,8 +3704,14 @@ async function loadDashboard() {
     const _s2size = filtrarDadosReais(s2.docs).length;
     const _s3size = filtrarDadosReais(s3.docs).length;
     const encPeriodo = todosEnc.filter(d=>{
-      const ts = d.data().timestamp||'';
-      return ts >= inicioPeriodo && ts <= fimPeriodo;
+      // Filtrar por data de encerramento (encerradoEm ou tsDestino),
+      // com fallback para timestamp de abertura — consistente com o Histórico
+      const dd = d.data();
+      const encTs = dd.encerradoEm?.toDate?.()?.toISOString?.()
+                 || dd.tsDestino
+                 || dd.timestamp
+                 || '';
+      return encTs >= inicioPeriodo && encTs <= fimPeriodo;
     });
     const desviosPeriodo = encPeriodo.filter(d=>d.data().resultado==='desvio').length;
     const pct = encPeriodo.length > 0 ? ((desviosPeriodo/encPeriodo.length)*100).toFixed(1) : '0.0';
@@ -4582,17 +4741,36 @@ async function atualizarSelectPerfis(){
   const isAdmin=currentUserRole==='admin'||currentUserRole==='developer';
   const devOpt=select.querySelector('option[value="developer"]');if(devOpt)devOpt.style.display=isAdmin?'':'none';
   const adminOpt=select.querySelector('option[value="admin"]');if(adminOpt)adminOpt.style.display=isAdmin?'':'none';
+  // Remover opções customizadas anteriores antes de reinserir
+  select.querySelectorAll('option[data-custom]').forEach(o=>o.remove());
+  // Adicionar perfis customizados do Firestore
+  try {
+    const doc = await db.collection('config').doc('perfis-customizados').get();
+    if (doc.exists) {
+      Object.entries(doc.data()).forEach(([id, nome]) => {
+        if (!select.querySelector(`option[value="${id}"]`)) {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = `${nome} (perfil customizado)`;
+          opt.setAttribute('data-custom','1');
+          // Inserir antes do Developer
+          const devOpt2 = select.querySelector('option[value="developer"]');
+          devOpt2 ? select.insertBefore(opt, devOpt2) : select.appendChild(opt);
+        }
+      });
+    }
+  } catch(e) { console.warn('atualizarSelectPerfis:', e.message); }
 }
 async function criarNovoPerfil(){
   const id=document.getElementById('novo-perfil-id')?.value.trim(),nome=document.getElementById('novo-perfil-nome')?.value.trim();
   if(!id){showTopAlert('❌ Informe o ID','error');return;}if(!nome){showTopAlert('❌ Informe o nome','error');return;}
   if(['admin','operador','operacional','developer'].includes(id)){showTopAlert('❌ ID já é perfil padrão','error');return;}
-  try{await db.collection('config').doc('perfis-customizados').set({[id]:nome},{merge:true});await db.collection('config').doc('permissoes').set({[id]:[]},{merge:true});_cachedPerms=null;document.getElementById('novo-perfil-id').value='';document.getElementById('novo-perfil-nome').value='';showTopAlert(`✅ Perfil "${nome}" criado!`,'ok');await registrarLog('criar_perfil',`${id}=${nome}`);loadPerfis();}
+  try{await db.collection('config').doc('perfis-customizados').set({[id]:nome},{merge:true});await db.collection('config').doc('permissoes').set({[id]:[]},{merge:true});_cachedPerms=null;document.getElementById('novo-perfil-id').value='';document.getElementById('novo-perfil-nome').value='';showTopAlert(`✅ Perfil "${nome}" criado!`,'ok');await registrarLog('criar_perfil',`${id}=${nome}`);loadPerfis();atualizarSelectPerfis();}
   catch(e){alert('Erro: '+e.message);}
 }
 async function removerPerfilCustomizado(id,nome){
   if(!confirm(`Remover perfil "${nome}"?`))return;
-  try{await db.collection('config').doc('perfis-customizados').update({[id]:firebase.firestore.FieldValue.delete()});await db.collection('config').doc('permissoes').update({[id]:firebase.firestore.FieldValue.delete()});_cachedPerms=null;showTopAlert(`🚫 Perfil "${nome}" removido`,'warning');loadPerfis();}
+  try{await db.collection('config').doc('perfis-customizados').update({[id]:firebase.firestore.FieldValue.delete()});await db.collection('config').doc('permissoes').update({[id]:firebase.firestore.FieldValue.delete()});_cachedPerms=null;showTopAlert(`🚫 Perfil "${nome}" removido`,'warning');loadPerfis();atualizarSelectPerfis();}
   catch(e){alert('Erro: '+e.message);}
 }
 
@@ -4872,7 +5050,13 @@ async function enviarSuporte(){
     const svc=getCfg('ejs_svc','service_1e7gg3f'),tpl=getCfg('ejs_tpl','template_vdkbodd');
     const PRIO={baixa:'🟢 Baixa',media:'🟡 Média',alta:'🔴 Alta',urgente:'🚨 Urgente'};
     const corpo=`<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;"><tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;"><div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:4px;">GERDAU — VERIFICA LACRE</div><div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🎧 NOVO CHAMADO DE SUPORTE</div><div style="color:rgba(255,255,255,.8);font-size:14px;margin-top:6px;font-family:monospace;letter-spacing:2px;">${numeroChamado}</div></td></tr><tr><td style="background:#fff;padding:24px;"><table width="100%" style="border-collapse:collapse;"><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:38%;">📋 Nº Chamado</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;letter-spacing:1px;">${numeroChamado}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🗓️ Abertura</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dataHora}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">👤 Nome</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.nome}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📱 Telefone</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.telefone}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📧 E-mail</td><td style="padding:10px 14px;font-size:13px;">${dados.email}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Perfil detectado</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${perfilDetectado}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🚦 Prioridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${PRIO[dados.prioridade]||dados.prioridade}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🌐 Ambiente</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.ambiente==='staging'?'🟢 Staging':'🔴 Produção'}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📋 Assunto</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.assunto}</td></tr></table><div style="margin-top:16px;background:#F8F9FA;border-left:4px solid #1B3A6B;padding:14px 16px;border-radius:0 6px 6px 0;"><div style="font-size:11px;font-weight:700;color:#5A6A85;letter-spacing:1px;margin-bottom:8px;">DESCRIÇÃO</div><div style="font-size:14px;color:#1A2540;line-height:1.6;">${dados.descricao.replace(/\n/g,'<br>')}</div></div>${dados.temAnexo?`<div style="margin-top:12px;font-size:13px;color:#B7770D;background:#FEF3E2;border-radius:6px;padding:10px 14px;">📎 Anexo: ${dados.anexoNome}</div>`:''}<div style="margin-top:14px;font-size:11px;color:#8A98AF;">URL: ${dados.url}</div></td></tr></table>`;
-    try{if(svc&&tpl)await emailjs.send(svc,tpl,{to_email:'desenvolvedorcs@outlook.com',subject:`[${(PRIO[dados.prioridade]||dados.prioridade).replace(/[🟢🟡🔴🚨]/g,'').trim()} | ${numeroChamado}] ${dados.assunto}`,message:`Chamado ${numeroChamado} aberto por ${dados.nome} (${dados.email}). ${dados.assunto}`,body_html:corpo});}
+    try{
+      if(svc&&tpl) {
+        await emailjs.send(svc,tpl,{to_email:'desenvolvedorcs@outlook.com',subject:`[${(PRIO[dados.prioridade]||dados.prioridade).replace(/[🟢🟡🔴🚨]/g,'').trim()} | ${numeroChamado}] ${dados.assunto}`,message:`Chamado ${numeroChamado} aberto por ${dados.nome} (${dados.email}). ${dados.assunto}`,body_html:corpo});
+        // Registrar no log para contabilizar no contador mensal
+        if(db){try{await db.collection('logs').add({acao:'email_enviado',detalhe:`Suporte ${numeroChamado}`,usuario:dados.email||'sistema',quantidade:1,timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}
+      }
+    }
     catch(emailErr){console.warn('E-mail não enviado:',emailErr.message);}
 
     // Limpar campos
@@ -4929,32 +5113,36 @@ async function enviarSuporte(){
 <script>
 // ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
 function abrirConfigurarStaging(evt) {
-  if (evt) evt.preventDefault();
+  if (evt) { evt.preventDefault(); evt.stopPropagation(); }
   const modal = document.getElementById('staging-setup-modal');
-  if (!modal) return;
-  // Pre-fill if already configured
+  if (!modal) { alert('Modal de staging não encontrado.'); return; }
+  // Pre-fill se já configurado
   const existing = localStorage.getItem('firebase_staging_config');
-  if (existing) {
+  const inputEl = document.getElementById('staging-setup-input');
+  if (existing && inputEl) {
     try {
-      const parsed = JSON.parse(existing);
-      document.getElementById('staging-setup-input').value =
-        JSON.stringify(parsed, null, 2);
-    } catch(_) {}
+      inputEl.value = JSON.stringify(JSON.parse(existing), null, 2);
+    } catch(_) { inputEl.value = existing; }
+  } else if (inputEl) {
+    inputEl.value = '';
   }
   const status = document.getElementById('staging-setup-status');
   if (status) {
-    const cfg = localStorage.getItem('firebase_staging_config');
-    if (cfg) {
+    if (existing) {
       try {
-        const p = JSON.parse(cfg);
-        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
+        const p = JSON.parse(existing);
+        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;padding:8px 12px;border-radius:6px;';
         status.textContent = '✅ Staging já configurado: ' + (p.projectId || '');
-      } catch(_) {}
+      } catch(_) { status.style.display = 'none'; }
     } else {
       status.style.display = 'none';
     }
   }
-  modal.style.display = 'flex';
+  const errEl = document.getElementById('staging-setup-err');
+  if (errEl) errEl.style.display = 'none';
+  // Forçar visibilidade — remover qualquer inline style conflitante e aplicar flex
+  modal.removeAttribute('style');
+  modal.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;';
 }
 
 function jsToJson(raw) {
