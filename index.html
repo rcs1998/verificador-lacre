@@ -63,14 +63,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 }
 
 /* TOP ALERT */
-#top-alert{display:none;width:100%;padding:0;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;position:sticky;top:64px;z-index:39;}
-.top-alert-inner{display:flex;align-items:flex-start;justify-content:center;gap:10px;padding:11px 20px;flex-wrap:wrap;}
-.top-alert-icon{font-size:18px;flex-shrink:0;line-height:1.4;}
-.top-alert-body{flex:1;min-width:0;text-align:left;}
-.top-alert-title{font-size:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;line-height:1.3;}
-.top-alert-detail{font-size:12px;font-weight:500;opacity:.85;margin-top:2px;text-transform:none;letter-spacing:0;word-break:break-word;line-height:1.4;}
-.top-alert-close{background:none;border:none;cursor:pointer;font-size:16px;opacity:.7;line-height:1;padding:2px 4px;flex-shrink:0;color:inherit;}
-.top-alert-close:hover{opacity:1;}
+#top-alert{display:none;width:100%;padding:12px 20px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;position:sticky;top:64px;z-index:39;}
 
 /* CONTAINER */
 body{display:flex;flex-direction:column;align-items:center;}
@@ -249,19 +242,8 @@ tbody tr:hover{background:var(--surface2);}
   th,td{padding:8px;}
 }
 
-/* ── SUPORTE ─────────────────────────────────────────── */
-.support-fab{position:fixed;bottom:20px;right:20px;z-index:50;background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50px;padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;align-items:center;gap:7px;transition:all .2s;}
+.support-fab{position:fixed;bottom:24px;right:24px;z-index:500;background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50px;padding:13px 20px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;align-items:center;gap:7px;transition:all .2s;}
 .support-fab:hover{background:var(--gerdau-yellow-dark);transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.3);}
-.support-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.65);z-index:200;overflow-y:auto;backdrop-filter:blur(4px);}
-.support-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;}
-.support-modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:560px;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;margin:auto;}
-.support-header{background:var(--gerdau-blue);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);}
-.support-header h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase;margin:0;}
-.support-body{padding:20px 24px 24px;}
-.support-success{display:none;padding:32px 24px;text-align:center;}
-.support-success-icon{font-size:52px;margin-bottom:12px;}
-.support-success-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:8px;}
-.support-success-msg{font-size:14px;color:var(--text2);line-height:1.6;}
 </style>
 </head>
 <body>
@@ -287,8 +269,6 @@ tbody tr:hover{background:var(--surface2);}
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
         <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
-        <a href="#" onclick="abrirSuporte(event)" style="font-size:13px;color:var(--danger);text-decoration:none;font-weight:600;">🆘 Suporte</a>
-        <a href="#" onclick="abrirSuporte()" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">🎧 Suporte</a>
       </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
@@ -304,7 +284,6 @@ tbody tr:hover{background:var(--surface2);}
     </div>
     <div class="header-buttons">
       <a href="manual-admin.html" target="_blank" class="admin-btn" id="btn-ajuda-admin" style="text-decoration:none;display:none;">❓ Ajuda</a>
-      <button class="admin-btn" onclick="abrirSuporte()" style="background:rgba(245,166,35,.2);border-color:rgba(245,166,35,.5);">🆘 Suporte</button>
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
       <button class="admin-btn" onclick="doAppLogoutComOffline()">🚪 Sair</button>
     </div>
@@ -585,7 +564,6 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
           <button class="admin-tab" onclick="adminTab('config-avancada')">Config Avançada</button>
           <button class="admin-tab" id="tab-deploy-btn" onclick="adminTab('deploy')" style="display:none;border-color:var(--gerdau-yellow);color:var(--gerdau-yellow);">🚀 Deploy</button>
-          <button class="admin-tab" id="tab-suporte-btn" onclick="adminTab('suporte')" style="display:none;">🎧 Chamados</button>
         </div>
       </div>
 
@@ -1050,21 +1028,19 @@ let db = null, auth = null;
 
 let storage = null;
 
-// ── STAGING BUILD FLAG ───────────────────────────────────
-// Mude para false antes de subir para produção
-const IS_STAGING_BUILD = false;
-const STAGING_FIREBASE_CONFIG = null; // Cole aqui o config do staging se IS_STAGING_BUILD = true
-// Exemplo: { apiKey:"AIzaSy...", authDomain:"...", projectId:"verificador-lacre-staging", ... }
-
 function initFirebase() {
   try {
-    // Staging build flag (hardcoded) > staging localStorage > produção localStorage > config fixa
-    const stagingRaw = getCfg('firebase_staging_config', '{}');
-    const stagingCfg = (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) ? STAGING_FIREBASE_CONFIG : JSON.parse(stagingRaw);
-    const customRaw = getCfg('firebase_config', '{}');
-    const customCfg = JSON.parse(customRaw);
-
-    const chosen = stagingCfg?.apiKey ? stagingCfg : customCfg.apiKey ? customCfg : {
+    // Staging (hardcoded flag) > staging localStorage > produção localStorage > config fixa
+    let chosen = null;
+    if (typeof IS_STAGING_BUILD !== 'undefined' && IS_STAGING_BUILD && typeof STAGING_FIREBASE_CONFIG !== 'undefined' && STAGING_FIREBASE_CONFIG) {
+      chosen = STAGING_FIREBASE_CONFIG;
+    } else {
+      try { const s = JSON.parse(getCfg('firebase_staging_config','{}')); if (s.apiKey) chosen = s; } catch(_) {}
+    }
+    if (!chosen) {
+      try { const c = JSON.parse(getCfg('firebase_config','{}')); if (c.apiKey) chosen = c; } catch(_) {}
+    }
+    if (!chosen) chosen = {
       apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
       authDomain: "verificador-lacre.firebaseapp.com",
       projectId: "verificador-lacre",
@@ -1072,33 +1048,22 @@ function initFirebase() {
       messagingSenderId: "868626072222",
       appId: "1:868626072222:web:b26599efa525476522b18f"
     };
-
-    // Se Firebase já inicializado com o mesmo projeto, reusar
-    if (firebase.apps.length > 0) {
-      if (firebase.apps[0].options.projectId === chosen.projectId) {
-        db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage();
-        console.log('Firebase reusado:', chosen.projectId);
-        return;
-      }
-      // Projeto diferente: deletar app e reiniciar
-      firebase.apps[0].delete().then(() => { firebase.initializeApp(chosen); db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage(); });
+    // Reusar app se já inicializado com mesmo projeto
+    if (firebase.apps.length > 0 && firebase.apps[0].options.projectId === chosen.projectId) {
+      db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage();
       return;
     }
-    firebase.initializeApp(chosen);
-    db = firebase.firestore();
-    auth = firebase.auth();
-    storage = firebase.storage();
-    console.log('Firebase iniciado:', chosen.projectId);
+    if (!firebase.apps.length) firebase.initializeApp(chosen);
+    db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage();
+    console.log('Firebase:', chosen.projectId);
   } catch(e) {
-    console.error('Firebase erro:', e.message);
-    // Só mostrar erro visual se não for erro de "app already exists"
+    // Só mostrar banner se não for erro de app duplicado
     if (!e.message.includes('already exists') && !e.message.includes('duplicate')) {
-      const errDiv = document.createElement('div');
-      errDiv.id = 'firebase-err-banner';
-      errDiv.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#FDECEA;border:1px solid #F1A9A3;border-radius:8px;padding:12px 20px;font-size:13px;color:#C0392B;font-weight:600;z-index:999;text-align:center;max-width:90%;';
-      errDiv.textContent = '⚠️ Erro ao conectar: ' + e.message;
-      document.body.appendChild(errDiv);
-      setTimeout(() => errDiv.remove(), 6000);
+      const d = document.createElement('div');
+      d.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#FDECEA;border:1px solid #F1A9A3;border-radius:8px;padding:12px 20px;font-size:13px;color:#C0392B;font-weight:600;z-index:999;text-align:center;max-width:90%;';
+      d.textContent = '⚠️ Erro ao conectar: ' + e.message;
+      document.body.appendChild(d);
+      setTimeout(()=>d.remove(), 8000);
     }
   }
 }
@@ -1190,9 +1155,9 @@ function doAppLogout() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  // Esconde o botão Ajuda no logout (só aparece para admin/operador/developer após login)
-  const ajudaBtnLogout = document.getElementById('btn-ajuda-admin');
-  if (ajudaBtnLogout) ajudaBtnLogout.style.display = 'none';
+  // Esconde Ajuda no logout — só aparece para admin/operador/developer após login
+  const ajudaBtnL = document.getElementById('btn-ajuda-admin');
+  if (ajudaBtnL) ajudaBtnL.style.display = 'none';
   // Stop cameras
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t=>t.stop());
@@ -2004,39 +1969,16 @@ async function verificarDestino(resultDestino) {
 // ============================================================
 // HELPERS
 // ============================================================
-function showTopAlert(msg, type, detail) {
-  const el = document.getElementById('top-alert');
-  if (!el) return;
-  // type: 'ok' | 'error' | 'warning' | 'info'
-  const cfg = {
-    ok:      { bg:'#E8F7EE', border:'#1A8C4E', color:'#1A8C4E', icon:'✅' },
-    error:   { bg:'#FDECEA', border:'#C0392B', color:'#C0392B', icon:'❌' },
-    warning: { bg:'#FEF3E2', border:'#B7770D', color:'#B7770D', icon:'⚠️' },
-    info:    { bg:'#E8EEF8', border:'#1B3A6B', color:'#1B3A6B', icon:'ℹ️' },
-  };
-  const c = cfg[type] || cfg.info;
-  el.style.cssText = `display:block;background:${c.bg};border-bottom:3px solid ${c.border};color:${c.color};`;
-  el.innerHTML = `<div class="top-alert-inner">
-    <span class="top-alert-icon">${c.icon}</span>
-    <div class="top-alert-body">
-      <div class="top-alert-title">${msg}</div>
-      ${detail ? `<div class="top-alert-detail">${detail}</div>` : ''}
-    </div>
-    <button class="top-alert-close" onclick="hideTopAlert()">✕</button>
-  </div>`;
-  if (window._alertTimer) clearTimeout(window._alertTimer);
-  // Erros nunca somem automaticamente — usuário precisa fechar
-  // Avisos ficam 10s, sucessos ficam 5s
-  if (type !== 'error') {
-    const delay = type === 'warning' ? 10000 : 5000;
-    window._alertTimer = setTimeout(() => hideTopAlert(), delay);
-  }
+function showTopAlert(msg, type) {
+  const alert = document.getElementById('top-alert');
+  alert.textContent = msg;
+  alert.className = `info-bar ${type === 'error' ? 'danger-bar' : 'info-bar'}`;
+  alert.style.display = 'block';
+  setTimeout(() => alert.style.display = 'none', 5000);
 }
 
 function hideTopAlert() {
-  const el = document.getElementById('top-alert');
-  if (el) el.style.display = 'none';
-  if (window._alertTimer) clearTimeout(window._alertTimer);
+  document.getElementById('top-alert').style.display = 'none';
 }
 
 function mostrarEntradaManual(lado) {
@@ -2277,8 +2219,6 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
-  const suporteTabBtn = document.getElementById('tab-suporte-btn');
-  if (suporteTabBtn) suporteTabBtn.style.display = (role === 'admin' || role === 'developer') ? '' : 'none';
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -2353,7 +2293,7 @@ async function criarUsuario() {
   if (senha.length < 6) { alert('Senha deve ter no mínimo 6 caracteres.'); return; }
   
   // Apenas admin pode criar outros admins
-  if ((perfil === 'admin' || perfil === 'developer') && currentUserRole !== 'admin' && currentUserRole !== 'developer') {
+  if (perfil === 'admin' && currentUserRole !== 'admin') {
     alert('Apenas administradores podem criar usuários com perfil Admin.');
     return;
   }
@@ -2370,7 +2310,7 @@ async function criarUsuario() {
     showTopAlert(`✅ Usuário ${email} criado com perfil ${perfil}!`, 'ok');
     loadUsuarios();
   } catch(e) {
-    showTopAlert('❌ Erro', 'error', e.message);
+    alert('Erro: ' + e.message);
   }
 }
 
@@ -2482,7 +2422,6 @@ function adminTab(tab) {
   if (tab==='perfis') loadPerfis();
   if (tab==='config-avancada') loadConfig();
   if (tab==='deploy') loadDeployPanel();
-  if (tab==='suporte') loadChamadosSuporte();
 }
 
 // ============================================================
@@ -3098,7 +3037,7 @@ async function encerrarProcessoManual(id, lacreNum) {
     await registrarLog('encerramento_manual', `Processo ${id} encerrado manualmente. Lacre: ${lacreNum}. Justificativa: ${justificativa.trim()}`);
     loadProcessos();
   } catch(e) {
-    showTopAlert('❌ Erro', 'error', e.message);
+    alert('Erro: ' + e.message);
   }
 }
 
@@ -3151,13 +3090,13 @@ async function loadConfig() {
         const d = appDoc.data();
         if (d.config_horas) setCfg('config_horas', d.config_horas);
         if (d.config_timeout) setCfg('config_timeout', d.config_timeout);
-        if (d.config_timeout) sessionTimeoutMs = parseInt(d.config_timeout||2) * 60 * 60 * 1000;
+        if (d.config_horas) sessionTimeoutMs = parseInt(d.config_timeout||5) * 60 * 60 * 1000;
       }
       if (geminiDoc.exists) document.getElementById('cfg-gemini-key').value = geminiDoc.data().key||'';
     } catch(e) { console.warn('Config load error:', e.message); }
   }
   document.getElementById('config-horas').value = getCfg('config_horas','96');
-  document.getElementById('config-timeout').value = getCfg('config_timeout','2');
+  document.getElementById('config-timeout').value = getCfg('config_timeout','5');
   document.getElementById('cfg-ejs-pub').value = getCfg('ejs_pub','');
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
@@ -3171,7 +3110,7 @@ async function salvarGeminiKey() {
   try {
     await db.collection('config').doc('gemini').set({ key });
     GEMINI_API_KEY = key;
-    showTopAlert('API Key salva', 'ok', 'Chave do Gemini atualizada no Firestore.');
+    showTopAlert('✅ API Key Gemini salva com sucesso!', 'ok');
   } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
@@ -3188,7 +3127,7 @@ async function salvarConfig() {
     }, { merge: true });
   }
   sessionTimeoutMs = parseInt(timeout) * 60 * 60 * 1000;
-  showTopAlert('Configurações salvas', 'ok', 'Tempo de alerta e timeout de sessão atualizados em todos os dispositivos.');
+  showTopAlert('✅ Configurações salvas e sincronizadas em todos os dispositivos!', 'ok');
 }
 
 async function salvarTimeoutConfig() {
@@ -3666,7 +3605,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r19';
+    const BUILD_HASH = 'v20260322-r15';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -3832,9 +3771,9 @@ async function doAppLoginComOffline() {
       adminBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'block' : 'none';
       adminBtn.style.visibility = 'visible';
     }
-    const ajudaBtn = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtn) {
-      ajudaBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'inline-block' : 'none';
+    const ajudaBtnLogin = document.getElementById('btn-ajuda-admin');
+    if (ajudaBtnLogin) {
+      ajudaBtnLogin.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'inline-block' : 'none';
     }
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
@@ -3863,9 +3802,9 @@ function doAppLogoutComOffline() {
   document.getElementById('app-main').style.display = 'none';
   document.getElementById('op-email').value = '';
   document.getElementById('op-pass').value = '';
-  // Esconde o botão Ajuda no logout (só aparece para admin/operador/developer após login)
-  const ajudaBtnLogout = document.getElementById('btn-ajuda-admin');
-  if (ajudaBtnLogout) ajudaBtnLogout.style.display = 'none';
+  // Esconde Ajuda no logout — só aparece para admin/operador/developer após login
+  const ajudaBtnL = document.getElementById('btn-ajuda-admin');
+  if (ajudaBtnL) ajudaBtnL.style.display = 'none';
   ['origem','destino'].forEach(lado => {
     if (state[lado].stream) state[lado].stream.getTracks().forEach(t => t.stop());
     state[lado].stream = null;
@@ -4008,7 +3947,41 @@ Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, respo
   }
 }
 
-// capturarFotoNF definida mais abaixo com detecção automática
+async function capturarFotoNF(lado = 'origem') {
+  const video = document.getElementById(`video-nf-${lado}`);
+  const canvas = document.getElementById(`canvas-nf-${lado}`);
+  const preview = document.getElementById(`preview-nf-${lado}`);
+  const camArea = document.getElementById(`cam-nf-${lado}`);
+  if (!video || !canvas) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
+    video.srcObject = stream;
+    video.play();
+    if (camArea) camArea.style.display = 'block';
+    video.style.display = 'block';
+    preview.style.display = 'none';
+    const captureBtn = document.getElementById(`btn-capturar-nf-${lado}`);
+    if (captureBtn) {
+      captureBtn.textContent = '📸 Capturar Foto';
+      captureBtn.onclick = () => {
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        stateNF[lado].photoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        preview.src = stateNF.photoBase64;
+        preview.style.display = 'block';
+        video.style.display = 'none';
+        stream.getTracks().forEach(t => t.stop());
+        captureBtn.textContent = '📷 Nova Foto da NF';
+        captureBtn.onclick = () => capturarFotoNF(lado);
+        analisarNF(lado);
+      };
+    }
+  } catch (err) {
+    alert('Não foi possível acessar a câmera. Verifique as permissões.');
+  }
+}
 
 // ============================================================
 // FORNECEDORES — CRUD
@@ -4078,494 +4051,151 @@ function renderFornecedores(lista) {
     </tr>`;
   }).join('');
 }
+</script>
 
 
-// ── ATUALIZAR SELECT DE PERFIS ────────────────────────────
-async function atualizarSelectPerfis() {
-  const select = document.getElementById('novo-user-perfil');
-  if (!select) return;
-  const isAdmin = currentUserRole === 'admin' || currentUserRole === 'developer';
-  // Garante que Developer só aparece para admin
-  const devOpt = select.querySelector('option[value="developer"]');
-  if (devOpt) devOpt.style.display = isAdmin ? '' : 'none';
-  const adminOpt = select.querySelector('option[value="admin"]');
-  if (adminOpt) adminOpt.style.display = isAdmin ? '' : 'none';
-}
+<!-- BOTÃO FLUTUANTE DE SUPORTE -->
+<button class="support-fab" onclick="abrirSuporte()">🎧 Suporte</button>
 
-// ── LIMPAR PROCESSOS DE TESTE ─────────────────────────────
-async function limparProcessosTeste() {
-  if (!db) return;
-  if (!confirm('Remover todos os processos marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
-  try {
-    const snap = await db.collection('processos').where('_testData','==',true).get();
-    if (snap.empty) { showTopAlert('Nenhum processo de teste encontrado.', 'ok'); return; }
-    const batch = db.batch();
-    snap.docs.forEach(d => batch.delete(d.ref));
-    await batch.commit();
-    showTopAlert(`✅ ${snap.size} processos de teste removidos`, 'ok');
-    await registrarLog('limpar_testes', `${snap.size} processos de teste removidos`);
-    loadProcessos();
-  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
-}
+<!-- MODAL DE SUPORTE -->
+<div id="suporte-modal" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.7);z-index:10000;overflow-y:auto;backdrop-filter:blur(4px);" onclick="if(event.target===this)fecharSuporte()">
+  <div style="background:var(--surface);border-radius:var(--radius-lg);width:92%;max-width:540px;margin:24px auto;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;">
+    <div style="background:var(--gerdau-blue);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;">🎧 SOLICITAR SUPORTE</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;">Todos os campos são obrigatórios — resposta enviada ao seu e-mail</div>
+      </div>
+      <button onclick="fecharSuporte()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:14px;font-weight:700;">✕</button>
+    </div>
+    <div style="padding:22px;">
+      <!-- Tela de sucesso -->
+      <div id="suporte-sucesso" style="display:none;text-align:center;padding:10px 0;">
+        <div style="font-size:42px;margin-bottom:12px;">✅</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:8px;">SOLICITAÇÃO ENVIADA!</div>
+        <div style="background:var(--warning-bg);border:1.5px solid var(--warning-border);border-radius:10px;padding:16px;margin:16px 0;">
+          <div style="font-size:12px;color:var(--warning);font-weight:700;letter-spacing:1px;margin-bottom:6px;">⚠️ ANOTE SEU NÚMERO DE CHAMADO</div>
+          <div id="suporte-numero-exibido" style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;color:var(--gerdau-blue);letter-spacing:3px;"></div>
+          <div style="font-size:12px;color:var(--text2);margin-top:6px;">Guarde este número para acompanhar ou referenciar seu chamado.</div>
+        </div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:16px;">Retornaremos em breve pelo e-mail informado.</div>
+        <button onclick="fecharSuporte()" class="btn btn-primary" style="width:auto;padding:10px 32px;">Fechar</button>
+      </div>
+      <!-- Formulário -->
+      <div id="suporte-form">
+        <div class="input-group">
+          <label>Nome completo <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="sup-nome" placeholder="SEU NOME COMPLETO" style="font-size:14px;letter-spacing:0;text-transform:none;">
+          <small id="sup-nome-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <div class="input-group">
+          <label>Telefone / WhatsApp <span style="color:var(--danger);">*</span></label>
+          <input type="tel" id="sup-tel" placeholder="(XX) XXXXX-XXXX" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="mascararTelefone(this)">
+          <small id="sup-tel-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <div class="input-group">
+          <label>E-mail de login no sistema <span style="color:var(--danger);">*</span>
+            <span style="font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;"> — a resposta será enviada para este e-mail</span>
+          </label>
+          <input type="email" id="sup-email" placeholder="SEU@EMAIL.COM" style="font-size:14px;letter-spacing:0;text-transform:none;">
+          <small id="sup-email-err" style="color:var(--danger);font-size:11px;display:none;">Informe um e-mail válido</small>
+        </div>
+        <div class="input-group">
+          <label>Prioridade <span style="color:var(--danger);">*</span></label>
+          <select id="sup-prioridade" style="font-size:14px;letter-spacing:0;text-transform:none;">
+            <option value="">— Selecione a prioridade —</option>
+            <option value="baixa">🟢 Baixa — dúvida ou melhoria</option>
+            <option value="media">🟡 Média — afeta o trabalho, há solução alternativa</option>
+            <option value="alta">🔴 Alta — impede o uso do sistema</option>
+            <option value="urgente">🚨 Urgente — sistema parado, impacto operacional</option>
+          </select>
+          <small id="sup-prioridade-err" style="color:var(--danger);font-size:11px;display:none;">Selecione a prioridade</small>
+        </div>
+        <div class="input-group">
+          <label>Assunto <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="sup-assunto" placeholder="Resumo do problema em poucas palavras" style="font-size:14px;letter-spacing:0;text-transform:none;">
+          <small id="sup-assunto-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <div class="input-group">
+          <label>Descrição do problema <span style="color:var(--danger);">*</span></label>
+          <textarea id="sup-descricao" rows="4" placeholder="Descreva com detalhes: o que aconteceu, o que estava fazendo e qual era o resultado esperado..." style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 13px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;box-sizing:border-box;"></textarea>
+          <small id="sup-descricao-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <div class="input-group" style="margin-bottom:6px;">
+          <label>Anexo <span style="color:var(--text3);font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">(opcional — foto ou arquivo)</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="tirarFotoSuporte()" style="flex:1;min-width:130px;">📷 Tirar Foto</button>
+            <label style="flex:1;min-width:130px;cursor:pointer;margin:0;">
+              <input type="file" id="sup-arquivo" accept="image/*,.pdf,.xlsx,.csv,.txt,.docx" style="display:none;" onchange="previsualizarAnexo(this)">
+              <div class="btn btn-outline btn-sm" style="text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;">📎 Upload de Arquivo</div>
+            </label>
+          </div>
+          <div id="sup-preview-area" style="margin-top:8px;display:none;">
+            <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);">
+              <div id="sup-preview-img-wrap" style="display:none;"><img id="sup-preview-img" style="width:56px;height:56px;object-fit:cover;border-radius:6px;" alt=""></div>
+              <div style="flex:1;"><div id="sup-preview-nome" style="font-size:13px;font-weight:600;"></div><div id="sup-preview-size" style="font-size:11px;color:var(--text3);margin-top:2px;"></div></div>
+              <button onclick="removerAnexoSuporte()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;padding:2px 6px;">✕</button>
+            </div>
+          </div>
+          <div id="sup-cam-area" style="display:none;margin-top:8px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
+            <video id="sup-video" autoplay playsinline style="width:100%;display:block;border-radius:10px;"></video>
+            <div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:10px;">
+              <button onclick="capturarFotoSuporte()" style="background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50%;width:52px;height:52px;font-size:22px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);">📷</button>
+              <button onclick="cancelarFotoSuporte()" style="background:rgba(0,0,0,.5);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-enviar-suporte" onclick="enviarSuporte()" style="margin-top:14px;">📨 Enviar Solicitação</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
+<script>
 // ══════════════════════════════════════════════════════════════
-// FUNÇÕES DE STAGING / DEPLOY / CHANGELOG / PERFIS
+// FUNÇÕES ADICIONAIS — TODAS AS CORREÇÕES E FUNCIONALIDADES
 // ══════════════════════════════════════════════════════════════
 
-const PRODUCTION_PROJECT_ID = 'verificador-lacre';
+// ── STAGING FLAG ─────────────────────────────────────────────
+// Para usar no staging: mude IS_STAGING_BUILD = true e cole o config abaixo
+const IS_STAGING_BUILD = false;
+const STAGING_FIREBASE_CONFIG = null;
+// Exemplo de config staging:
+// const STAGING_FIREBASE_CONFIG = { apiKey:"...", authDomain:"...", projectId:"verificador-lacre-staging", ... };
 
-function isProduction() {
-  const raw = getCfg('firebase_staging_config','{}');
-  try { if (JSON.parse(raw).apiKey) return false; } catch(_) {}
-  return true;
-}
-
-function isStagingConfigured() {
-  try { return !!JSON.parse(getCfg('firebase_staging_config','{}')).apiKey; } catch(_) { return false; }
-}
-
-function loadDeployPanel() {
-  const deployTab = document.getElementById('tab-deploy-btn');
-  if (deployTab) deployTab.style.display = currentUserRole === 'developer' ? '' : 'none';
-  const stagingTxt = document.getElementById('cfg-firebase-staging');
-  if (stagingTxt) stagingTxt.value = getCfg('firebase_staging_config', '{}');
-  const envInfo = document.getElementById('deploy-env-info');
-  const isProd = isProduction();
-  const isStagingCfg = isStagingConfigured();
-  const buildHash = 'v20260322-r19';
-  if (envInfo) {
-    envInfo.innerHTML = `
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px;">
-        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
-          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">AMBIENTE</div>
-          <div style="font-weight:700;color:${isProd ? 'var(--danger)' : 'var(--success)'};">${isProd ? '🔴 PRODUÇÃO' : '🟢 STAGING'}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
-          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">BUILD</div>
-          <div style="font-weight:700;font-family:monospace;">${buildHash}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
-          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">STAGING CONFIG</div>
-          <div style="font-weight:700;color:${isStagingCfg ? 'var(--success)' : 'var(--warning)'};">${isStagingCfg ? '✅ Configurado' : '⚠️ Não configurado'}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:12px;">
-          <div style="font-size:11px;color:var(--text2);letter-spacing:1px;margin-bottom:4px;">URL</div>
-          <div style="font-size:12px;color:var(--text2);word-break:break-all;">${window.location.hostname}</div>
-        </div>
-      </div>`;
-  }
-  const warn = document.getElementById('staging-env-warning');
-  if (warn) warn.style.display = isProd ? 'block' : 'none';
-}
-
-function jsConfigToJson(raw) {
-  // Converts Firebase JS config format to valid JSON
-  // Adds quotes around unquoted keys: apiKey: "..." → "apiKey": "..."
-  return raw
-    .replace(/\/\/.*/g, '')                          // remove // comments
-    .replace(/,\s*\}/g, '}')                         // remove trailing commas
-    .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":'); // quote keys
-}
-
-function salvarStagingConfig() {
-  let raw = document.getElementById('cfg-firebase-staging')?.value.trim();
-  if (!raw) { alert('Cole a configuração do Firebase antes de salvar.'); return; }
-  // Auto-convert JS format to JSON if needed
-  try { JSON.parse(raw); }
-  catch(e) {
-    try { raw = jsConfigToJson(raw); JSON.parse(raw); }
-    catch(e2) { alert('JSON inválido: ' + e2.message + '\n\nDica: Cole o JSON com aspas nas chaves, ex:\n{"apiKey": "...", "projectId": "..."}'); return; }
-  }
-  setCfg('firebase_staging_config', raw);
-  showTopAlert('Config Staging salva', 'ok', 'Recarregue a página para conectar ao banco de staging.');
-}
-
-function limparStagingConfig() {
-  if (!confirm('Remover config do staging e voltar para produção?')) return;
-  localStorage.removeItem('firebase_staging_config');
-  showTopAlert('✅ Staging removido — usando produção', 'ok');
-  loadDeployPanel();
-}
-
-// ── GERAR DADOS DE TESTE ──────────────────────────────────
-const DADOS_TESTE = {
-  placas: [
-    { placa:'ABC1234', descricao:'CARRETA TANQUE — TRANSPORTADORA ALFA' },
-    { placa:'XYZ5678', descricao:'BITREM — TRANSPORTADORA BETA' },
-    { placa:'DEF1E23', descricao:'CARRETA SIDER — TRANSPORTADORA GAMA' },
-    { placa:'GHI4567', descricao:'CARRETA BAÚ — TRANSPORTADORA DELTA' },
-    { placa:'JKL8901', descricao:'TRUCK — TRANSPORTADORA ÉPSILON' },
-  ],
-  lacres: Array.from({length:30}, (_,i) => String(i+1).padStart(5,'0')),
-  fornecedores: [
-    { cnpj:'12345678000195', nome:'FORNECEDOR ALFA LTDA' },
-    { cnpj:'98765432000100', nome:'DISTRIBUIDORA BETA S/A' },
-    { cnpj:'11223344000155', nome:'INDUSTRIA GAMA EIRELI' },
-  ],
-  motoristas: ['JOÃO DA SILVA','CARLOS PEREIRA','MARCOS SOUZA','PEDRO OLIVEIRA','LUCAS SANTOS'],
-  locais: [
-    { loc:'São Paulo, SP', coords:'-23.5505,-46.6333' },
-    { loc:'Campinas, SP', coords:'-22.9056,-47.0608' },
-    { loc:'Sorocaba, SP', coords:'-23.5015,-47.4526' },
-    { loc:'Guarulhos, SP', coords:'-23.4543,-46.5337' },
-  ]
-};
-
-async function gerarDadosTeste(tipo = 'todos') {
-  if (!db) { alert('Firebase não configurado.'); return; }
-  if (isProduction()) { alert('⛔ Bloqueado em produção. Configure o banco de staging primeiro.'); return; }
-  const log = document.getElementById('staging-gen-log');
-  log.textContent = '⏳ Gerando dados...';
-  try {
-    if (tipo === 'todos' || tipo === 'placas') {
-      const batch = db.batch();
-      DADOS_TESTE.placas.forEach(p => {
-        batch.set(db.collection('placasAutorizadas').doc(p.placa), {
-          placa: p.placa, descricao: p.descricao, inativa: false,
-          adicionadaEm: firebase.firestore.FieldValue.serverTimestamp(),
-          cadastradoPorNome: 'Developer — Dados de Teste'
-        });
-      });
-      await batch.commit();
-      log.textContent += `\n✅ ${DADOS_TESTE.placas.length} placas criadas`;
-    }
-    if (tipo === 'todos' || tipo === 'lacres') {
-      const batch = db.batch();
-      DADOS_TESTE.lacres.forEach(num => {
-        batch.set(db.collection('lacresValidos').doc(num), {
-          numero: num, emUso: false, inutilizado: false, inativo: false,
-          cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
-          cadastradoPorNome: 'Developer — Dados de Teste'
-        });
-      });
-      await batch.commit();
-      log.textContent += `\n✅ ${DADOS_TESTE.lacres.length} lacres criados`;
-    }
-    if (tipo === 'todos') {
-      const batch2 = db.batch();
-      DADOS_TESTE.fornecedores.forEach(f => {
-        batch2.set(db.collection('fornecedores').doc(f.cnpj), {
-          cnpj: f.cnpj, nome: f.nome, inativo: false,
-          cadastradoEm: firebase.firestore.FieldValue.serverTimestamp(),
-          cadastradoPor: 'Developer — Dados de Teste'
-        });
-      });
-      await batch2.commit();
-      log.textContent += `\n✅ ${DADOS_TESTE.fornecedores.length} fornecedores criados`;
-    }
-    if (tipo === 'todos' || tipo === 'processos') {
-      const processos = [
-        { placa:'ABC1234', lacre:'00001', status:'aberto', resultado:null, motorista:'JOÃO DA SILVA', horas:-2 },
-        { placa:'XYZ5678', lacre:'00002', status:'encerrado', resultado:'ok', motorista:'CARLOS PEREIRA', horas:-25 },
-        { placa:'DEF1E23', lacre:'00003', status:'aguardando_confirmacao_desvio', resultado:'desvio', motorista:'MARCOS SOUZA', horas:-5 },
-        { placa:'GHI4567', lacre:'00004', status:'encerrado_manual', resultado:null, motorista:'PEDRO OLIVEIRA', horas:-100 },
-        { placa:'JKL8901', lacre:'00005', status:'encerrado', resultado:'ok', motorista:'LUCAS SANTOS', horas:-48 },
-      ];
-      for (const p of processos) {
-        const ts = new Date(Date.now() + p.horas * 3600000);
-        const docId = `TEST_${p.placa}_${Date.now()}`;
-        const orig = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
-        const dest = DADOS_TESTE.locais[Math.floor(Math.random()*DADOS_TESTE.locais.length)];
-        await db.collection('processos').doc(docId).set({
-          processId: docId, placa: p.placa, lacreNumero: p.lacre, motorista: p.motorista,
-          status: p.status, resultado: p.resultado, transportadora: 'TRANSPORTADORA TESTE LTDA',
-          timestamp: ts.toISOString(), locOrigem: orig.loc, locOrigemCoords: orig.coords,
-          locDestino: p.status !== 'aberto' ? dest.loc : null,
-          locDestinoCoords: p.status !== 'aberto' ? dest.coords : null,
-          tsDestino: p.status !== 'aberto' ? new Date(ts.getTime() + 8*3600000).toISOString() : null,
-          abertoPorNome: 'Operador Teste', abertoPor: 'teste@staging.com',
-          fechadoPorNome: p.status !== 'aberto' ? 'Destino Teste' : null,
-          numeroNF: `NF-${Math.floor(Math.random()*99999).toString().padStart(6,'0')}`,
-          registradoEm: firebase.firestore.FieldValue.serverTimestamp(), _testData: true
-        });
-      }
-      log.textContent += `\n✅ ${processos.length} processos de teste criados`;
-    }
-    log.textContent += '\n\n🎉 Dados de teste gerados com sucesso!';
-    await registrarLog('staging_gerar_dados', `Dados de teste gerados: ${tipo}`);
-  } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
-}
-
-async function limparDadosTeste() {
-  if (!db) return;
-  if (isProduction()) { alert('⛔ Bloqueado em produção.'); return; }
-  if (!confirm('Apagar todos os dados marcados como teste?\n\nEsta ação não pode ser desfeita.')) return;
-  const log = document.getElementById('staging-gen-log');
-  log.textContent = '⏳ Limpando...';
-  try {
-    const snap = await db.collection('processos').where('_testData','==',true).get();
-    const b1 = db.batch();
-    snap.docs.forEach(d => b1.delete(d.ref));
-    if (!snap.empty) await b1.commit();
-    log.textContent += `\n✅ ${snap.size} processos removidos`;
-    const sL = await db.collection('lacresValidos').where('cadastradoPorNome','==','Developer — Dados de Teste').get();
-    if (!sL.empty) { const b2 = db.batch(); sL.docs.forEach(d => b2.delete(d.ref)); await b2.commit(); }
-    log.textContent += `\n✅ ${sL.size} lacres removidos`;
-    log.textContent += '\n\n🧹 Limpeza concluída!';
-  } catch(e) { log.textContent += `\n❌ Erro: ${e.message}`; }
-}
-
-// ── CHECKLIST PRÉ-DEPLOY ──────────────────────────────────
-const CHECKLIST_BASE = [
-  { id:'login',         categoria:'🔑 Autenticação',    item:'Login com e-mail e senha funciona corretamente' },
-  { id:'login_err',     categoria:'🔑 Autenticação',    item:'Mensagem de erro ao inserir credenciais erradas' },
-  { id:'login_inativo', categoria:'🔑 Autenticação',    item:'Usuário inativo é bloqueado no login' },
-  { id:'offline',       categoria:'🔑 Autenticação',    item:'Login offline funciona (após primeiro login online)' },
-  { id:'timeout',       categoria:'🔑 Autenticação',    item:'Sessão expira após inatividade configurada' },
-  { id:'cam_origem',    categoria:'📷 Câmera',          item:'Câmera abre na aba Origem' },
-  { id:'qr_detect',     categoria:'📷 Câmera',          item:'QR Code é detectado e capturado automaticamente' },
-  { id:'refoto',        categoria:'📷 Câmera',          item:'Botão "Tirar Nova Foto" reseta câmera corretamente' },
-  { id:'manual_foto',   categoria:'📷 Câmera',          item:'Entrada manual bloqueia sem foto tirada primeiro' },
-  { id:'manual_num',    categoria:'📷 Câmera',          item:'Após foto, campo manual aceita o número do lacre' },
-  { id:'placa_val',     categoria:'🚗 Validações',      item:'Placa não autorizada é bloqueada com mensagem' },
-  { id:'placa_inativa', categoria:'🚗 Validações',      item:'Placa inativa é rejeitada' },
-  { id:'lacre_val',     categoria:'🔐 Lacres',          item:'Lacre não cadastrado é rejeitado no registro' },
-  { id:'lacre_uso',     categoria:'🔐 Lacres',          item:'Lacre em uso não pode ser reutilizado' },
-  { id:'registro_ok',   categoria:'🚛 Processo Origem', item:'Registro de saída salva no Firestore com todos os campos' },
-  { id:'gps_orig',      categoria:'🚛 Processo Origem', item:'Geolocalização é capturada e exibida' },
-  { id:'nf_ia',         categoria:'📄 Nota Fiscal',     item:'Câmera da NF detecta documento automaticamente' },
-  { id:'nf_manual',     categoria:'📄 Nota Fiscal',     item:'NF manual funciona com dropdown de fornecedores' },
-  { id:'destino_ok',    categoria:'✅ Processo Destino',item:'Verificação no destino encontra o processo pela placa' },
-  { id:'destino_aprv',  categoria:'✅ Processo Destino',item:'Lacre correto e íntegro → processo encerrado automaticamente' },
-  { id:'desvio',        categoria:'🚨 Desvios',         item:'Lacre diferente gera status de desvio' },
-  { id:'desvio_email',  categoria:'🚨 Desvios',         item:'E-mail de alerta de desvio é enviado' },
-  { id:'expiry_email',  categoria:'🚨 Desvios',         item:'E-mail de processo expirado é enviado após o tempo configurado' },
-  { id:'admin_login',   categoria:'🏛 Admin',           item:'Login no painel admin funciona' },
-  { id:'perfil_perms',  categoria:'🏛 Admin',           item:'Abas corretas aparecem para cada perfil' },
-  { id:'dash_kpis',     categoria:'🏛 Admin',           item:'Dashboard mostra KPIs corretos' },
-  { id:'lacres_crud',   categoria:'🏛 Admin',           item:'Cadastrar, inativar e reativar lacres funciona' },
-  { id:'placas_crud',   categoria:'🏛 Admin',           item:'Cadastrar, inativar e reativar placas funciona' },
-  { id:'usuarios_crud', categoria:'🏛 Admin',           item:'Criar, editar, inativar e reativar usuários funciona' },
-  { id:'forn_crud',     categoria:'🏛 Admin',           item:'Criar, editar, inativar e reativar fornecedores funciona' },
-  { id:'logs_audit',    categoria:'🏛 Admin',           item:'Aba Logs mostra registros com ação, detalhe e usuário' },
-  { id:'export_csv',    categoria:'🏛 Admin',           item:'Exportação CSV do histórico funciona' },
-  { id:'config_sync',   categoria:'🏛 Admin',           item:'Config salva no Firestore e sincroniza em outro dispositivo' },
-  { id:'pwa_install',   categoria:'📱 PWA',             item:'App instala na tela inicial do Android' },
-  { id:'pwa_ios',       categoria:'📱 PWA',             item:'App instala na tela inicial do iPhone' },
-  { id:'pwa_update',    categoria:'📱 PWA',             item:'PWA instalado atualiza após mudança do BUILD_HASH' },
-];
-
-function gerarChecklist() {
-  const changes = document.getElementById('deploy-changes-input')?.value.trim() || '';
-  const container = document.getElementById('checklist-container');
-  const resultado = document.getElementById('checklist-resultado');
-  if (resultado) resultado.style.display = 'none';
-  const extras = [];
-  const cl = changes.toLowerCase();
-  if (cl.includes('login') || cl.includes('senha') || cl.includes('auth'))
-    extras.push({ id:'extra_auth', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar todos os fluxos de autenticação com atenção especial' });
-  if (cl.includes('nf') || cl.includes('nota') || cl.includes('fornecedor'))
-    extras.push({ id:'extra_nf', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar leitura de NF e cruzamento de CNPJ' });
-  if (cl.includes('email') || cl.includes('alerta'))
-    extras.push({ id:'extra_email', categoria:'⚠️ Itens Extras (Mudança)', item:'Verificar envio de e-mail de desvio e processo expirado' });
-  if (cl.includes('perfil') || cl.includes('usuario'))
-    extras.push({ id:'extra_perfil', categoria:'⚠️ Itens Extras (Mudança)', item:'Testar todos os perfis (operacional, operador, admin, developer)' });
-  if (cl.includes('pwa') || cl.includes('build') || cl.includes('hash'))
-    extras.push({ id:'extra_pwa', categoria:'⚠️ Itens Extras (Mudança)', item:'Instalar PWA no celular e verificar se atualizou' });
-  const allItems = [...extras, ...CHECKLIST_BASE];
-  const groups = {};
-  allItems.forEach(item => { if (!groups[item.categoria]) groups[item.categoria] = []; groups[item.categoria].push(item); });
-  let html = '';
-  if (changes) html += `<div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--warning);">📝 <strong>Mudanças:</strong> ${changes}</div>`;
-  html += `<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Marque cada item após testar. O checklist deve estar 100% concluído antes de publicar em produção.</div>`;
-  Object.entries(groups).forEach(([cat, items]) => {
-    const isExtra = cat.includes('Extras');
-    html += `<div style="background:${isExtra ? 'rgba(245,166,35,.06)' : 'var(--surface2)'};border:1px solid ${isExtra ? 'rgba(245,166,35,.2)' : 'var(--border)'};border-radius:12px;margin-bottom:14px;overflow:hidden;">
-      <div style="padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;color:${isExtra ? 'var(--warning)' : 'var(--text)'};">${cat}</div>
-      <div style="padding:8px 16px 12px;">`;
-    items.forEach(it => {
-      html += `<label style="display:flex;align-items:flex-start;gap:12px;padding:8px 4px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.05);" onclick="atualizarChecklist()">
-        <input type="checkbox" id="chk-${it.id}" style="width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--success);cursor:pointer;">
-        <span id="chk-lbl-${it.id}" style="font-size:14px;color:var(--text2);line-height:1.5;">${it.item}</span>
-      </label>`;
-    });
-    html += `</div></div>`;
-  });
-  html += `<button class="btn btn-primary" onclick="atualizarChecklist(true)" style="margin-top:8px;">📊 Ver Resultado</button>`;
-  container.innerHTML = html;
-}
-
-function atualizarChecklist(mostrarResultado = false) {
-  const all = document.querySelectorAll('[id^="chk-"]:not([id*="-lbl-"])');
-  all.forEach(chk => {
-    const lbl = document.getElementById(`chk-lbl-${chk.id.replace('chk-','')}`);
-    if (lbl) lbl.style.cssText = chk.checked
-      ? 'font-size:14px;color:var(--success);text-decoration:line-through;opacity:.7;line-height:1.5;'
-      : 'font-size:14px;color:var(--text2);line-height:1.5;';
-  });
-  if (!mostrarResultado) return;
-  const total = all.length;
-  const checked = Array.from(all).filter(c => c.checked).length;
-  const resultado = document.getElementById('checklist-resultado');
-  if (!resultado) return;
-  resultado.style.display = 'block';
-  if (checked === total) {
-    resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);';
-    resultado.innerHTML = '✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar em produção. Lembre de atualizar o BUILD_HASH!</span>';
-  } else {
-    const pct = Math.round((checked/total)*100);
-    resultado.style.cssText = 'display:block;margin-top:16px;padding:18px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
-    resultado.innerHTML = `⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
+// ── BANNER DE FEEDBACK (substituição do showTopAlert) ─────────
+function showTopAlert(msg, type, detail) {
+  const el = document.getElementById('top-alert');
+  if (!el) return;
+  const cfg = {
+    ok:      { bg:'#E8F7EE', border:'#1A8C4E', color:'#1A8C4E', icon:'✅' },
+    error:   { bg:'#FDECEA', border:'#C0392B', color:'#C0392B', icon:'❌' },
+    warning: { bg:'#FEF3E2', border:'#B7770D', color:'#B7770D', icon:'⚠️' },
+    info:    { bg:'#E8EEF8', border:'#1B3A6B', color:'#1B3A6B', icon:'ℹ️' },
+  };
+  const c = cfg[type] || cfg.info;
+  el.style.cssText = `display:block;background:${c.bg};border-bottom:3px solid ${c.border};color:${c.color};width:100%;padding:0;position:sticky;top:64px;z-index:39;`;
+  el.innerHTML = `<div style="display:flex;align-items:flex-start;justify-content:center;gap:10px;padding:11px 20px;flex-wrap:wrap;">
+    <span style="font-size:18px;flex-shrink:0;line-height:1.4;">${c.icon}</span>
+    <div style="flex:1;min-width:0;text-align:left;">
+      <div style="font-size:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;line-height:1.3;">${msg}</div>
+      ${detail ? `<div style="font-size:12px;font-weight:500;opacity:.85;margin-top:2px;text-transform:none;letter-spacing:0;word-break:break-word;line-height:1.4;">${detail}</div>` : ''}
+    </div>
+    <button onclick="hideTopAlert()" style="background:none;border:none;cursor:pointer;font-size:16px;opacity:.7;line-height:1;padding:2px 4px;flex-shrink:0;color:inherit;">✕</button>
+  </div>`;
+  if (window._alertTimer) clearTimeout(window._alertTimer);
+  // Erros nunca somem sozinhos — usuário fecha manualmente
+  if (type !== 'error') {
+    window._alertTimer = setTimeout(() => hideTopAlert(), type === 'warning' ? 10000 : 5000);
   }
 }
-
-// ── CHANGELOG ────────────────────────────────────────────
-const CHANGELOG = [
-  {
-    version: 'v20260322-r19',
-    data: '22/03/2026',
-    novidades: [
-      'Perfil Developer com aba de Deploy',
-      'Painel de Staging com geração de dados de teste',
-      'Checklist pré-deploy automático',
-      'Botão Ajuda (manual-admin) visível somente para admin/operador/developer',
-      'Link Manual do Operador na tela de login',
-      'Changelog de versões',
-    ],
-    correcoes: [
-      'Correção crítica: funções de login não executavam (bloco JS corrompido)',
-      'Recuperação de senha voltou a funcionar',
-      'limparProcessosTeste adicionada ao painel de processos',
-    ]
-  },
-  {
-    version: 'v20260320-r14',
-    data: '20/03/2026',
-    novidades: [
-      'Aba Perfis: criar e editar perfis customizados',
-      'Exibição de versão na aba Config',
-      'Editar placa: botão e modal de edição',
-    ],
-    correcoes: [
-      'Timeout padrão ajustado para 2 horas',
-      'E-mail enviado apenas em desvios',
-    ]
-  },
-  {
-    version: 'v20260319-r13',
-    data: '19/03/2026',
-    novidades: [
-      'Inativar/reativar lacres, placas e usuários',
-      'Filtros Ativos/Inativos/Todos',
-      'Aba Logs de auditoria',
-      'Botões Editar e Redefinir Senha em usuários',
-      'Fornecedores: editar, inativar e reativar',
-    ],
-    correcoes: []
-  },
-  {
-    version: 'v20260316-r7',
-    data: '16/03/2026',
-    novidades: [
-      'Sistema base: câmera, IA Gemini, NF, geolocalização',
-      'Painel admin com dashboard KPIs',
-      'Controle de acesso por perfil',
-      'Notificações por e-mail',
-      'Exportação CSV',
-    ],
-    correcoes: []
-  },
-];
-
-function verChangelog() {
-  let m = document.getElementById('changelog-modal');
-  if (!m) { m = document.createElement('div'); m.id = 'changelog-modal'; document.body.appendChild(m); }
-  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  const html = CHANGELOG.map((v, i) => `
-    <div style="background:${i===0 ? 'rgba(27,58,107,.15)' : 'transparent'};border:1px solid ${i===0 ? 'var(--gerdau-blue)' : 'var(--border)'};border-radius:12px;padding:18px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;">${v.version}</span>
-        ${i===0 ? '<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">ATUAL</span>' : ''}
-        <span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span>
-      </div>
-      ${v.novidades.length ? `<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:6px;">NOVIDADES</div>${v.novidades.map(n => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}</div>` : ''}
-      ${v.correcoes.length ? `<div><div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:6px;">CORREÇÕES</div>${v.correcoes.map(c => `<div style="font-size:13px;color:var(--text2);padding:3px 0;display:flex;gap:8px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}</div>` : ''}
-    </div>`).join('');
-  m.innerHTML = `
-    <div style="background:var(--surface);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);">
-      <div style="padding:20px 24px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;">📋 CHANGELOG</div>
-        <button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;">✕</button>
-      </div>
-      <div style="overflow-y:auto;padding:20px 24px;">${html}</div>
-    </div>`;
-  m.style.display = 'flex';
+function hideTopAlert() {
+  const el = document.getElementById('top-alert');
+  if (el) el.style.display = 'none';
+  if (window._alertTimer) clearTimeout(window._alertTimer);
 }
 
-// ── EDITAR E SALVAR PLACA ─────────────────────────────────
-async function editarPlaca(placa, descricaoAtual) {
-  let m = document.getElementById('edit-placa-modal');
-  if (!m) { m = document.createElement('div'); m.id = 'edit-placa-modal'; document.body.appendChild(m); }
-  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
-  m.innerHTML = `
-    <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR PLACA</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Placa: <strong style="letter-spacing:2px;">${placa}</strong></div>
-      <input type="hidden" id="edit-placa-id" value="${placa}">
-      <div class="input-group">
-        <label>Descrição / Transportadora</label>
-        <input type="text" id="edit-placa-desc" value="${descricaoAtual}" placeholder="EX: CARRETA TANQUE" style="font-size:14px;letter-spacing:0;text-transform:uppercase;">
-      </div>
-      <div style="display:flex;gap:10px;margin-top:8px;">
-        <button class="btn btn-primary" onclick="salvarEdicaoPlaca()" style="flex:1;">💾 Salvar</button>
-        <button class="btn btn-outline" onclick="document.getElementById('edit-placa-modal').style.display='none'" style="flex:1;">Cancelar</button>
-      </div>
-    </div>`;
-}
-
-async function salvarEdicaoPlaca() {
-  const placa = document.getElementById('edit-placa-id').value;
-  const desc = document.getElementById('edit-placa-desc').value.trim().toUpperCase();
-  try {
-    await db.collection('placasAutorizadas').doc(placa).update({ descricao: desc });
-    await registrarLog('editar_placa', `Placa ${placa} → descrição: ${desc}`);
-    document.getElementById('edit-placa-modal').style.display = 'none';
-    showTopAlert(`✅ Placa ${placa} atualizada`, 'ok');
-    loadPlacas();
-  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
-}
-
-// ── GESTÃO DE PERFIS CUSTOMIZADOS ────────────────────────
-async function getPerfisCustomizados() {
-  try { const doc = await db.collection('config').doc('perfis-customizados').get(); return doc.exists ? doc.data() : {}; }
-  catch(e) { return {}; }
-}
-
-async function criarNovoPerfil() {
-  const id = document.getElementById('novo-perfil-id')?.value.trim();
-  const nome = document.getElementById('novo-perfil-nome')?.value.trim();
-  if (!id) { showTopAlert('❌ Informe o ID do perfil', 'error'); return; }
-  if (!nome) { showTopAlert('❌ Informe o nome de exibição', 'error'); return; }
-  if (['admin','operador','operacional','developer'].includes(id)) { showTopAlert('❌ Esse ID já é um perfil padrão', 'error'); return; }
-  try {
-    await db.collection('config').doc('perfis-customizados').set({ [id]: nome }, { merge: true });
-    await db.collection('config').doc('permissoes').set({ [id]: [] }, { merge: true });
-    _cachedPerms = null;
-    document.getElementById('novo-perfil-id').value = '';
-    document.getElementById('novo-perfil-nome').value = '';
-    showTopAlert(`✅ Perfil "${nome}" criado!`, 'ok');
-    await registrarLog('criar_perfil', `Perfil: ${id} = ${nome}`);
-    loadPerfis();
-  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
-}
-
-async function removerPerfilCustomizado(id, nome) {
-  if (!confirm(`Remover perfil "${nome}"?\n\nUsuários com esse perfil perderão acesso ao admin.`)) return;
-  try {
-    await db.collection('config').doc('perfis-customizados').update({ [id]: firebase.firestore.FieldValue.delete() });
-    await db.collection('config').doc('permissoes').update({ [id]: firebase.firestore.FieldValue.delete() });
-    _cachedPerms = null;
-    showTopAlert(`🚫 Perfil "${nome}" removido`, 'warning');
-    loadPerfis();
-  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
-}
-
-
-
-// ══════════════════════════════════════════════════════════════
-// VALIDAÇÃO INLINE DE PLACA
-// ══════════════════════════════════════════════════════════════
+// ── VALIDAÇÃO INLINE DE PLACA ─────────────────────────────────
 async function validarPlacaInline(lado) {
   const input  = document.getElementById(`placa-${lado}`);
   const status = document.getElementById(`placa-${lado}-status`);
@@ -4582,8 +4212,7 @@ async function validarPlacaInline(lado) {
   status.style.cssText = 'display:block;color:var(--text2);';
   status.textContent = '⏳ Verificando...';
   try {
-    const placaLimpa = placa.replace(/[^A-Z0-9]/g, '');
-    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
+    const doc = await db.collection('placasAutorizadas').doc(placa.replace(/[^A-Z0-9]/g,'')).get();
     if (doc.exists && !doc.data().inativa) {
       const desc = doc.data().descricao ? ` — ${doc.data().descricao}` : '';
       status.style.cssText = 'display:block;color:var(--success);font-weight:600;';
@@ -4592,1211 +4221,467 @@ async function validarPlacaInline(lado) {
       status.style.cssText = 'display:block;color:var(--danger);font-weight:600;';
       status.textContent = '❌ Placa não autorizada — contate o administrador';
     }
-  } catch(e) {
-    status.style.cssText = 'display:block;color:var(--text2);';
-    status.textContent = 'Não foi possível verificar agora';
-  }
+  } catch(e) { status.style.cssText = 'display:block;color:var(--text2);'; status.textContent = 'Não foi possível verificar agora'; }
 }
 
-// ══════════════════════════════════════════════════════════════
-// CÂMERA DA NF — COM DETECÇÃO AUTOMÁTICA
-// ══════════════════════════════════════════════════════════════
-let _nfStream = null;
-let _nfCaptured = false;
+// ── CÂMERA DA NF COM DETECÇÃO AUTOMÁTICA ─────────────────────
+let _nfStream = null, _nfCaptured = false;
 
 async function capturarFotoNF(lado = 'origem') {
-  const video     = document.getElementById(`video-nf-${lado}`);
-  const canvas    = document.getElementById(`canvas-nf-${lado}`);
-  const preview   = document.getElementById(`preview-nf-${lado}`);
-  const camArea   = document.getElementById(`cam-nf-${lado}`);
-  const indicator = document.getElementById('nf-doc-indicator');
-  const captBtn   = document.getElementById(`btn-capturar-nf-${lado}`);
-  if (!video || !canvas || !camArea) return;
-  preview.style.display = 'none'; preview.src = '';
-  stateNF[lado].photoBase64 = null; _nfCaptured = false;
+  const video=document.getElementById(`video-nf-${lado}`), canvas=document.getElementById(`canvas-nf-${lado}`);
+  const preview=document.getElementById(`preview-nf-${lado}`), camArea=document.getElementById(`cam-nf-${lado}`);
+  const indicator=document.getElementById('nf-doc-indicator'), captBtn=document.getElementById(`btn-capturar-nf-${lado}`);
+  if (!video||!canvas||!camArea) return;
+  preview.style.display='none'; preview.src=''; stateNF[lado].photoBase64=null; _nfCaptured=false;
   try {
-    if (_nfStream) { _nfStream.getTracks().forEach(t => t.stop()); _nfStream = null; }
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
-    _nfStream = stream; video.srcObject = stream; video.style.display = 'block'; camArea.style.display = 'block';
-    if (captBtn) { captBtn.textContent = '📸 Capturar Agora'; captBtn.onclick = () => _tirarFotoNF(lado); }
-    if (indicator) { indicator.style.display = 'block'; indicator.textContent = '📄 APONTE PARA A NF/DANFE'; indicator.style.background = 'rgba(0,0,0,.45)'; }
-    await video.play();
-    _detectarDocumentoNF(lado);
-  } catch(err) { alert('Não foi possível acessar a câmera. Verifique as permissões.'); console.error(err); }
+    if (_nfStream) { _nfStream.getTracks().forEach(t=>t.stop()); _nfStream=null; }
+    _nfStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});
+    video.srcObject=_nfStream; video.style.display='block'; camArea.style.display='block';
+    if (captBtn) { captBtn.textContent='📸 Capturar Agora'; captBtn.onclick=()=>_tirarFotoNF(lado); }
+    if (indicator) { indicator.style.display='block'; indicator.textContent='📄 APONTE PARA A NF/DANFE'; indicator.style.background='rgba(0,0,0,.45)'; }
+    await video.play(); _detectarDocumentoNF(lado);
+  } catch(err) { alert('Não foi possível acessar a câmera. Verifique as permissões.'); }
 }
-
 function _detectarDocumentoNF(lado) {
-  const video     = document.getElementById(`video-nf-${lado}`);
-  const canvas    = document.getElementById(`canvas-nf-${lado}`);
-  const indicator = document.getElementById('nf-doc-indicator');
-  if (!video || !canvas || _nfCaptured) return;
-  const ctx = canvas.getContext('2d'); let docFrames = 0;
-  const tick = () => {
-    if (_nfCaptured || !_nfStream) return;
-    if (video.readyState >= 2) {
-      canvas.width = video.videoWidth || 640; canvas.height = video.videoHeight || 480;
-      ctx.drawImage(video, 0, 0);
+  const video=document.getElementById(`video-nf-${lado}`), canvas=document.getElementById(`canvas-nf-${lado}`);
+  const indicator=document.getElementById('nf-doc-indicator');
+  if (!video||!canvas||_nfCaptured) return;
+  const ctx=canvas.getContext('2d'); let docFrames=0;
+  const tick=()=>{
+    if (_nfCaptured||!_nfStream) return;
+    if (video.readyState>=2) {
+      canvas.width=video.videoWidth||640; canvas.height=video.videoHeight||480; ctx.drawImage(video,0,0);
       try {
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height); const data = imgData.data;
-        const cx = Math.floor(canvas.width*.2), cy = Math.floor(canvas.height*.2);
-        const cw = Math.floor(canvas.width*.6), ch = Math.floor(canvas.height*.6);
-        let brightSum = 0, brightCount = 0, darkPixels = 0;
-        for (let y = cy; y < cy+ch; y+=4) for (let x = cx; x < cx+cw; x+=4) {
-          const i = (y*canvas.width+x)*4;
-          const lum = data[i]*.299+data[i+1]*.587+data[i+2]*.114;
-          brightSum+=lum; brightCount++; if(lum<80) darkPixels++;
-        }
-        const avg = brightCount>0 ? brightSum/brightCount : 0;
-        const dark = brightCount>0 ? darkPixels/brightCount : 0;
-        if (avg>160 && dark>0.03 && dark<0.55) {
-          docFrames++;
-          if (indicator) { indicator.style.background='rgba(26,140,78,.75)'; indicator.textContent=`✅ DOCUMENTO DETECTADO — MANTENDO FIRME... (${docFrames}/8)`; }
-          if (docFrames>=8) { _tirarFotoNF(lado); return; }
-        } else {
-          docFrames=0;
-          if (indicator) { indicator.style.background='rgba(0,0,0,.45)'; indicator.textContent=avg<80?'🌑 MUITO ESCURO — ILUMINE A NF':avg>230?'☀️ MUITO CLARO — REDUZA O BRILHO':'📄 APONTE PARA A NF/DANFE'; }
-        }
-      } catch(e) {}
+        const d=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+        const cx=Math.floor(canvas.width*.2),cy=Math.floor(canvas.height*.2),cw=Math.floor(canvas.width*.6),ch=Math.floor(canvas.height*.6);
+        let bs=0,bc=0,dk=0;
+        for (let y=cy;y<cy+ch;y+=4) for (let x=cx;x<cx+cw;x+=4){const i=(y*canvas.width+x)*4,l=d[i]*.299+d[i+1]*.587+d[i+2]*.114;bs+=l;bc++;if(l<80)dk++;}
+        const avg=bc>0?bs/bc:0,dark=bc>0?dk/bc:0;
+        if (avg>160&&dark>0.03&&dark<0.55){docFrames++;if(indicator){indicator.style.background='rgba(26,140,78,.75)';indicator.textContent=`✅ DOCUMENTO DETECTADO (${docFrames}/8)`;}if(docFrames>=8){_tirarFotoNF(lado);return;}}
+        else{docFrames=0;if(indicator){indicator.style.background='rgba(0,0,0,.45)';indicator.textContent=avg<80?'🌑 MUITO ESCURO':avg>230?'☀️ MUITO CLARO':'📄 APONTE PARA A NF/DANFE';}}
+      } catch(e){}
     }
-    setTimeout(()=>requestAnimationFrame(tick), 120);
+    setTimeout(()=>requestAnimationFrame(tick),120);
   };
   requestAnimationFrame(tick);
 }
-
 function _tirarFotoNF(lado) {
-  if (_nfCaptured) return; _nfCaptured = true;
-  const video=document.getElementById(`video-nf-${lado}`), canvas=document.getElementById(`canvas-nf-${lado}`);
-  const preview=document.getElementById(`preview-nf-${lado}`), captBtn=document.getElementById(`btn-capturar-nf-${lado}`);
-  const indicator=document.getElementById('nf-doc-indicator');
+  if (_nfCaptured) return; _nfCaptured=true;
+  const video=document.getElementById(`video-nf-${lado}`),canvas=document.getElementById(`canvas-nf-${lado}`);
+  const preview=document.getElementById(`preview-nf-${lado}`),captBtn=document.getElementById(`btn-capturar-nf-${lado}`);
   if(!video||!canvas) return;
   const ctx=canvas.getContext('2d'); canvas.width=video.videoWidth||640; canvas.height=video.videoHeight||480; ctx.drawImage(video,0,0);
   stateNF[lado].photoBase64=canvas.toDataURL('image/jpeg',0.9);
   preview.src=stateNF[lado].photoBase64; preview.style.display='block'; video.style.display='none';
-  if(indicator) indicator.style.display='none';
+  const ind=document.getElementById('nf-doc-indicator'); if(ind) ind.style.display='none';
   if(_nfStream){_nfStream.getTracks().forEach(t=>t.stop());_nfStream=null;}
   if(captBtn){captBtn.textContent='🔄 Nova Foto da NF';captBtn.onclick=()=>{_nfCaptured=false;capturarFotoNF(lado);};}
   analisarNF(lado);
 }
 
-// ══════════════════════════════════════════════════════════════
-// FORNECEDORES — DROPDOWN / DATALIST
-// ══════════════════════════════════════════════════════════════
+// ── FORNECEDORES — DROPDOWN ───────────────────────────────────
 let _fornecedoresCache = null;
-
 async function carregarFornecedoresDropdown() {
   if (!db) return [];
   if (_fornecedoresCache) return _fornecedoresCache;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
     _fornecedoresCache = snap.docs.filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
-    _fornecedoresCache.sort((a,b)=>a.nome.localeCompare(b.nome));
-  } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); _fornecedoresCache = []; }
+  } catch(e) { console.warn(e.message); _fornecedoresCache=[]; }
   return _fornecedoresCache;
 }
-
 async function popularFornecedoresDatalist() {
   const lista = await carregarFornecedoresDropdown();
   const dl = document.getElementById('fornecedores-datalist');
   if (dl) dl.innerHTML = lista.map(f=>`<option value="${f.nome}">${f.nome}${f.cnpj?' — CNPJ: '+formatarCNPJ(f.cnpj):''}</option>`).join('');
 }
-
 function verificarFornecedorSelecionado(lado, valor) {
-  if (!valor || !_fornecedoresCache) return;
+  if (!valor||!_fornecedoresCache) return;
   const match = _fornecedoresCache.find(f=>f.nome.toLowerCase()===valor.toLowerCase());
   const badge = document.getElementById(`forn-badge-${lado}`);
-  if (badge) badge.style.display = match ? 'inline' : 'none';
-  if (match && stateNF && stateNF[lado]) stateNF[lado].cnpjEmissor = match.cnpj;
+  if (badge) badge.style.display = match?'inline':'none';
+  if (match&&stateNF&&stateNF[lado]) stateNF[lado].cnpjEmissor = match.cnpj;
 }
 
-// ══════════════════════════════════════════════════════════════
-// FORNECEDORES — CRUD COMPLETO
-// ══════════════════════════════════════════════════════════════
+// ── FORNECEDORES — CRUD ───────────────────────────────────────
 async function loadFornecedores() {
   if (!db) return;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
     _todosFornecedores = snap.docs.map(d=>({id:d.id,...d.data()}));
     filtroFornStatus(_filtroForn||'ativos');
-  } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); }
+  } catch(e) { console.warn(e.message); }
 }
-
 async function adicionarFornecedor() {
   if (!db) { alert('Firebase não configurado.'); return; }
-  const cnpjRaw = document.getElementById('novo-forn-cnpj').value.replace(/\D/g,'');
-  const nome = document.getElementById('novo-forn-nome').value.trim().toUpperCase();
-  if (!nome) { alert('Informe o nome do fornecedor.'); return; }
-  if (!cnpjRaw) { alert('Informe o CNPJ do fornecedor.'); return; }
-  if (cnpjRaw.length !== 14) { alert(`CNPJ incompleto: ${cnpjRaw.length} dígitos (esperado 14).`); return; }
-  if (!validarCNPJ(cnpjRaw)) { if (!confirm(`O CNPJ ${formatarCNPJ(cnpjRaw)} parece inválido.
-Deseja cadastrar mesmo assim?`)) return; }
-  const btn = document.querySelector('[onclick="adicionarFornecedor()"]');
-  if (btn) { btn.disabled=true; btn.textContent='Salvando...'; }
+  const cnpjRaw=document.getElementById('novo-forn-cnpj').value.replace(/\D/g,'');
+  const nome=document.getElementById('novo-forn-nome').value.trim().toUpperCase();
+  if (!nome) { alert('Informe o nome.'); return; }
+  if (cnpjRaw.length!==14) { alert(`CNPJ incompleto: ${cnpjRaw.length} dígitos.`); return; }
+  if (!validarCNPJ(cnpjRaw) && !confirm(`CNPJ ${formatarCNPJ(cnpjRaw)} parece inválido. Continuar?`)) return;
+  const btn=document.querySelector('[onclick="adicionarFornecedor()"]');
+  if (btn){btn.disabled=true;btn.textContent='Salvando...';}
   try {
-    const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
-    if (existing.exists) {
-      if (existing.data().inativo) {
-        if (!confirm(`CNPJ já cadastrado mas inativo como "${existing.data().nome}".
-Reativar com o nome "${nome}"?`)) { if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} return; }
-        await db.collection('fornecedores').doc(cnpjRaw).update({nome,inativo:false,inativadoEm:null,inativadoPor:null,inativadoPorNome:null});
-        showTopAlert(`✅ Fornecedor "${nome}" reativado`,'ok'); loadFornecedores(); _fornecedoresCache=null;
-        if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} return;
-      }
-      if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".
-Atualizar para "${nome}"?`)) { if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} return; }
-    }
+    const ex=await db.collection('fornecedores').doc(cnpjRaw).get();
+    if (ex.exists&&ex.data().inativo){await db.collection('fornecedores').doc(cnpjRaw).update({nome,inativo:false,inativadoEm:null,inativadoPor:null,inativadoPorNome:null});showTopAlert(`✅ Fornecedor "${nome}" reativado`,'ok');loadFornecedores();_fornecedoresCache=null;if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';}return;}
+    if (ex.exists&&!confirm(`CNPJ já cadastrado como "${ex.data().nome}". Atualizar para "${nome}"?`)){if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';}return;}
     await db.collection('fornecedores').doc(cnpjRaw).set({cnpj:cnpjRaw,nome,cadastradoEm:firebase.firestore.FieldValue.serverTimestamp(),cadastradoPor:currentOperador?.nome||auth?.currentUser?.email||'Admin'});
     document.getElementById('novo-forn-cnpj').value=''; document.getElementById('novo-forn-nome').value='';
     showTopAlert(`✅ Fornecedor "${nome}" cadastrado!`,'ok'); loadFornecedores(); _fornecedoresCache=null;
     try{await registrarLog('cadastro_fornecedor',`CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`);}catch(_){}
-  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
-  finally { if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} }
+  } catch(e){alert(`❌ Erro: ${e.message}`);}
+  finally{if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';}}
 }
-
-async function inativarFornecedor(cnpj) {
-  if (!confirm(`Inativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?
-Poderá ser reativado quando necessário.`)) return;
-  const op = currentOperador||{nome:auth?.currentUser?.email||'Admin',email:auth?.currentUser?.email||''};
+async function inativarFornecedor(cnpj){
+  if(!confirm(`Inativar CNPJ ${formatarCNPJ(cnpj)}?`))return;
+  const op=currentOperador||{nome:auth?.currentUser?.email||'Admin',email:auth?.currentUser?.email||''};
   await db.collection('fornecedores').doc(cnpj).update({inativo:true,inativadoEm:firebase.firestore.FieldValue.serverTimestamp(),inativadoPor:op.email,inativadoPorNome:op.nome});
-  await registrarLog('inativar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} inativado por ${op.nome}`);
+  await registrarLog('inativar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} por ${op.nome}`);
   showTopAlert('🚫 Fornecedor inativado','warning'); loadFornecedores(); _fornecedoresCache=null;
 }
-
-async function reativarFornecedor(cnpj) {
-  if (!confirm(`Reativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?`)) return;
-  const op = currentOperador||{nome:auth?.currentUser?.email||'Admin',email:auth?.currentUser?.email||''};
+async function reativarFornecedor(cnpj){
+  if(!confirm(`Reativar CNPJ ${formatarCNPJ(cnpj)}?`))return;
+  const op=currentOperador||{nome:auth?.currentUser?.email||'Admin',email:auth?.currentUser?.email||''};
   await db.collection('fornecedores').doc(cnpj).update({inativo:false,inativadoEm:null,inativadoPor:null,inativadoPorNome:null});
-  await registrarLog('reativar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} reativado por ${op.nome}`);
+  await registrarLog('reativar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} por ${op.nome}`);
   showTopAlert('✅ Fornecedor reativado','ok'); loadFornecedores(); _fornecedoresCache=null;
 }
-
-function editarFornecedor(cnpj, nomeAtual) {
-  let m = document.getElementById('edit-forn-modal');
-  if (!m) { m = document.createElement('div'); m.id='edit-forn-modal'; document.body.appendChild(m); }
-  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
-  m.innerHTML = `<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR FORNECEDOR</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">CNPJ: <strong>${formatarCNPJ(cnpj)}</strong></div>
-    <input type="hidden" id="edit-forn-cnpj" value="${cnpj}">
-    <div class="input-group"><label>Nome</label><input type="text" id="edit-forn-nome" value="${nomeAtual}" style="font-size:15px;letter-spacing:0;text-transform:uppercase;"></div>
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn btn-primary" onclick="salvarEdicaoFornecedor()" style="flex:1;">💾 Salvar</button>
-      <button class="btn btn-outline" onclick="document.getElementById('edit-forn-modal').style.display='none'" style="flex:1;">Cancelar</button>
-    </div>
-  </div>`;
+function editarFornecedor(cnpj,nomeAtual){
+  let m=document.getElementById('edit-forn-modal');
+  if(!m){m=document.createElement('div');m.id='edit-forn-modal';document.body.appendChild(m);}
+  m.style.cssText='display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML=`<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR FORNECEDOR</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;">CNPJ: <strong>${formatarCNPJ(cnpj)}</strong></div><input type="hidden" id="edit-forn-cnpj" value="${cnpj}"><div class="input-group"><label>Nome</label><input type="text" id="edit-forn-nome" value="${nomeAtual}" style="font-size:15px;letter-spacing:0;text-transform:uppercase;"></div><div style="display:flex;gap:10px;margin-top:8px;"><button class="btn btn-primary" onclick="salvarEdicaoFornecedor()" style="flex:1;">💾 Salvar</button><button class="btn btn-outline" onclick="document.getElementById('edit-forn-modal').style.display='none'" style="flex:1;">Cancelar</button></div></div>`;
+}
+async function salvarEdicaoFornecedor(){
+  const cnpj=document.getElementById('edit-forn-cnpj').value,nome=document.getElementById('edit-forn-nome').value.trim().toUpperCase();
+  if(!nome){alert('Informe o nome.');return;}
+  try{await db.collection('fornecedores').doc(cnpj).update({nome});await registrarLog('editar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} → ${nome}`);document.getElementById('edit-forn-modal').style.display='none';showTopAlert('✅ Fornecedor atualizado','ok');loadFornecedores();_fornecedoresCache=null;}
+  catch(e){alert('Erro: '+e.message);}
 }
 
-async function salvarEdicaoFornecedor() {
-  const cnpj = document.getElementById('edit-forn-cnpj').value;
-  const nome = document.getElementById('edit-forn-nome').value.trim().toUpperCase();
-  if (!nome) { alert('Informe o nome.'); return; }
-  try {
-    await db.collection('fornecedores').doc(cnpj).update({nome});
-    await registrarLog('editar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} → nome: ${nome}`);
-    document.getElementById('edit-forn-modal').style.display='none';
-    showTopAlert('✅ Fornecedor atualizado','ok'); loadFornecedores(); _fornecedoresCache=null;
-  } catch(e) { alert('Erro: '+e.message); }
+// ── USUÁRIOS — EDITAR / RESETAR SENHA ────────────────────────
+function abrirEdicaoUsuario(uid,nome,empresa,perfil){
+  let m=document.getElementById('edit-user-modal');
+  if(!m){m=document.createElement('div');m.id='edit-user-modal';document.body.appendChild(m);}
+  m.style.cssText='display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML=`<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:20px;">✏️ EDITAR USUÁRIO</div><input type="hidden" id="edit-uid" value="${uid}"><div class="input-group"><label>Nome</label><input type="text" id="edit-nome" value="${nome.replace(/"/g,'&quot;')}" style="font-size:15px;letter-spacing:0;text-transform:none;"></div><div class="input-group"><label>Empresa</label><input type="text" id="edit-empresa" value="${empresa.replace(/"/g,'&quot;')}" style="font-size:15px;letter-spacing:0;text-transform:none;"></div><div class="input-group"><label>Perfil</label><select id="edit-perfil" style="font-size:15px;letter-spacing:0;text-transform:none;"><option value="operacional" ${perfil==='operacional'?'selected':''}>Operacional</option><option value="operador" ${perfil==='operador'?'selected':''}>Operador</option><option value="admin" ${perfil==='admin'?'selected':''}>Admin</option><option value="developer" ${perfil==='developer'?'selected':''}>Developer</option></select></div><div style="display:flex;gap:10px;margin-top:8px;"><button class="btn btn-primary" onclick="salvarEdicaoUsuario()" style="flex:1;">💾 Salvar</button><button class="btn btn-outline" onclick="document.getElementById('edit-user-modal').style.display='none'" style="flex:1;">Cancelar</button></div></div>`;
+}
+async function salvarEdicaoUsuario(){
+  const uid=document.getElementById('edit-uid').value,nome=document.getElementById('edit-nome').value.trim(),empresa=document.getElementById('edit-empresa').value.trim(),perfil=document.getElementById('edit-perfil').value;
+  if(!nome){alert('Informe o nome.');return;}
+  try{await db.collection('usuarios').doc(uid).update({nome,empresa,perfil});await registrarLog('editar_usuario',`UID ${uid}: nome=${nome}, perfil=${perfil}`);document.getElementById('edit-user-modal').style.display='none';showTopAlert('✅ Usuário atualizado','ok');loadUsuarios();}
+  catch(e){alert('Erro: '+e.message);}
+}
+async function resetarSenhaUsuario(email){
+  if(!confirm(`Enviar link de recuperação para ${email}?`))return;
+  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');await registrarLog('reset_senha',`Link enviado para ${email}`);}
+  catch(e){alert('Erro: '+e.message);}
 }
 
-// ══════════════════════════════════════════════════════════════
-// USUÁRIOS — EDITAR E RESETAR SENHA
-// ══════════════════════════════════════════════════════════════
-function abrirEdicaoUsuario(uid, nome, empresa, perfil) {
-  let m = document.getElementById('edit-user-modal');
-  if (!m) { m = document.createElement('div'); m.id='edit-user-modal'; document.body.appendChild(m); }
-  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
-  m.innerHTML = `<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:20px;">✏️ EDITAR USUÁRIO</div>
-    <input type="hidden" id="edit-uid" value="${uid}">
-    <div class="input-group"><label>Nome</label><input type="text" id="edit-nome" value="${nome.replace(/"/g,'&quot;')}" style="font-size:15px;letter-spacing:0;text-transform:none;"></div>
-    <div class="input-group"><label>Empresa</label><input type="text" id="edit-empresa" value="${empresa.replace(/"/g,'&quot;')}" style="font-size:15px;letter-spacing:0;text-transform:none;"></div>
-    <div class="input-group"><label>Perfil</label>
-      <select id="edit-perfil" style="font-size:15px;letter-spacing:0;text-transform:none;">
-        <option value="operacional" ${perfil==='operacional'?'selected':''}>Operacional</option>
-        <option value="operador" ${perfil==='operador'?'selected':''}>Operador</option>
-        <option value="admin" ${perfil==='admin'?'selected':''}>Admin</option>
-        <option value="developer" ${perfil==='developer'?'selected':''}>Developer</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button class="btn btn-primary" onclick="salvarEdicaoUsuario()" style="flex:1;">💾 Salvar</button>
-      <button class="btn btn-outline" onclick="document.getElementById('edit-user-modal').style.display='none'" style="flex:1;">Cancelar</button>
-    </div>
-  </div>`;
-}
-
-async function salvarEdicaoUsuario() {
-  const uid = document.getElementById('edit-uid').value;
-  const nome = document.getElementById('edit-nome').value.trim();
-  const empresa = document.getElementById('edit-empresa').value.trim();
-  const perfil = document.getElementById('edit-perfil').value;
-  if (!nome) { alert('Informe o nome.'); return; }
-  try {
-    await db.collection('usuarios').doc(uid).update({nome,empresa,perfil});
-    await registrarLog('editar_usuario',`Usuário ${uid}: nome=${nome}, perfil=${perfil}`);
-    document.getElementById('edit-user-modal').style.display='none';
-    showTopAlert('✅ Usuário atualizado','ok'); loadUsuarios();
-  } catch(e) { alert('Erro: '+e.message); }
-}
-
-async function resetarSenhaUsuario(email) {
-  if (!confirm(`Enviar link de recuperação de senha para ${email}?`)) return;
-  if (!auth) { alert('Firebase não configurado.'); return; }
-  try {
-    await auth.sendPasswordResetEmail(email);
-    showTopAlert(`✅ Link enviado para ${email}`,'ok');
-    await registrarLog('reset_senha',`Link de recuperação enviado para ${email}`);
-  } catch(e) { alert('Erro: '+e.message); }
-}
-
-// ══════════════════════════════════════════════════════════════
-// LOGS — CARREGAR E FILTRAR
-// ══════════════════════════════════════════════════════════════
+// ── LOGS ──────────────────────────────────────────────────────
 let _todosLogs = [];
-
-async function loadLogs() {
-  if (!db) return;
-  try {
-    const snap = await db.collection('logs').orderBy('timestamp','desc').limit(200).get();
-    _todosLogs = snap.docs.map(d=>({id:d.id,...d.data()}));
-    filtrarLogs();
-  } catch(e) { console.warn('Logs error:',e.message); }
+async function loadLogs(){
+  if(!db)return;
+  try{const snap=await db.collection('logs').orderBy('timestamp','desc').limit(200).get();_todosLogs=snap.docs.map(d=>({id:d.id,...d.data()}));filtrarLogs();}
+  catch(e){console.warn(e.message);}
+}
+function filtrarLogs(){
+  const filtro=document.getElementById('logs-filtro-acao')?.value||'';
+  const lista=filtro?_todosLogs.filter(l=>l.acao===filtro):_todosLogs;
+  const tbody=document.getElementById('logs-tbody');
+  const LABELS={cadastro_lacres:'Cadastro lacres',inativar_lacre:'Inativar lacre',reativar_lacre:'Reativar lacre',cadastro_placa:'Cadastro placa',inativar_placa:'Inativar placa',reativar_placa:'Reativar placa',cadastro_fornecedor:'Cadastro fornecedor',inativar_fornecedor:'Inativar fornecedor',reativar_fornecedor:'Reativar fornecedor',inativar_usuario:'Inativar usuário',reativar_usuario:'Reativar usuário',editar_usuario:'Editar usuário',reset_senha:'Reset senha',login:'Login',encerramento_manual:'Encerramento manual',confirmacao_processo:'Confirmação',limpar_testes:'Limpar testes'};
+  if(!lista.length){tbody.innerHTML='<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:20px;">Nenhum log</td></tr>';return;}
+  tbody.innerHTML=lista.map(l=>{const ts=l.timestamp?.toDate?.()?.toLocaleString('pt-BR')||'—';const label=LABELS[l.acao]||l.acao||'—';const isAlert=l.acao?.includes('inativar');const isOk=l.acao?.includes('reativar')||l.acao?.includes('cadastro')||l.acao==='login';const bs=isAlert?'background:var(--danger);color:#fff;':isOk?'background:var(--success);color:#fff;':'background:var(--gerdau-blue);color:#fff;';return`<tr><td style="white-space:nowrap;color:var(--text2)">${ts}</td><td><span class="badge" style="${bs}">${label}</span></td><td style="color:var(--text)">${l.detalhe||'—'}</td><td style="color:var(--text2)">${l.usuario||'—'}</td></tr>`;}).join('');
 }
 
-function filtrarLogs() {
-  const filtro = document.getElementById('logs-filtro-acao')?.value||'';
-  const lista = filtro ? _todosLogs.filter(l=>l.acao===filtro) : _todosLogs;
-  const tbody = document.getElementById('logs-tbody');
-  if (!lista.length) { tbody.innerHTML='<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:20px;">Nenhum log encontrado</td></tr>'; return; }
-  const LABELS = { cadastro_lacres:'Cadastro lacres',inativar_lacre:'Inativar lacre',reativar_lacre:'Reativar lacre',cadastro_placa:'Cadastro placa',inativar_placa:'Inativar placa',reativar_placa:'Reativar placa',cadastro_fornecedor:'Cadastro fornecedor',inativar_fornecedor:'Inativar fornecedor',reativar_fornecedor:'Reativar fornecedor',inativar_usuario:'Inativar usuário',reativar_usuario:'Reativar usuário',editar_usuario:'Editar usuário',reset_senha:'Reset senha',login:'Login',encerramento_manual:'Encerramento manual',confirmacao_processo:'Confirmação processo',limpar_testes:'Limpar testes' };
-  tbody.innerHTML = lista.map(l=>{
-    const ts = l.timestamp?.toDate?.()?.toLocaleString('pt-BR')||'—';
-    const label = LABELS[l.acao]||l.acao||'—';
-    const isAlert = l.acao?.includes('inativar')||l.acao?.includes('remoc');
-    const isOk = l.acao?.includes('reativar')||l.acao?.includes('cadastro')||l.acao==='login';
-    const bs = isAlert?'background:var(--danger);color:#fff;':isOk?'background:var(--success);color:#fff;':'background:var(--gerdau-blue);color:#fff;';
-    return `<tr><td style="white-space:nowrap;color:var(--text2)">${ts}</td><td><span class="badge" style="${bs}">${label}</span></td><td style="color:var(--text)">${l.detalhe||'—'}</td><td style="color:var(--text2)">${l.usuario||'—'}</td></tr>`;
-  }).join('');
+// ── RECUPERAÇÃO DE SENHA ──────────────────────────────────────
+async function enviarRecuperacaoSenha(evt){
+  if(evt)evt.preventDefault();
+  const email=(document.getElementById('op-email')?.value.trim())||prompt('Digite seu e-mail:');
+  if(!email)return;
+  if(!auth){alert('Firebase não configurado.');return;}
+  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);}
+  catch(e){alert('❌ Erro: '+(e.code==='auth/user-not-found'?'E-mail não encontrado.':e.code==='auth/invalid-email'?'E-mail inválido.':e.message));}
 }
 
-// ══════════════════════════════════════════════════════════════
-// RECUPERAÇÃO DE SENHA (tela de login)
-// ══════════════════════════════════════════════════════════════
-async function enviarRecuperacaoSenha(evt) {
-  if (evt) evt.preventDefault();
-  const emailInput = document.getElementById('op-email');
-  const email = emailInput ? emailInput.value.trim() : '';
-  const dest = email || prompt('Digite seu e-mail para receber o link de recuperação:');
-  if (!dest) return;
-  if (!auth) { alert('Firebase não configurado.'); return; }
-  try {
-    await auth.sendPasswordResetEmail(dest);
-    alert(`✅ Link de recuperação enviado para ${dest}
-
-Verifique sua caixa de entrada (e a pasta de spam).`);
-  } catch(e) {
-    const msg = e.code==='auth/user-not-found'?'E-mail não encontrado no sistema.':e.code==='auth/invalid-email'?'E-mail inválido.':e.message;
-    alert('❌ Erro: '+msg);
-  }
+// ── EDITAR PLACA ──────────────────────────────────────────────
+async function editarPlaca(placa,descricaoAtual){
+  let m=document.getElementById('edit-placa-modal');
+  if(!m){m=document.createElement('div');m.id='edit-placa-modal';document.body.appendChild(m);}
+  m.style.cssText='display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML=`<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR PLACA</div><div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Placa: <strong style="letter-spacing:2px;">${placa}</strong></div><input type="hidden" id="edit-placa-id" value="${placa}"><div class="input-group"><label>Descrição / Transportadora</label><input type="text" id="edit-placa-desc" value="${descricaoAtual}" style="font-size:14px;letter-spacing:0;text-transform:uppercase;"></div><div style="display:flex;gap:10px;margin-top:8px;"><button class="btn btn-primary" onclick="salvarEdicaoPlaca()" style="flex:1;">💾 Salvar</button><button class="btn btn-outline" onclick="document.getElementById('edit-placa-modal').style.display='none'" style="flex:1;">Cancelar</button></div></div>`;
+}
+async function salvarEdicaoPlaca(){
+  const placa=document.getElementById('edit-placa-id').value,desc=document.getElementById('edit-placa-desc').value.trim().toUpperCase();
+  try{await db.collection('placasAutorizadas').doc(placa).update({descricao:desc});await registrarLog('editar_placa',`Placa ${placa} → ${desc}`);document.getElementById('edit-placa-modal').style.display='none';showTopAlert(`✅ Placa ${placa} atualizada`,'ok');loadPlacas();}
+  catch(e){alert('Erro: '+e.message);}
 }
 
-</script>
-
-<!-- ── BOTÃO FLUTUANTE DE SUPORTE ───────────────── -->
-<button class="support-fab" id="btn-suporte" onclick="abrirSuporte()">🎧 Suporte</button>
-
-<!-- ── MODAL DE SUPORTE ─────────────────────────── -->
-<div class="support-overlay" id="support-overlay">
-  <div class="support-modal">
-    <div class="support-header">
-      <h2>🎧 Abrir Chamado de Suporte</h2>
-      <button onclick="fecharSuporte()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">✕ Fechar</button>
-    </div>
-    <!-- FORM -->
-    <div class="support-body" id="support-form-area">
-      <div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-left:3px solid var(--warning);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--warning);margin-bottom:16px;">
-        ⚠️ <strong>Todos os campos são obrigatórios.</strong> A resposta será enviada ao e-mail utilizado para login.
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="input-group">
-          <label>Nome completo <span style="color:var(--danger)">*</span></label>
-          <input type="text" id="sup-nome" placeholder="SEU NOME" style="font-size:14px;letter-spacing:0;text-transform:none;">
-        </div>
-        <div class="input-group">
-          <label>Telefone / WhatsApp <span style="color:var(--danger)">*</span></label>
-          <input type="tel" id="sup-telefone" placeholder="(00) 00000-0000" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="this.value=mascaraTelefone(this.value)">
-        </div>
-      </div>
-      <div class="input-group">
-        <label>E-mail de login no sistema <span style="color:var(--danger)">*</span>
-          <span style="font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0;text-transform:none;"> — a resposta será enviada aqui</span>
-        </label>
-        <input type="email" id="sup-email" placeholder="seu@email.com" style="font-size:14px;letter-spacing:0;text-transform:none;">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="input-group">
-          <label>Seu perfil no sistema <span style="color:var(--danger)">*</span></label>
-          <select id="sup-perfil" style="font-size:14px;letter-spacing:0;text-transform:none;">
-            <option value="">Selecione...</option>
-            <option value="operacional">Operacional</option>
-            <option value="operador">Operador</option>
-            <option value="admin">Administrador</option>
-            <option value="developer">Developer</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>Tipo de problema <span style="color:var(--danger)">*</span></label>
-          <select id="sup-tipo" style="font-size:14px;letter-spacing:0;text-transform:none;">
-            <option value="">Selecione...</option>
-            <option value="bug">🐛 Bug / Erro no sistema</option>
-            <option value="duvida">❓ Dúvida de uso</option>
-            <option value="acesso">🔑 Acesso / Senha</option>
-            <option value="melhoria">💡 Sugestão de melhoria</option>
-            <option value="outro">📌 Outro</option>
-          </select>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="input-group">
-          <label>Prioridade <span style="color:var(--danger)">*</span></label>
-          <select id="sup-prioridade" style="font-size:14px;letter-spacing:0;text-transform:none;">
-            <option value="">Selecione...</option>
-            <option value="baixa">🟢 Baixa — não impede o trabalho</option>
-            <option value="media">🟡 Média — impacta mas tem alternativa</option>
-            <option value="alta">🔴 Alta — impede parte do trabalho</option>
-            <option value="urgente">🚨 Urgente — sistema parado</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label>Assunto <span style="color:var(--danger)">*</span></label>
-          <input type="text" id="sup-assunto" placeholder="Resumo em poucas palavras" style="font-size:14px;letter-spacing:0;text-transform:none;">
-        </div>
-      </div>
-      <div class="input-group">
-        <label>Descrição detalhada do problema <span style="color:var(--danger)">*</span></label>
-        <textarea id="sup-descricao" rows="4" placeholder="Descreva o que aconteceu, o que esperava que acontecesse e os passos para reproduzir o problema..." style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:12px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;min-height:100px;"></textarea>
-      </div>
-      <div class="input-group" style="margin-bottom:0;">
-        <label>Anexo (opcional) — Print, foto ou arquivo</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
-          <label style="flex:1;min-width:120px;background:var(--surface2);border:1.5px dashed var(--border-strong);border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:12px;color:var(--text2);font-weight:600;letter-spacing:1px;text-transform:uppercase;" for="sup-anexo">📎 Upload de arquivo</label>
-          <input type="file" id="sup-anexo" accept="image/*,.pdf,.txt,.csv" style="display:none;" onchange="previewAnexoSuporte(this)">
-          <button type="button" class="btn btn-outline btn-sm" onclick="tirarFotoSuporte()" style="flex:1;min-width:120px;">📷 Tirar Foto</button>
-        </div>
-        <div id="sup-anexo-preview" style="margin-top:8px;display:none;">
-          <div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;">
-            <span id="sup-anexo-nome" style="flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-            <button onclick="removerAnexoSuporte()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:0;">✕</button>
-          </div>
-          <img id="sup-anexo-img" src="" alt="" style="max-width:100%;max-height:200px;border-radius:8px;margin-top:6px;display:none;">
-        </div>
-      </div>
-      <div id="sup-err" style="display:none;margin-top:12px;"></div>
-      <div style="margin-top:18px;display:flex;gap:10px;">
-        <button class="btn btn-primary" onclick="enviarSuporte()" id="btn-enviar-suporte" style="flex:2;">📨 Enviar Chamado</button>
-        <button class="btn btn-outline" onclick="fecharSuporte()" style="flex:1;">Cancelar</button>
-      </div>
-    </div>
-    <!-- SUCESSO -->
-    <div class="support-success" id="support-success-area">
-      <div class="support-success-icon">✅</div>
-      <div class="support-success-title">Chamado enviado!</div>
-      <div class="support-success-msg">
-        Seu chamado foi registrado com sucesso.<br>
-        Retornaremos em breve no e-mail informado.<br><br>
-        <strong>Número do chamado:</strong> <span id="sup-numero-chamado" style="font-family:monospace;color:var(--gerdau-blue);"></span>
-      </div>
-      <button class="btn btn-primary" onclick="fecharSuporte()" style="width:auto;padding:12px 32px;margin-top:20px;">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- CÂMERA PARA SUPORTE -->
-<div id="sup-cam-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;flex-direction:column;align-items:center;justify-content:center;">
-  <video id="sup-cam-video" autoplay playsinline style="max-width:100%;max-height:70vh;border-radius:12px;"></video>
-  <div style="display:flex;gap:12px;margin-top:16px;">
-    <button onclick="capturarFotoSuporte()" style="background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50px;padding:14px 28px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">📸 Capturar</button>
-    <button onclick="fecharCameraSuporte()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:50px;padding:14px 28px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">Cancelar</button>
-  </div>
-</div>
-
-</body>
-</html
-
-// ══════════════════════════════════════════════════════════════
-// SUPORTE — LÓGICA COMPLETA
-// ══════════════════════════════════════════════════════════════
-let _supAnexoBase64 = null;
-let _supAnexoNome   = null;
-let _supCamStream   = null;
-
-async function abrirSuporte() {
-  const overlay = document.getElementById('support-overlay');
-  if (!overlay) return;
-  overlay.classList.add('show');
-  // Pré-preencher e-mail e nome do operador logado
-  if (currentOperador) {
-    const emailField = document.getElementById('sup-email');
-    const nomeField  = document.getElementById('sup-nome');
-    if (emailField && !emailField.value) emailField.value = currentOperador.email || '';
-    if (nomeField  && !nomeField.value)  nomeField.value  = currentOperador.nome  || '';
-    // Pré-selecionar perfil
-    const perfilField = document.getElementById('sup-perfil');
-    if (perfilField && currentOperador.perfil) perfilField.value = currentOperador.perfil;
-  }
-  // Carregar perfis customizados no select
-  await _popularPerfisSuporte();
+// ── PERFIS CUSTOMIZADOS ───────────────────────────────────────
+async function getPerfisCustomizados(){
+  try{const doc=await db.collection('config').doc('perfis-customizados').get();return doc.exists?doc.data():{};}
+  catch(e){return{};}
+}
+async function atualizarSelectPerfis(){
+  const select=document.getElementById('novo-user-perfil');if(!select)return;
+  const isAdmin=currentUserRole==='admin'||currentUserRole==='developer';
+  const devOpt=select.querySelector('option[value="developer"]');if(devOpt)devOpt.style.display=isAdmin?'':'none';
+  const adminOpt=select.querySelector('option[value="admin"]');if(adminOpt)adminOpt.style.display=isAdmin?'':'none';
+}
+async function criarNovoPerfil(){
+  const id=document.getElementById('novo-perfil-id')?.value.trim(),nome=document.getElementById('novo-perfil-nome')?.value.trim();
+  if(!id){showTopAlert('❌ Informe o ID','error');return;}if(!nome){showTopAlert('❌ Informe o nome','error');return;}
+  if(['admin','operador','operacional','developer'].includes(id)){showTopAlert('❌ ID já é perfil padrão','error');return;}
+  try{await db.collection('config').doc('perfis-customizados').set({[id]:nome},{merge:true});await db.collection('config').doc('permissoes').set({[id]:[]},{merge:true});_cachedPerms=null;document.getElementById('novo-perfil-id').value='';document.getElementById('novo-perfil-nome').value='';showTopAlert(`✅ Perfil "${nome}" criado!`,'ok');await registrarLog('criar_perfil',`${id}=${nome}`);loadPerfis();}
+  catch(e){alert('Erro: '+e.message);}
+}
+async function removerPerfilCustomizado(id,nome){
+  if(!confirm(`Remover perfil "${nome}"?`))return;
+  try{await db.collection('config').doc('perfis-customizados').update({[id]:firebase.firestore.FieldValue.delete()});await db.collection('config').doc('permissoes').update({[id]:firebase.firestore.FieldValue.delete()});_cachedPerms=null;showTopAlert(`🚫 Perfil "${nome}" removido`,'warning');loadPerfis();}
+  catch(e){alert('Erro: '+e.message);}
 }
 
-async function _popularPerfisSuporte() {
-  const select = document.getElementById('sup-perfil');
-  if (!select || !db) return;
-  try {
-    const doc = await db.collection('config').doc('perfis-customizados').get();
-    const custom = doc.exists ? doc.data() : {};
-    // Remove old custom options first
-    Array.from(select.options).forEach(o => { if (o.dataset.custom) o.remove(); });
-    Object.entries(custom).forEach(([id, nome]) => {
-      const opt = document.createElement('option');
-      opt.value = id; opt.textContent = nome; opt.dataset.custom = '1';
-      select.appendChild(opt);
-    });
-    if (currentOperador?.perfil) select.value = currentOperador.perfil;
-  } catch(e) { /* fail silently */ }
+// ── STAGING / DEPLOY / CHANGELOG / CHECKLIST ─────────────────
+const PRODUCTION_PROJECT_ID='verificador-lacre';
+function isProduction(){try{const c=JSON.parse(getCfg('firebase_staging_config','{}'));if(c.apiKey)return false;}catch(_){}if(IS_STAGING_BUILD&&STAGING_FIREBASE_CONFIG)return false;return true;}
+function isStagingConfigured(){try{return!!(JSON.parse(getCfg('firebase_staging_config','{}')).apiKey)||(IS_STAGING_BUILD&&!!STAGING_FIREBASE_CONFIG);}catch(_){return false;}}
+function loadDeployPanel(){
+  const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
+  const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
+  const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
+  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v20260322-r19</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
+  const warn=document.getElementById('staging-env-warning');if(warn)warn.style.display=isProd?'block':'none';
+}
+function jsConfigToJson(raw){return raw.replace(/\/\/.*/g,'').replace(/,\s*\}/g,'}').replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g,'$1"$2":');}
+function salvarStagingConfig(){
+  let raw=document.getElementById('cfg-firebase-staging')?.value.trim();
+  if(!raw){alert('Cole a configuração antes de salvar.');return;}
+  try{JSON.parse(raw);}catch(e){try{raw=jsConfigToJson(raw);JSON.parse(raw);}catch(e2){alert('JSON inválido: '+e2.message);return;}}
+  setCfg('firebase_staging_config',raw);showTopAlert('✅ Config staging salva! Recarregue a página.','ok');
+}
+function limparStagingConfig(){if(!confirm('Remover config do staging?'))return;localStorage.removeItem('firebase_staging_config');showTopAlert('✅ Staging removido','ok');loadDeployPanel();}
+const DADOS_TESTE={placas:[{placa:'ABC1234',descricao:'CARRETA TANQUE — ALFA'},{placa:'XYZ5678',descricao:'BITREM — BETA'},{placa:'DEF1E23',descricao:'CARRETA SIDER — GAMA'},{placa:'GHI4567',descricao:'CARRETA BAÚ — DELTA'},{placa:'JKL8901',descricao:'TRUCK — ÉPSILON'}],lacres:Array.from({length:30},(_,i)=>String(i+1).padStart(5,'0')),fornecedores:[{cnpj:'12345678000195',nome:'FORNECEDOR ALFA LTDA'},{cnpj:'98765432000100',nome:'DISTRIBUIDORA BETA S/A'},{cnpj:'11223344000155',nome:'INDUSTRIA GAMA EIRELI'}],locais:[{loc:'São Paulo, SP',coords:'-23.5505,-46.6333'},{loc:'Campinas, SP',coords:'-22.9056,-47.0608'},{loc:'Sorocaba, SP',coords:'-23.5015,-47.4526'}]};
+async function gerarDadosTeste(tipo='todos'){
+  if(!db){alert('Firebase não configurado.');return;}if(isProduction()){alert('⛔ Bloqueado em produção.');return;}
+  const log=document.getElementById('staging-gen-log');log.textContent='⏳ Gerando dados...';
+  try{
+    if(tipo==='todos'||tipo==='placas'){const b=db.batch();DADOS_TESTE.placas.forEach(p=>b.set(db.collection('placasAutorizadas').doc(p.placa),{placa:p.placa,descricao:p.descricao,inativa:false,adicionadaEm:firebase.firestore.FieldValue.serverTimestamp(),cadastradoPorNome:'Developer — Teste'}));await b.commit();log.textContent+=`\n✅ ${DADOS_TESTE.placas.length} placas`;}
+    if(tipo==='todos'||tipo==='lacres'){const b=db.batch();DADOS_TESTE.lacres.forEach(n=>b.set(db.collection('lacresValidos').doc(n),{numero:n,emUso:false,inutilizado:false,inativo:false,cadastradoEm:firebase.firestore.FieldValue.serverTimestamp(),cadastradoPorNome:'Developer — Teste'}));await b.commit();log.textContent+=`\n✅ ${DADOS_TESTE.lacres.length} lacres`;}
+    if(tipo==='todos'){const b=db.batch();DADOS_TESTE.fornecedores.forEach(f=>b.set(db.collection('fornecedores').doc(f.cnpj),{cnpj:f.cnpj,nome:f.nome,inativo:false,cadastradoEm:firebase.firestore.FieldValue.serverTimestamp(),cadastradoPor:'Developer — Teste'}));await b.commit();log.textContent+=`\n✅ ${DADOS_TESTE.fornecedores.length} fornecedores`;}
+    if(tipo==='todos'||tipo==='processos'){const ps=[{placa:'ABC1234',lacre:'00001',status:'aberto',resultado:null,horas:-2},{placa:'XYZ5678',lacre:'00002',status:'encerrado',resultado:'ok',horas:-25},{placa:'DEF1E23',lacre:'00003',status:'aguardando_confirmacao_desvio',resultado:'desvio',horas:-5}];for(const p of ps){const ts=new Date(Date.now()+p.horas*3600000);const orig=DADOS_TESTE.locais[0];await db.collection('processos').doc(`TEST_${p.placa}_${Date.now()}`).set({placa:p.placa,lacreNumero:p.lacre,motorista:'MOTORISTA TESTE',status:p.status,resultado:p.resultado,timestamp:ts.toISOString(),locOrigem:orig.loc,locOrigemCoords:orig.coords,abertoPorNome:'Teste',abertoPor:'teste@staging.com',registradoEm:firebase.firestore.FieldValue.serverTimestamp(),_testData:true});}log.textContent+=`\n✅ ${ps.length} processos`;}
+    log.textContent+='\n\n🎉 Concluído!';
+  }catch(e){log.textContent+=`\n❌ Erro: ${e.message}`;}
+}
+async function limparDadosTeste(){
+  if(!db||isProduction()){alert('⛔ Bloqueado.');return;}if(!confirm('Apagar todos os dados de teste?'))return;
+  const log=document.getElementById('staging-gen-log');log.textContent='⏳ Limpando...';
+  try{const s=await db.collection('processos').where('_testData','==',true).get();if(!s.empty){const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));await b.commit();}log.textContent+=`\n✅ ${s.size} processos removidos`;log.textContent+='\n🧹 Concluído!';}
+  catch(e){log.textContent+=`\n❌ ${e.message}`;}
+}
+const CHECKLIST_BASE=[{id:'login',categoria:'🔑 Autenticação',item:'Login com e-mail e senha'},{id:'cam_origem',categoria:'📷 Câmera',item:'Câmera abre na aba Origem'},{id:'qr_detect',categoria:'📷 Câmera',item:'QR Code é detectado automaticamente'},{id:'placa_val',categoria:'🚗 Validações',item:'Placa não autorizada é bloqueada'},{id:'lacre_val',categoria:'🔐 Lacres',item:'Lacre não cadastrado é rejeitado'},{id:'registro_ok',categoria:'🚛 Origem',item:'Registro de saída salva no Firestore'},{id:'nf_ia',categoria:'📄 NF',item:'Câmera da NF detecta documento automaticamente'},{id:'destino_ok',categoria:'✅ Destino',item:'Verificação no destino encontra o processo'},{id:'desvio',categoria:'🚨 Desvios',item:'Lacre diferente gera desvio'},{id:'desvio_email',categoria:'🚨 Desvios',item:'E-mail de desvio é enviado'},{id:'admin_login',categoria:'🏛 Admin',item:'Login no painel admin'},{id:'dash_kpis',categoria:'🏛 Admin',item:'Dashboard mostra KPIs'},{id:'lacres_crud',categoria:'🏛 Admin',item:'CRUD de lacres'},{id:'placas_crud',categoria:'🏛 Admin',item:'CRUD de placas'},{id:'usuarios_crud',categoria:'🏛 Admin',item:'CRUD de usuários'},{id:'forn_crud',categoria:'🏛 Admin',item:'CRUD de fornecedores'},{id:'export_csv',categoria:'🏛 Admin',item:'Exportação CSV'},{id:'pwa_install',categoria:'📱 PWA',item:'App instala na tela inicial'},{id:'pwa_update',categoria:'📱 PWA',item:'PWA atualiza após mudança do BUILD_HASH'}];
+function gerarChecklist(){
+  const changes=document.getElementById('deploy-changes-input')?.value.trim()||'',container=document.getElementById('checklist-container'),resultado=document.getElementById('checklist-resultado');
+  if(resultado)resultado.style.display='none';
+  const groups={};CHECKLIST_BASE.forEach(it=>{if(!groups[it.categoria])groups[it.categoria]=[];groups[it.categoria].push(it);});
+  let html='';if(changes)html+=`<div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--warning);">📝 <strong>Mudanças:</strong> ${changes}</div>`;
+  html+=`<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Marque cada item após testar. 100% concluído antes de publicar.</div>`;
+  Object.entries(groups).forEach(([cat,items])=>{html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;"><div style="padding:10px 14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;">${cat}</div><div style="padding:4px 14px 10px;">`;items.forEach(it=>{html+=`<label style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.04);" onclick="atualizarChecklist()"><input type="checkbox" id="chk-${it.id}" style="width:17px;height:17px;margin-top:1px;flex-shrink:0;accent-color:var(--success);cursor:pointer;"><span id="chk-lbl-${it.id}" style="font-size:13px;color:var(--text2);line-height:1.5;">${it.item}</span></label>`;});html+=`</div></div>`;});
+  html+=`<button class="btn btn-primary" onclick="atualizarChecklist(true)" style="margin-top:6px;">📊 Ver Resultado</button>`;
+  container.innerHTML=html;
+}
+function atualizarChecklist(show=false){
+  const all=document.querySelectorAll('[id^="chk-"]:not([id*="-lbl-"])');
+  all.forEach(c=>{const l=document.getElementById(`chk-lbl-${c.id.replace('chk-','')}`);if(l)l.style.cssText=c.checked?'font-size:13px;color:var(--success);text-decoration:line-through;opacity:.7;line-height:1.5;':'font-size:13px;color:var(--text2);line-height:1.5;';});
+  if(!show)return;
+  const total=all.length,checked=Array.from(all).filter(c=>c.checked).length,pct=Math.round((checked/total)*100);
+  const r=document.getElementById('checklist-resultado');if(!r)return;r.style.display='block';
+  r.style.cssText=checked===total?'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);':'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
+  r.innerHTML=checked===total?'✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar. Lembre de atualizar o BUILD_HASH!</span>':`⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
+}
+const CHANGELOG=[{version:'v20260322-r19',data:'22/03/2026',novidades:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial de chamado','Perfil detectado automaticamente pelo e-mail','Banner de feedback persistente — erros não somem sozinhos','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy'],correcoes:['Correção crítica: funções JS não executavam (bloco corrompido)','Duplicatas de botão Suporte removidas','Erro de initFirebase ao sair resolvido']},{version:'v20260320-r14',data:'20/03/2026',novidades:['Painel de staging','Checklist pré-deploy','Changelog de versões'],correcoes:['Timeout padrão 2h','E-mail só em desvios']},{version:'v20260319-r13',data:'19/03/2026',novidades:['Inativar/reativar lacres, placas, usuários','Aba Logs','Fornecedores: editar, inativar, reativar'],correcoes:[]}];
+function verChangelog(){
+  let m=document.getElementById('changelog-modal');if(!m){m=document.createElement('div');m.id='changelog-modal';document.body.appendChild(m);}
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  const html=CHANGELOG.map((v,i)=>`<div style="background:${i===0?'rgba(27,58,107,.15)':'transparent'};border:1px solid ${i===0?'var(--gerdau-blue)':'var(--border)'};border-radius:12px;padding:16px;margin-bottom:12px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;"><span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;">${v.version}</span>${i===0?'<span style="background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">ATUAL</span>':''}<span style="font-size:12px;color:var(--text3);margin-left:auto;">${v.data}</span></div>${v.novidades.length?`<div style="margin-bottom:6px;"><div style="font-size:11px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:4px;">NOVIDADES</div>${v.novidades.map(n=>`<div style="font-size:13px;color:var(--text2);padding:2px 0;display:flex;gap:6px;"><span style="color:var(--success);flex-shrink:0;">+</span>${n}</div>`).join('')}</div>`:''} ${v.correcoes.length?`<div><div style="font-size:11px;font-weight:700;color:var(--warning);letter-spacing:1px;margin-bottom:4px;">CORREÇÕES</div>${v.correcoes.map(c=>`<div style="font-size:13px;color:var(--text2);padding:2px 0;display:flex;gap:6px;"><span style="color:var(--warning);flex-shrink:0;">·</span>${c}</div>`).join('')}</div>`:''}</div>`).join('');
+  m.innerHTML=`<div style="background:var(--surface);border-radius:16px;width:100%;max-width:540px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 60px rgba(0,0,0,.4);"><div style="padding:18px 22px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;">📋 CHANGELOG</div><button onclick="document.getElementById('changelog-modal').style.display='none'" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-weight:700;">✕</button></div><div style="overflow-y:auto;padding:18px 22px;">${html}</div></div>`;
+  m.style.display='flex';
 }
 
-function fecharSuporte() {
-  const overlay = document.getElementById('support-overlay');
-  if (overlay) overlay.classList.remove('show');
-  // Reset form
-  ['sup-nome','sup-telefone','sup-email','sup-assunto','sup-descricao'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-  ['sup-perfil','sup-tipo','sup-prioridade'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-  removerAnexoSuporte();
-  document.getElementById('sup-err').style.display = 'none';
-  document.getElementById('support-form-area').style.display = 'block';
-  document.getElementById('support-success-area').style.display = 'none';
-  fecharCameraSuporte();
-}
+// ── SUPORTE — FORMULÁRIO COMPLETO ─────────────────────────────
+let _supStream=null, _supAnexoBase64=null, _supAnexoNome='', _supAnexoTipo='';
 
-function mascaraTelefone(v) {
-  v = v.replace(/\D/g,'').slice(0,11);
-  if (v.length <= 2)  return `(${v}`;
-  if (v.length <= 6)  return `(${v.slice(0,2)}) ${v.slice(2)}`;
-  if (v.length <= 10) return `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
-  return `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
-}
-
-function previewAnexoSuporte(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) { alert('Arquivo muito grande. Máximo 10MB.'); input.value=''; return; }
-  _supAnexoNome = file.name;
-  document.getElementById('sup-anexo-nome').textContent = file.name;
-  document.getElementById('sup-anexo-preview').style.display = 'block';
-  const reader = new FileReader();
-  reader.onload = e => {
-    _supAnexoBase64 = e.target.result;
-    const img = document.getElementById('sup-anexo-img');
-    if (file.type.startsWith('image/')) { img.src = e.target.result; img.style.display = 'block'; }
-    else img.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-function removerAnexoSuporte() {
-  _supAnexoBase64 = null; _supAnexoNome = null;
-  const input = document.getElementById('sup-anexo'); if (input) input.value = '';
-  document.getElementById('sup-anexo-preview').style.display = 'none';
-  document.getElementById('sup-anexo-img').style.display = 'none';
-  document.getElementById('sup-anexo-img').src = '';
-}
-
-async function tirarFotoSuporte() {
-  const overlay = document.getElementById('sup-cam-overlay');
-  const video   = document.getElementById('sup-cam-video');
-  if (!overlay || !video) return;
-  try {
-    _supCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    video.srcObject = _supCamStream;
-    overlay.style.display = 'flex';
-    await video.play();
-  } catch(e) { alert('Não foi possível acessar a câmera: ' + e.message); }
-}
-
-function capturarFotoSuporte() {
-  const video  = document.getElementById('sup-cam-video');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-  _supAnexoBase64 = dataUrl;
-  _supAnexoNome = `foto_suporte_${Date.now()}.jpg`;
-  document.getElementById('sup-anexo-nome').textContent = _supAnexoNome;
-  document.getElementById('sup-anexo-preview').style.display = 'block';
-  const img = document.getElementById('sup-anexo-img');
-  img.src = dataUrl; img.style.display = 'block';
-  fecharCameraSuporte();
-}
-
-function fecharCameraSuporte() {
-  const overlay = document.getElementById('sup-cam-overlay');
-  if (overlay) overlay.style.display = 'none';
-  if (_supCamStream) { _supCamStream.getTracks().forEach(t=>t.stop()); _supCamStream = null; }
-}
-
-async function enviarSuporte() {
-  const campos = [
-    { id:'sup-nome',       label:'Nome completo' },
-    { id:'sup-telefone',   label:'Telefone' },
-    { id:'sup-email',      label:'E-mail de login' },
-    { id:'sup-perfil',     label:'Perfil no sistema' },
-    { id:'sup-tipo',       label:'Tipo de problema' },
-    { id:'sup-prioridade', label:'Prioridade' },
-    { id:'sup-assunto',    label:'Assunto' },
-    { id:'sup-descricao',  label:'Descrição' },
-  ];
-
-  const errEl = document.getElementById('sup-err');
-  errEl.style.display = 'none';
-
-  const vazios = campos.filter(c => !document.getElementById(c.id)?.value?.trim());
-  if (vazios.length > 0) {
-    errEl.style.cssText = 'display:block;background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--danger);font-weight:600;';
-    errEl.textContent = `❌ Preencha os campos obrigatórios: ${vazios.map(c=>c.label).join(', ')}`;
-    return;
-  }
-
-  const btn = document.getElementById('btn-enviar-suporte');
-  btn.disabled = true; btn.textContent = '⏳ Enviando...';
-
-  const dados = {
-    nome:       document.getElementById('sup-nome').value.trim(),
-    telefone:   document.getElementById('sup-telefone').value.trim(),
-    email:      document.getElementById('sup-email').value.trim(),
-    perfil:     document.getElementById('sup-perfil').value,
-    tipo:       document.getElementById('sup-tipo').value,
-    prioridade: document.getElementById('sup-prioridade').value,
-    assunto:    document.getElementById('sup-assunto').value.trim(),
-    descricao:  document.getElementById('sup-descricao').value.trim(),
-    anexoNome:  _supAnexoNome || null,
-    // Não salvamos o base64 no Firestore (muito pesado) — só salva no Storage se disponível
-    criadoEm:   firebase.firestore.FieldValue.serverTimestamp(),
-    status:     'aberto',
-    userAgent:  navigator.userAgent.substring(0, 120),
-    url:        window.location.href,
-  };
-
-  try {
-    // Gerar número do chamado
-    const ano = new Date().getFullYear();
-    const num = Date.now().toString().slice(-6);
-    const numeroChamado = `SUP-${ano}-${num}`;
-    dados.numeroChamado = numeroChamado;
-
-    // Salvar no Firestore
-    if (db) {
-      await db.collection('chamados-suporte').doc(numeroChamado).set(dados);
-
-      // Se tem anexo e storage disponível, salvar
-      if (_supAnexoBase64 && storage) {
-        try {
-          const resp = await fetch(_supAnexoBase64);
-          const blob = await resp.blob();
-          await storage.ref(`suporte/${numeroChamado}/${_supAnexoNome}`).put(blob);
-        } catch(eS) { console.warn('Erro ao salvar anexo:', eS.message); }
-      }
-    }
-
-    // Enviar e-mail de notificação (para admin e para o usuário)
-    const svc = getCfg('ejs_svc',''); const tpl = getCfg('ejs_tpl','');
-    if (svc && tpl) {
-      const PRIORIDADE_LABEL = { baixa:'🟢 Baixa', media:'🟡 Média', alta:'🔴 Alta', urgente:'🚨 Urgente' };
-      const TIPO_LABEL = { bug:'🐛 Bug / Erro', duvida:'❓ Dúvida', acesso:'🔑 Acesso / Senha', melhoria:'💡 Melhoria', outro:'📌 Outro' };
-      const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
-        <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-          <div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — VERIFICA LACRE</div>
-          <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🎧 NOVO CHAMADO DE SUPORTE</div>
-        </td></tr>
-        <tr><td style="background:#fff;padding:24px;">
-          <div style="background:#F0F4F9;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
-            <div style="font-size:11px;color:#5A6A85;letter-spacing:1px;margin-bottom:4px;">NÚMERO DO CHAMADO</div>
-            <div style="font-size:22px;font-weight:700;font-family:monospace;color:#1B3A6B;">${numeroChamado}</div>
-          </div>
-          <table width="100%" style="border-collapse:collapse;">
-            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:35%;">👤 Nome</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.nome}</td></tr>
-            <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📱 Telefone</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.telefone}</td></tr>
-            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📧 E-mail</td><td style="padding:10px 14px;font-size:13px;">${dados.email}</td></tr>
-            <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Perfil</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.perfil}</td></tr>
-            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔧 Tipo</td><td style="padding:10px 14px;font-size:13px;">${TIPO_LABEL[dados.tipo]||dados.tipo}</td></tr>
-            <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">⚡ Prioridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;border-top:1px solid #DDE3EE;">${PRIORIDADE_LABEL[dados.prioridade]||dados.prioridade}</td></tr>
-            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📋 Assunto</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.assunto}</td></tr>
-          </table>
-          <div style="margin-top:14px;padding:14px;background:#F7F9FC;border-radius:8px;border-left:3px solid #1B3A6B;">
-            <div style="font-size:11px;color:#5A6A85;letter-spacing:1px;margin-bottom:6px;">DESCRIÇÃO</div>
-            <div style="font-size:14px;color:#1A2540;line-height:1.6;white-space:pre-wrap;">${dados.descricao}</div>
-          </div>
-          ${dados.anexoNome ? `<div style="margin-top:10px;font-size:12px;color:#5A6A85;">📎 Anexo: ${dados.anexoNome}</div>` : ''}
-        </td></tr>
-      </table>`;
-
-      const emails = await getEmails();
-      for (const email of emails) {
-        try { await emailjs.send(svc, tpl, { to_email: email, subject: `🎧 [${numeroChamado}] ${dados.assunto}`, message: dados.descricao, body_html: corpo }); } catch(_) {}
-      }
-      // Confirmação para o usuário
-      try {
-        const corpoUsuario = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px;">
-          <div style="background:#1B3A6B;padding:16px 20px;border-bottom:3px solid #F5A623;border-radius:8px 8px 0 0;">
-            <div style="color:#fff;font-size:18px;font-weight:700;">✅ Chamado recebido!</div>
-          </div>
-          <div style="background:#fff;border:1px solid #DDE3EE;border-top:none;padding:20px;border-radius:0 0 8px 8px;">
-            <p style="color:#5A6A85;font-size:14px;">Olá, <strong>${dados.nome}</strong>!</p>
-            <p style="color:#5A6A85;font-size:14px;">Seu chamado foi registrado com sucesso. Retornaremos em breve.</p>
-            <div style="background:#F0F4F9;border-radius:8px;padding:12px 16px;margin:16px 0;text-align:center;">
-              <div style="font-size:11px;color:#5A6A85;margin-bottom:4px;">NÚMERO DO CHAMADO</div>
-              <div style="font-size:24px;font-weight:700;font-family:monospace;color:#1B3A6B;">${numeroChamado}</div>
-            </div>
-            <p style="color:#5A6A85;font-size:13px;"><strong>Assunto:</strong> ${dados.assunto}</p>
-          </div>
-        </div>`;
-        await emailjs.send(svc, tpl, { to_email: dados.email, subject: `✅ [${numeroChamado}] Chamado recebido — ${dados.assunto}`, message: `Seu chamado foi registrado. Número: ${numeroChamado}`, body_html: corpoUsuario });
-      } catch(_) {}
-    }
-
-    // Mostrar sucesso
-    document.getElementById('support-form-area').style.display = 'none';
-    document.getElementById('support-success-area').style.display = 'block';
-    document.getElementById('sup-numero-chamado').textContent = numeroChamado;
-
-  } catch(e) {
-    errEl.style.cssText = 'display:block;background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--danger);font-weight:600;';
-    errEl.innerHTML = `❌ Erro ao enviar chamado: <br><span style="font-weight:400;">${e.message}</span>`;
-    btn.disabled = false; btn.textContent = '📨 Enviar Chamado';
-  }
-}
-
-
-
-// ══════════════════════════════════════════════════════════════
-// ADMIN — CHAMADOS DE SUPORTE
-// ══════════════════════════════════════════════════════════════
-async function loadChamadosSuporte() {
-  if (!db) return;
-  const filtroStatus = document.getElementById('suporte-filtro-status')?.value || '';
-  const filtroPrioridade = document.getElementById('suporte-filtro-prioridade')?.value || '';
-  const tbody = document.getElementById('suporte-tbody');
-  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text2);">⏳ Carregando...</td></tr>';
-  try {
-    let query = db.collection('chamados-suporte').orderBy('criadoEm','desc').limit(200);
-    const snap = await query.get();
-    let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (filtroStatus)     docs = docs.filter(d => d.status === filtroStatus);
-    if (filtroPrioridade) docs = docs.filter(d => d.prioridade === filtroPrioridade);
-
-    const stats = document.getElementById('suporte-stats');
-    const abertos = docs.filter(d=>d.status==='aberto').length;
-    const urgentes = docs.filter(d=>d.prioridade==='urgente'&&d.status==='aberto').length;
-    if (stats) stats.textContent = `Total: ${docs.length} | Abertos: ${abertos}${urgentes>0?' | 🚨 Urgentes: '+urgentes:''}`;
-
-    if (!docs.length) {
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text2);">Nenhum chamado encontrado</td></tr>';
-      return;
-    }
-
-    const PRIORIDADE = { urgente:'<span class="badge" style="background:var(--danger);color:#fff;">🚨 Urgente</span>', alta:'<span class="badge badge-err">🔴 Alta</span>', media:'<span class="badge badge-warn">🟡 Média</span>', baixa:'<span class="badge badge-ok">🟢 Baixa</span>' };
-    const STATUS = { aberto:'<span class="badge badge-err">Aberto</span>', em_andamento:'<span class="badge badge-warn">Em andamento</span>', resolvido:'<span class="badge badge-ok">Resolvido</span>' };
-    const TIPO = { bug:'🐛 Bug', duvida:'❓ Dúvida', acesso:'🔑 Acesso', melhoria:'💡 Melhoria', outro:'📌 Outro' };
-
-    tbody.innerHTML = docs.map(d => {
-      const ts = d.criadoEm?.toDate?.()?.toLocaleString('pt-BR') || '—';
-      return `<tr>
-        <td><strong style="font-family:monospace;font-size:12px;">${d.numeroChamado||d.id}</strong></td>
-        <td style="font-size:12px;color:var(--text2);white-space:nowrap;">${ts}</td>
-        <td><strong>${d.nome||'—'}</strong><br><span style="font-size:11px;color:var(--text2);">${d.email||'—'}</span></td>
-        <td style="font-size:13px;">${d.perfil||'—'}</td>
-        <td style="font-size:13px;">${TIPO[d.tipo]||d.tipo||'—'}</td>
-        <td>${PRIORIDADE[d.prioridade]||d.prioridade||'—'}</td>
-        <td style="font-size:13px;max-width:200px;"><strong>${d.assunto||'—'}</strong><br><span style="font-size:11px;color:var(--text2);">${(d.descricao||'').substring(0,60)}${d.descricao?.length>60?'...':''}</span></td>
-        <td>${STATUS[d.status]||d.status||'—'}</td>
-        <td>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <button class="btn btn-outline btn-sm" onclick="verDetalhesChamado('${d.id}')" style="font-size:12px;padding:5px 8px;">👁 Ver</button>
-            ${d.status!=='resolvido'?`<button class="btn btn-success btn-sm" onclick="resolverChamado('${d.id}')" style="font-size:12px;padding:5px 8px;width:auto;">✅ Resolver</button>`:''}
-            ${d.status==='aberto'?`<button class="btn btn-outline btn-sm" onclick="iniciarAtendimento('${d.id}')" style="font-size:12px;padding:5px 8px;border-color:var(--warning);color:var(--warning);">▶ Atender</button>`:''}
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
-  } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--danger);">❌ Erro: ${e.message}</td></tr>`;
-  }
-}
-
-async function resolverChamado(id) {
-  if (!confirm('Marcar chamado como resolvido?')) return;
-  try {
-    await db.collection('chamados-suporte').doc(id).update({ status: 'resolvido', resolvidoEm: firebase.firestore.FieldValue.serverTimestamp(), resolvidoPor: auth?.currentUser?.email||'Admin' });
-    showTopAlert('Chamado resolvido', 'ok', 'Status atualizado para Resolvido.');
-    loadChamadosSuporte();
-  } catch(e) { showTopAlert('Erro ao resolver chamado', 'error', e.message); }
-}
-
-async function iniciarAtendimento(id) {
-  try {
-    await db.collection('chamados-suporte').doc(id).update({ status: 'em_andamento', iniciadoEm: firebase.firestore.FieldValue.serverTimestamp(), iniciadoPor: auth?.currentUser?.email||'Admin' });
-    showTopAlert('Atendimento iniciado', 'ok', 'Status atualizado para Em andamento.');
-    loadChamadosSuporte();
-  } catch(e) { showTopAlert('Erro', 'error', e.message); }
-}
-
-function verDetalhesChamado(id) {
-  if (!db) return;
-  db.collection('chamados-suporte').doc(id).get().then(doc => {
-    if (!doc.exists) { alert('Chamado não encontrado.'); return; }
-    const d = doc.data();
-    let m = document.getElementById('chamado-detail-modal');
-    if (!m) { m = document.createElement('div'); m.id='chamado-detail-modal'; document.body.appendChild(m); }
-    m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
-    const PRIORIDADE = { urgente:'🚨 Urgente', alta:'🔴 Alta', media:'🟡 Média', baixa:'🟢 Baixa' };
-    const TIPO = { bug:'🐛 Bug / Erro', duvida:'❓ Dúvida de uso', acesso:'🔑 Acesso / Senha', melhoria:'💡 Sugestão', outro:'📌 Outro' };
-    m.innerHTML = `<div style="background:var(--surface);border-radius:16px;width:100%;max-width:600px;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;">
-      <div style="background:var(--gerdau-blue);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;">🎧 ${d.numeroChamado||id}</div>
-        <button onclick="document.getElementById('chamado-detail-modal').style.display='none'" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:700;">✕</button>
-      </div>
-      <div style="padding:20px;max-height:70vh;overflow-y:auto;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">NOME</div><div style="font-size:14px;font-weight:600;">${d.nome||'—'}</div></div>
-          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">TELEFONE</div><div style="font-size:14px;">${d.telefone||'—'}</div></div>
-          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">E-MAIL</div><div style="font-size:14px;">${d.email||'—'}</div></div>
-          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">PERFIL</div><div style="font-size:14px;">${d.perfil||'—'}</div></div>
-          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">TIPO</div><div style="font-size:14px;">${TIPO[d.tipo]||d.tipo||'—'}</div></div>
-          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">PRIORIDADE</div><div style="font-size:14px;font-weight:700;">${PRIORIDADE[d.prioridade]||d.prioridade||'—'}</div></div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:10px;">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:1px;">ASSUNTO</div>
-          <div style="font-size:15px;font-weight:700;">${d.assunto||'—'}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:10px;">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:1px;">DESCRIÇÃO</div>
-          <div style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-wrap;">${d.descricao||'—'}</div>
-        </div>
-        ${d.anexoNome?`<div style="font-size:13px;color:var(--text2);padding:10px;background:var(--surface2);border-radius:8px;">📎 Anexo: <strong>${d.anexoNome}</strong></div>`:''}
-        <div style="font-size:11px;color:var(--text3);margin-top:12px;">Enviado de: ${d.url||'—'} · ${d.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</div>
-      </div>
-    </div>`;
-  }).catch(e => showTopAlert('❌ Erro', 'error', e.message));
-}
-
-</script>
-
-<!-- MODAL DE SUPORTE -->
-<div id="suporte-modal" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.7);z-index:10000;overflow-y:auto;backdrop-filter:blur(4px);" onclick="if(event.target===this)fecharSuporte()">
-  <div style="background:var(--surface);border-radius:var(--radius-lg);width:92%;max-width:540px;margin:24px auto;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;">
-    <!-- Cabeçalho -->
-    <div style="background:var(--gerdau-blue);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);">
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;">🆘 SOLICITAR SUPORTE</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;">Preencha todos os campos — a resposta será enviada ao seu e-mail</div>
-      </div>
-      <button onclick="fecharSuporte()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:14px;font-weight:700;">✕</button>
-    </div>
-    <!-- Corpo -->
-    <div style="padding:22px;">
-      <div id="suporte-sucesso" style="display:none;background:var(--success-bg);border:1.5px solid var(--success-border);border-radius:10px;padding:20px;text-align:center;">
-        <div style="font-size:32px;margin-bottom:8px;">✅</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--success);letter-spacing:1px;">SOLICITAÇÃO ENVIADA!</div>
-        <div style="font-size:14px;color:var(--text2);margin-top:8px;line-height:1.6;">Recebemos sua solicitação de suporte.<br>Retornaremos em breve pelo e-mail informado.</div>
-        <button onclick="fecharSuporte()" class="btn btn-primary" style="margin-top:16px;width:auto;padding:10px 28px;">Fechar</button>
-      </div>
-      <div id="suporte-form">
-        <!-- Nome -->
-        <div class="input-group">
-          <label>Nome completo <span style="color:var(--danger);">*</span></label>
-          <input type="text" id="sup-nome" placeholder="SEU NOME COMPLETO" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-nome')">
-          <small id="sup-nome-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
-        </div>
-        <!-- Telefone -->
-        <div class="input-group">
-          <label>Telefone / WhatsApp <span style="color:var(--danger);">*</span></label>
-          <input type="tel" id="sup-tel" placeholder="(XX) XXXXX-XXXX" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="mascararTelefone(this);limparErroCampo('sup-tel')">
-          <small id="sup-tel-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
-        </div>
-        <!-- E-mail -->
-        <div class="input-group">
-          <label>E-mail de login no sistema <span style="color:var(--danger);">*</span>
-            <span style="font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;"> — a resposta será enviada para este e-mail</span>
-          </label>
-          <input type="email" id="sup-email" placeholder="SEU@EMAIL.COM" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-email')">
-          <small id="sup-email-err" style="color:var(--danger);font-size:11px;display:none;">Informe um e-mail válido</small>
-        </div>
-        <!-- Perfil: campo oculto, preenchido automaticamente pelo sistema -->
-        <input type="hidden" id="sup-perfil" value="">
-        <!-- Prioridade -->
-        <div class="input-group">
-          <label>Prioridade <span style="color:var(--danger);">*</span></label>
-          <select id="sup-prioridade" style="font-size:14px;letter-spacing:0;text-transform:none;" onchange="limparErroCampo('sup-prioridade')">
-            <option value="">— Selecione a prioridade —</option>
-            <option value="baixa">🟢 Baixa — dúvida ou melhoria</option>
-            <option value="media">🟡 Média — afeta o trabalho mas tem solução alternativa</option>
-            <option value="alta">🔴 Alta — impede o uso do sistema</option>
-            <option value="urgente">🚨 Urgente — sistema parado, impacto operacional</option>
-          </select>
-          <small id="sup-prioridade-err" style="color:var(--danger);font-size:11px;display:none;">Selecione a prioridade</small>
-        </div>
-        <!-- Ambiente -->
-        <div class="input-group">
-          <label>Ambiente <span style="color:var(--danger);">*</span>
-            <span style="font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;"> — detectado automaticamente</span>
-          </label>
-          <select id="sup-ambiente" style="font-size:14px;letter-spacing:0;text-transform:none;">
-            <option value="producao">🔴 Produção</option>
-            <option value="staging">🟢 Staging (ambiente de testes)</option>
-          </select>
-        </div>
-        <!-- Assunto -->
-        <div class="input-group">
-          <label>Assunto <span style="color:var(--danger);">*</span></label>
-          <input type="text" id="sup-assunto" placeholder="Resumo do problema em poucas palavras" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-assunto')">
-          <small id="sup-assunto-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
-        </div>
-        <!-- Descrição -->
-        <div class="input-group">
-          <label>Descrição do problema <span style="color:var(--danger);">*</span></label>
-          <textarea id="sup-descricao" rows="4" placeholder="Descreva com detalhes o que aconteceu, o que estava fazendo e qual era o resultado esperado..." style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 13px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;" oninput="limparErroCampo('sup-descricao')"></textarea>
-          <small id="sup-descricao-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
-        </div>
-        <!-- Anexo -->
-        <div class="input-group" style="margin-bottom:6px;">
-          <label>Anexo <span style="color:var(--text3);font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">(opcional — foto ou arquivo)</span></label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="btn btn-outline btn-sm" onclick="tirarFotoSuporte()" style="flex:1;min-width:130px;">📷 Tirar Foto</button>
-            <label style="flex:1;min-width:130px;cursor:pointer;">
-              <input type="file" id="sup-arquivo" accept="image/*,.pdf,.xlsx,.xls,.csv,.txt,.docx" style="display:none;" onchange="previsualizarAnexo(this)">
-              <div class="btn btn-outline btn-sm" style="text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;height:100%;">📎 Upload de Arquivo</div>
-            </label>
-          </div>
-          <div id="sup-preview-area" style="margin-top:8px;display:none;">
-            <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);">
-              <div id="sup-preview-img-wrap" style="display:none;"><img id="sup-preview-img" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" alt=""></div>
-              <div style="flex:1;"><div id="sup-preview-nome" style="font-size:13px;font-weight:600;color:var(--text);"></div><div id="sup-preview-size" style="font-size:11px;color:var(--text3);margin-top:2px;"></div></div>
-              <button onclick="removerAnexoSuporte()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;padding:2px 6px;">✕</button>
-            </div>
-          </div>
-          <!-- Câmera para foto de suporte -->
-          <div id="sup-cam-area" style="display:none;margin-top:8px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
-            <video id="sup-video" autoplay playsinline style="width:100%;border-radius:10px;"></video>
-            <div style="position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:10px;">
-              <button onclick="capturarFotoSuporte()" style="background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50%;width:52px;height:52px;font-size:22px;cursor:pointer;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.3);">📷</button>
-              <button onclick="cancelarFotoSuporte()" style="background:rgba(0,0,0,.5);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;">Cancelar</button>
-            </div>
-          </div>
-        </div>
-        <!-- Botão enviar -->
-        <button class="btn btn-primary" onclick="enviarSuporte()" style="margin-top:12px;">📨 Enviar Solicitação</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
-</html
-
-// ══════════════════════════════════════════════════════════════
-// SUPORTE — FUNÇÕES COMPLETAS
-// ══════════════════════════════════════════════════════════════
-
-let _supStream = null;
-let _supAnexoBase64 = null;
-let _supAnexoNome = '';
-let _supAnexoTipo = '';
-
-async function abrirSuporte(evt) {
-  if (evt) evt.preventDefault();
-  const modal = document.getElementById('suporte-modal');
-  if (!modal) return;
-
+async function abrirSuporte(evt){
+  if(evt)evt.preventDefault();
+  const modal=document.getElementById('suporte-modal');if(!modal)return;
   // Pré-preencher com dados do operador logado
-  if (currentOperador) {
-    const nomeEl = document.getElementById('sup-nome');
-    const emailEl = document.getElementById('sup-email');
-    const perfilEl = document.getElementById('sup-perfil');
-    if (nomeEl && !nomeEl.value) nomeEl.value = currentOperador.nome || '';
-    if (emailEl && !emailEl.value) emailEl.value = currentOperador.email || '';
-    if (perfilEl && currentOperador.perfil) perfilEl.value = currentOperador.perfil;
+  if(currentOperador){
+    const n=document.getElementById('sup-nome'),e=document.getElementById('sup-email');
+    if(n&&!n.value)n.value=currentOperador.nome||'';
+    if(e&&!e.value)e.value=currentOperador.email||'';
   }
-
-  // Detectar ambiente automaticamente
-  const ambienteEl = document.getElementById('sup-ambiente');
-  if (ambienteEl) ambienteEl.value = isProduction() ? 'producao' : 'staging';
-
-  // Resetar estado
-  document.getElementById('suporte-sucesso').style.display = 'none';
-  document.getElementById('suporte-form').style.display = 'block';
-
-  modal.style.display = 'flex';
-  setTimeout(() => document.getElementById('sup-nome')?.focus(), 100);
+  // Detectar ambiente
+  const amb=document.getElementById('sup-ambiente');
+  if(amb)amb.value=isProduction()?'producao':'staging';
+  // Resetar
+  document.getElementById('suporte-sucesso').style.display='none';
+  document.getElementById('suporte-form').style.display='block';
+  modal.style.display='flex';
+  setTimeout(()=>document.getElementById('sup-nome')?.focus(),100);
 }
-
-function fecharSuporte() {
+function fecharSuporte(){
   cancelarFotoSuporte();
-  document.getElementById('suporte-modal').style.display = 'none';
+  const m=document.getElementById('suporte-modal');if(m)m.style.display='none';
 }
-
-async function popularPerfilsSuporte() {
-  const select = document.getElementById('sup-perfil');
-  if (!select) return;
-  // Perfis padrão sempre presentes
-  const base = [
-    { value:'operacional', label:'Operacional' },
-    { value:'operador',    label:'Operador' },
-    { value:'admin',       label:'Administrador' },
-    { value:'developer',   label:'Developer' },
-  ];
-  // Adicionar perfis customizados se existirem
-  let extras = [];
-  try {
-    if (db) {
-      const doc = await db.collection('config').doc('perfis-customizados').get();
-      if (doc.exists) {
-        extras = Object.entries(doc.data()).map(([id, nome]) => ({ value: id, label: String(nome) }));
-      }
-    }
-  } catch(e) {}
-
-  const all = [...base, ...extras];
-  const currentVal = select.value;
-  select.innerHTML = '<option value="">— Selecione seu perfil —</option>' +
-    all.map(p => `<option value="${p.value}" ${currentVal === p.value ? 'selected' : ''}>${p.label}</option>`).join('');
+function mascararTelefone(input){
+  let v=input.value.replace(/\D/g,'').slice(0,11);
+  if(v.length<=10)v=v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');
+  else v=v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
+  input.value=v;
 }
-
-function limparErroCampo(id) {
-  const err = document.getElementById(id + '-err');
-  if (err) err.style.display = 'none';
-  const input = document.getElementById(id);
-  if (input) input.style.borderColor = '';
-}
-
-function mascararTelefone(input) {
-  let v = input.value.replace(/\D/g, '').slice(0, 11);
-  if (v.length <= 10) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
-  else v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-  input.value = v;
-}
-
-function previsualizarAnexo(input) {
-  const file = input.files[0];
-  if (!file) return;
-  _supAnexoNome = file.name;
-  _supAnexoTipo = file.type;
-  const area = document.getElementById('sup-preview-area');
-  const nomeEl = document.getElementById('sup-preview-nome');
-  const sizeEl = document.getElementById('sup-preview-size');
-  const imgWrap = document.getElementById('sup-preview-img-wrap');
-  const img = document.getElementById('sup-preview-img');
-  if (nomeEl) nomeEl.textContent = file.name;
-  if (sizeEl) sizeEl.textContent = (file.size / 1024).toFixed(0) + ' KB';
-  const reader = new FileReader();
-  reader.onload = e => {
-    _supAnexoBase64 = e.target.result.split(',')[1];
-    if (file.type.startsWith('image/') && img && imgWrap) {
-      img.src = e.target.result; imgWrap.style.display = 'block';
-    } else if (imgWrap) { imgWrap.style.display = 'none'; }
-    if (area) area.style.display = 'block';
+function previsualizarAnexo(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>10*1024*1024){alert('Arquivo muito grande. Máximo 10MB.');input.value='';return;}
+  _supAnexoNome=file.name;_supAnexoTipo=file.type;
+  const r=new FileReader();
+  r.onload=e=>{
+    _supAnexoBase64=e.target.result.split(',')[1];
+    document.getElementById('sup-preview-nome').textContent=file.name;
+    document.getElementById('sup-preview-size').textContent=(file.size/1024).toFixed(0)+' KB';
+    const wrap=document.getElementById('sup-preview-img-wrap'),img=document.getElementById('sup-preview-img');
+    if(file.type.startsWith('image/')&&img&&wrap){img.src=e.target.result;wrap.style.display='block';}
+    else if(wrap)wrap.style.display='none';
+    document.getElementById('sup-preview-area').style.display='block';
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(file);
 }
-
-function removerAnexoSuporte() {
-  _supAnexoBase64 = null; _supAnexoNome = ''; _supAnexoTipo = '';
-  const area = document.getElementById('sup-preview-area');
-  if (area) area.style.display = 'none';
-  const input = document.getElementById('sup-arquivo');
-  if (input) input.value = '';
+function removerAnexoSuporte(){
+  _supAnexoBase64=null;_supAnexoNome='';_supAnexoTipo='';
+  document.getElementById('sup-preview-area').style.display='none';
+  const inp=document.getElementById('sup-arquivo');if(inp)inp.value='';
 }
-
-async function tirarFotoSuporte() {
-  const camArea = document.getElementById('sup-cam-area');
-  const video = document.getElementById('sup-video');
-  if (!camArea || !video) return;
-  try {
-    if (_supStream) { _supStream.getTracks().forEach(t => t.stop()); _supStream = null; }
-    _supStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
-    video.srcObject = _supStream;
-    await video.play();
-    camArea.style.display = 'block';
-  } catch(e) { alert('Não foi possível acessar a câmera: ' + e.message); }
+async function tirarFotoSuporte(){
+  const camArea=document.getElementById('sup-cam-area'),video=document.getElementById('sup-video');
+  if(!camArea||!video)return;
+  try{if(_supStream){_supStream.getTracks().forEach(t=>t.stop());_supStream=null;}_supStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}}});video.srcObject=_supStream;await video.play();camArea.style.display='block';}
+  catch(e){alert('Câmera indisponível: '+e.message);}
 }
-
-function capturarFotoSuporte() {
-  const video = document.getElementById('sup-video');
-  if (!video) return;
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-  _supAnexoBase64 = dataUrl.split(',')[1];
-  _supAnexoNome = `suporte_foto_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.jpg`;
-  _supAnexoTipo = 'image/jpeg';
-
-  const img = document.getElementById('sup-preview-img');
-  const imgWrap = document.getElementById('sup-preview-img-wrap');
-  const nomeEl = document.getElementById('sup-preview-nome');
-  const sizeEl = document.getElementById('sup-preview-size');
-  const area = document.getElementById('sup-preview-area');
-  if (img) img.src = dataUrl; if (imgWrap) imgWrap.style.display = 'block';
-  if (nomeEl) nomeEl.textContent = _supAnexoNome;
-  if (sizeEl) sizeEl.textContent = Math.round(_supAnexoBase64.length * 0.75 / 1024) + ' KB';
-  if (area) area.style.display = 'block';
+function capturarFotoSuporte(){
+  const video=document.getElementById('sup-video');if(!video)return;
+  const canvas=document.createElement('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+  canvas.getContext('2d').drawImage(video,0,0);
+  const dataUrl=canvas.toDataURL('image/jpeg',0.8);
+  _supAnexoBase64=dataUrl.split(',')[1];
+  _supAnexoNome=`suporte_${new Date().toISOString().slice(0,19).replace(/[:.]/g,'-')}.jpg`;
+  _supAnexoTipo='image/jpeg';
+  const img=document.getElementById('sup-preview-img'),wrap=document.getElementById('sup-preview-img-wrap');
+  if(img)img.src=dataUrl;if(wrap)wrap.style.display='block';
+  document.getElementById('sup-preview-nome').textContent=_supAnexoNome;
+  document.getElementById('sup-preview-size').textContent=Math.round(_supAnexoBase64.length*.75/1024)+' KB';
+  document.getElementById('sup-preview-area').style.display='block';
   cancelarFotoSuporte();
 }
-
-function cancelarFotoSuporte() {
-  if (_supStream) { _supStream.getTracks().forEach(t => t.stop()); _supStream = null; }
-  const camArea = document.getElementById('sup-cam-area');
-  if (camArea) camArea.style.display = 'none';
+function cancelarFotoSuporte(){
+  if(_supStream){_supStream.getTracks().forEach(t=>t.stop());_supStream=null;}
+  const c=document.getElementById('sup-cam-area');if(c)c.style.display='none';
 }
 
-async function enviarSuporte() {
-  // Validação
-  const campos = [
-    { id:'sup-nome',       label:'Nome' },
-    { id:'sup-tel',        label:'Telefone' },
-    { id:'sup-email',      label:'E-mail' },
-    { id:'sup-prioridade', label:'Prioridade' },
-    { id:'sup-assunto',    label:'Assunto' },
-    { id:'sup-descricao',  label:'Descrição' },
-  ];
-  let valido = true;
-  for (const c of campos) {
-    const el = document.getElementById(c.id);
-    const err = document.getElementById(c.id + '-err');
-    if (!el || !el.value.trim()) {
-      valido = false;
-      if (el) el.style.borderColor = 'var(--danger)';
-      if (err) err.style.display = 'block';
-    }
+async function gerarNumeroChamado(){
+  // Gera número sequencial: SUP-2026-XXXXXX baseado no contador no Firestore
+  try{
+    if(!db)throw new Error('db indisponível');
+    const ref=db.collection('config').doc('suporte-contador');
+    const novoNum=await db.runTransaction(async t=>{
+      const doc=await t.get(ref);
+      const atual=(doc.exists?doc.data().contador:0)+1;
+      t.set(ref,{contador:atual,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      return atual;
+    });
+    const ano=new Date().getFullYear();
+    return `SUP-${ano}-${String(novoNum).padStart(5,'0')}`;
+  }catch(e){
+    // Fallback: timestamp-based se Firestore falhar
+    return `SUP-${new Date().toISOString().replace(/[-T:]/g,'').slice(0,14)}`;
   }
-  // Validação de e-mail
-  const emailEl = document.getElementById('sup-email');
-  if (emailEl && emailEl.value && !emailEl.value.includes('@')) {
-    emailEl.style.borderColor = 'var(--danger)';
-    const errEl = document.getElementById('sup-email-err');
-    if (errEl) { errEl.textContent = 'Informe um e-mail válido'; errEl.style.display = 'block'; }
-    valido = false;
+}
+
+async function enviarSuporte(){
+  const campos=[{id:'sup-nome'},{id:'sup-tel'},{id:'sup-email'},{id:'sup-prioridade'},{id:'sup-assunto'},{id:'sup-descricao'}];
+  let valido=true;
+  for(const c of campos){
+    const el=document.getElementById(c.id),err=document.getElementById(c.id+'-err');
+    if(!el?.value?.trim()){valido=false;if(el)el.style.borderColor='var(--danger)';if(err)err.style.display='block';}
+    else{if(el)el.style.borderColor='';if(err)err.style.display='none';}
   }
-  if (!valido) {
-    showTopAlert('❌ Preencha todos os campos obrigatórios antes de enviar.', 'error', 'Os campos marcados em vermelho são obrigatórios.');
-    return;
-  }
+  const emailEl=document.getElementById('sup-email');
+  if(emailEl?.value&&!emailEl.value.includes('@')){emailEl.style.borderColor='var(--danger)';const err=document.getElementById('sup-email-err');if(err){err.textContent='Informe um e-mail válido';err.style.display='block';}valido=false;}
+  if(!valido){showTopAlert('❌ Preencha todos os campos obrigatórios','error','Os campos marcados em vermelho são obrigatórios.');return;}
 
-  const btn = document.querySelector('[onclick="enviarSuporte()"]');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
+  const btn=document.getElementById('btn-enviar-suporte');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Enviando...';}
 
-  const dados = {
-    nome:       document.getElementById('sup-nome').value.trim(),
-    telefone:   document.getElementById('sup-tel').value.trim(),
-    email:      document.getElementById('sup-email').value.trim().toLowerCase(),
-    perfil:     document.getElementById('sup-perfil').value,
-    prioridade: document.getElementById('sup-prioridade').value,
-    ambiente:   document.getElementById('sup-ambiente').value,
-    assunto:    document.getElementById('sup-assunto').value.trim(),
-    descricao:  document.getElementById('sup-descricao').value.trim(),
-    url:        window.location.href,
-    userAgent:  navigator.userAgent.substring(0, 120),
-    criadoEm:   firebase.firestore?.FieldValue?.serverTimestamp?.() || new Date().toISOString(),
-    temAnexo:   !!_supAnexoBase64,
-    anexoNome:  _supAnexoNome || null,
-  };
+  try{
+    const numeroChamado=await gerarNumeroChamado();
+    const agora=new Date();
+    const dataHora=agora.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
-  // Buscar perfil do usuário pelo e-mail no Firestore
-  try {
-    if (db) {
-      const usersSnap = await db.collection('usuarios').where('email','==', dados.email).limit(1).get();
-      if (!usersSnap.empty) {
-        dados.perfil = usersSnap.docs[0].data().perfil || 'desconhecido';
-      } else {
-        dados.perfil = 'não encontrado no sistema';
-      }
-    }
-  } catch(e) { dados.perfil = 'erro ao buscar'; }
+    // Buscar perfil pelo e-mail
+    const emailDigitado=document.getElementById('sup-email').value.trim().toLowerCase();
+    let perfilDetectado='não identificado';
+    try{if(db){const us=await db.collection('usuarios').where('email','==',emailDigitado).limit(1).get();if(!us.empty)perfilDetectado=us.docs[0].data().perfil||'desconhecido';}}catch(_){}
 
-  try {
+    const dados={
+      numeroChamado,
+      nome:document.getElementById('sup-nome').value.trim(),
+      telefone:document.getElementById('sup-tel').value.trim(),
+      email:emailDigitado,
+      perfil:perfilDetectado,
+      prioridade:document.getElementById('sup-prioridade').value,
+      ambiente:document.getElementById('sup-ambiente')?.value||'producao',
+      assunto:document.getElementById('sup-assunto').value.trim(),
+      descricao:document.getElementById('sup-descricao').value.trim(),
+      url:window.location.href,
+      userAgent:navigator.userAgent.substring(0,120),
+      dataHoraAbertura:dataHora,
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      status:'aberto',
+      temAnexo:!!_supAnexoBase64,
+      anexoNome:_supAnexoNome||null,
+    };
+
     // Salvar no Firestore
-    if (db) {
-      const ref = await db.collection('suporte').add(dados);
-      // Salvar anexo no Storage se existir
-      if (_supAnexoBase64 && storage) {
-        try {
-          const bc = atob(_supAnexoBase64); const bn = new Uint8Array(bc.length);
-          for (let i=0; i<bc.length; i++) bn[i] = bc.charCodeAt(i);
-          const blob = new Blob([bn], {type: _supAnexoTipo||'application/octet-stream'});
-          await storage.ref(`suporte/${ref.id}/${_supAnexoNome}`).put(blob);
-          await ref.update({ anexoNome: _supAnexoNome, temAnexo: true });
-        } catch(storageErr) { console.warn('Erro ao salvar anexo:', storageErr.message); }
+    if(db){
+      const ref=await db.collection('suporte').doc(numeroChamado).set(dados);
+      if(_supAnexoBase64&&storage){
+        try{const bc=atob(_supAnexoBase64);const bn=new Uint8Array(bc.length);for(let i=0;i<bc.length;i++)bn[i]=bc.charCodeAt(i);const blob=new Blob([bn],{type:_supAnexoTipo||'application/octet-stream'});await storage.ref(`suporte/${numeroChamado}/${_supAnexoNome}`).put(blob);}
+        catch(se){console.warn('Anexo não salvo:',se.message);}
       }
     }
 
-    // Enviar e-mail via EmailJS
-    const svc = getCfg('ejs_svc','service_1e7gg3f');
-    const tpl = getCfg('ejs_tpl','template_vdkbodd');
-    const prioridades = { baixa:'🟢 Baixa', media:'🟡 Média', alta:'🔴 Alta', urgente:'🚨 Urgente' };
-    const ambientes = { producao:'🔴 Produção', staging:'🟢 Staging' };
-    const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
-      <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
-        <div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;">GERDAU — VERIFICA LACRE</div>
-        <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🆘 NOVA SOLICITAÇÃO DE SUPORTE</div>
-      </td></tr>
-      <tr><td style="background:#fff;padding:24px;">
-        <table width="100%" style="border-collapse:collapse;">
-          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:38%;">👤 Nome</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.nome}</td></tr>
-          <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📱 Telefone</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.telefone}</td></tr>
-          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📧 E-mail</td><td style="padding:10px 14px;font-size:13px;">${dados.email}</td></tr>
-          <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Perfil</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.perfil}</td></tr>
-          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🚦 Prioridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${prioridades[dados.prioridade]||dados.prioridade}</td></tr>
-          <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🌐 Ambiente</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${ambientes[dados.ambiente]||dados.ambiente}</td></tr>
-          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📋 Assunto</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.assunto}</td></tr>
-        </table>
-        <div style="margin-top:16px;background:#F8F9FA;border-left:4px solid #1B3A6B;padding:14px 16px;border-radius:0 6px 6px 0;">
-          <div style="font-size:11px;font-weight:700;color:#5A6A85;letter-spacing:1px;margin-bottom:8px;">DESCRIÇÃO DO PROBLEMA</div>
-          <div style="font-size:14px;color:#1A2540;line-height:1.6;">${dados.descricao.replace(/\n/g,'<br>')}</div>
-        </div>
-        ${dados.temAnexo ? `<div style="margin-top:12px;font-size:13px;color:#B7770D;background:#FEF3E2;border-radius:6px;padding:10px 14px;">📎 Anexo: ${dados.anexoNome||'arquivo'} (salvo no sistema)</div>` : ''}
-        <div style="margin-top:14px;font-size:11px;color:#8A98AF;">URL: ${dados.url} | ${new Date().toLocaleString('pt-BR')}</div>
-      </td></tr>
-    </table>`;
+    // Enviar e-mail
+    const svc=getCfg('ejs_svc','service_1e7gg3f'),tpl=getCfg('ejs_tpl','template_vdkbodd');
+    const PRIO={baixa:'🟢 Baixa',media:'🟡 Média',alta:'🔴 Alta',urgente:'🚨 Urgente'};
+    const corpo=`<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;"><tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;"><div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:4px;">GERDAU — VERIFICA LACRE</div><div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🎧 NOVO CHAMADO DE SUPORTE</div><div style="color:rgba(255,255,255,.8);font-size:14px;margin-top:6px;font-family:monospace;letter-spacing:2px;">${numeroChamado}</div></td></tr><tr><td style="background:#fff;padding:24px;"><table width="100%" style="border-collapse:collapse;"><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:38%;">📋 Nº Chamado</td><td style="padding:10px 14px;font-size:13px;font-weight:700;color:#1B3A6B;letter-spacing:1px;">${numeroChamado}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🗓️ Abertura</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dataHora}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">👤 Nome</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.nome}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📱 Telefone</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.telefone}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📧 E-mail</td><td style="padding:10px 14px;font-size:13px;">${dados.email}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Perfil detectado</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${perfilDetectado}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🚦 Prioridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${PRIO[dados.prioridade]||dados.prioridade}</td></tr><tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🌐 Ambiente</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.ambiente==='staging'?'🟢 Staging':'🔴 Produção'}</td></tr><tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📋 Assunto</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.assunto}</td></tr></table><div style="margin-top:16px;background:#F8F9FA;border-left:4px solid #1B3A6B;padding:14px 16px;border-radius:0 6px 6px 0;"><div style="font-size:11px;font-weight:700;color:#5A6A85;letter-spacing:1px;margin-bottom:8px;">DESCRIÇÃO</div><div style="font-size:14px;color:#1A2540;line-height:1.6;">${dados.descricao.replace(/\n/g,'<br>')}</div></div>${dados.temAnexo?`<div style="margin-top:12px;font-size:13px;color:#B7770D;background:#FEF3E2;border-radius:6px;padding:10px 14px;">📎 Anexo: ${dados.anexoNome}</div>`:''}<div style="margin-top:14px;font-size:11px;color:#8A98AF;">URL: ${dados.url}</div></td></tr></table>`;
+    try{if(svc&&tpl)await emailjs.send(svc,tpl,{to_email:'desenvolvedorcs@outlook.com',subject:`[${(PRIO[dados.prioridade]||dados.prioridade).replace(/[🟢🟡🔴🚨]/g,'').trim()} | ${numeroChamado}] ${dados.assunto}`,message:`Chamado ${numeroChamado} aberto por ${dados.nome} (${dados.email}). ${dados.assunto}`,body_html:corpo});}
+    catch(emailErr){console.warn('E-mail não enviado:',emailErr.message);}
 
-    try {
-      if (svc && tpl) {
-        await emailjs.send(svc, tpl, {
-          to_email: 'desenvolvedorcs@outlook.com',
-          subject: `[SUPORTE ${(prioridades[dados.prioridade]||dados.prioridade).toUpperCase()}] ${dados.assunto}`,
-          message: `Nova solicitação de ${dados.nome} (${dados.email}) — ${dados.assunto}`,
-          body_html: corpo
-        });
-      }
-    } catch(emailErr) { console.warn('E-mail não enviado:', emailErr.message); }
-
-    // Mostrar tela de sucesso
-    document.getElementById('suporte-form').style.display = 'none';
-    document.getElementById('suporte-sucesso').style.display = 'block';
-
-    // Limpar campos para próxima vez
-    ['sup-nome','sup-tel','sup-email','sup-assunto','sup-descricao'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    document.getElementById('sup-perfil').value='';
-    document.getElementById('sup-prioridade').value='';
+    // Limpar campos
+    ['sup-nome','sup-tel','sup-email','sup-assunto','sup-descricao'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const pr=document.getElementById('sup-prioridade');if(pr)pr.value='';
     removerAnexoSuporte();
 
-  } catch(e) {
-    showTopAlert('❌ Erro ao enviar solicitação', 'error', e.message);
-  } finally {
-    if (btn) { btn.disabled=false; btn.textContent='📨 Enviar Solicitação'; }
+    // Mostrar número do chamado na tela de sucesso
+    const numEl=document.getElementById('suporte-numero-exibido');if(numEl)numEl.textContent=numeroChamado;
+    document.getElementById('suporte-form').style.display='none';
+    document.getElementById('suporte-sucesso').style.display='block';
+
+  }catch(e){
+    showTopAlert('❌ Erro ao enviar solicitação','error',e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='📨 Enviar Solicitação';}
   }
 }
 
 </script>
+
 </body>
 </html>
