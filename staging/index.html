@@ -5199,11 +5199,47 @@ async function enviarSuporte(){
   }
 }
 
+// ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
+function abrirConfigurarStaging(evt) {
+  if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+  console.log('[STAGING] Abrindo modal de configuração...');
+  const modal = document.getElementById('staging-setup-modal');
+  if (!modal) { alert('Modal de staging não encontrado.'); return; }
+  // Pre-fill se já configurado
+  const existing = localStorage.getItem('firebase_staging_config');
+  const inputEl = document.getElementById('staging-setup-input');
+  if (existing && inputEl) {
+    try {
+      inputEl.value = JSON.stringify(JSON.parse(existing), null, 2);
+    } catch(_) { inputEl.value = existing; }
+  } else if (inputEl) {
+    inputEl.value = '';
+  }
+  const status = document.getElementById('staging-setup-status');
+  if (status) {
+    if (existing) {
+      try {
+        const p = JSON.parse(existing);
+        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;padding:8px 12px;border-radius:6px;';
+        status.textContent = '✅ Staging já configurado: ' + (p.projectId || '');
+      } catch(_) { status.style.display = 'none'; }
+    } else {
+      status.style.display = 'none';
+    }
+  }
+  const errEl = document.getElementById('staging-setup-err');
+  if (errEl) errEl.style.display = 'none';
+  // Mostrar modal com visibility e opacity (evita conflitos com display:none)
+  modal.style.visibility = 'visible';
+  modal.style.opacity = '1';
+  console.log('[STAGING] Modal exibido');
+}
+
 </script>
 
 
 <!-- MODAL CONFIGURAR STAGING -->
-<div id="staging-setup-modal" style="visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;display:flex;align-items:center;justify-content:center;transition:opacity .2s,visibility .2s;">
+<div id="staging-setup-modal" style="visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;transition:opacity .2s,visibility .2s;">
   <div style="background:var(--surface);border-radius:14px;width:92%;max-width:500px;box-shadow:0 16px 60px rgba(0,0,0,.5);overflow:hidden;">
     <div style="background:#0f4a28;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1a8c4e;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#5ecb8a;letter-spacing:2px;">⚙ CONFIGURAR STAGING</div>
@@ -5234,39 +5270,6 @@ async function enviarSuporte(){
 
 
 <script>
-// ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
-function abrirConfigurarStaging(evt) {
-  if (evt) { evt.preventDefault(); evt.stopPropagation(); }
-  const modal = document.getElementById('staging-setup-modal');
-  if (!modal) { alert('Modal de staging não encontrado.'); return; }
-  // Pre-fill se já configurado
-  const existing = localStorage.getItem('firebase_staging_config');
-  const inputEl = document.getElementById('staging-setup-input');
-  if (existing && inputEl) {
-    try {
-      inputEl.value = JSON.stringify(JSON.parse(existing), null, 2);
-    } catch(_) { inputEl.value = existing; }
-  } else if (inputEl) {
-    inputEl.value = '';
-  }
-  const status = document.getElementById('staging-setup-status');
-  if (status) {
-    if (existing) {
-      try {
-        const p = JSON.parse(existing);
-        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;padding:8px 12px;border-radius:6px;';
-        status.textContent = '✅ Staging já configurado: ' + (p.projectId || '');
-      } catch(_) { status.style.display = 'none'; }
-    } else {
-      status.style.display = 'none';
-    }
-  }
-  const errEl = document.getElementById('staging-setup-err');
-  if (errEl) errEl.style.display = 'none';
-  // Mostrar modal com visibility e opacity (evita conflitos com display:none)
-  modal.style.visibility = 'visible';
-  modal.style.opacity = '1';
-}
 
 function jsToJson(raw) {
   return raw
