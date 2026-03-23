@@ -248,6 +248,9 @@ tbody tr:hover{background:var(--surface2);}
 </head>
 <body>
 
+<!-- TOP ALERT — fora do app-main para ficar visível em qualquer tela -->
+<div id="top-alert" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;"></div>
+
 <!-- APP LOGIN SCREEN -->
 <div id="app-login-screen">
   <div class="app-login-container">
@@ -292,7 +295,6 @@ tbody tr:hover{background:var(--surface2);}
     </div>
   </div>
 
-  <div id="top-alert" class="info-bar" style="border-radius:0;margin:0;"></div>
 
   <div class="container">
     <div class="tabs">
@@ -4200,7 +4202,7 @@ function showTopAlert(msg, type, detail) {
     info:    { bg:'#E8EEF8', border:'#1B3A6B', color:'#1B3A6B', icon:'ℹ️' },
   };
   const c = cfg[type] || cfg.info;
-  el.style.cssText = `display:block;background:${c.bg};border-bottom:3px solid ${c.border};color:${c.color};width:100%;padding:0;position:sticky;top:64px;z-index:39;`;
+  el.style.cssText = `display:block;background:${c.bg};border-bottom:3px solid ${c.border};color:${c.color};width:100%;padding:0;position:fixed;top:0;left:0;right:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.15);`;
   el.innerHTML = `<div style="display:flex;align-items:flex-start;justify-content:center;gap:10px;padding:11px 20px;flex-wrap:wrap;">
     <span style="font-size:18px;flex-shrink:0;line-height:1.4;">${c.icon}</span>
     <div style="flex:1;min-width:0;text-align:left;">
@@ -4777,9 +4779,8 @@ async function enviarSuporte(){
   </div>
 </div>
 
-</body>
-</html
 
+<script>
 // ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
 function abrirConfigurarStaging(evt) {
   if (evt) evt.preventDefault();
