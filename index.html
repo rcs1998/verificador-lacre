@@ -263,9 +263,12 @@ tbody tr:hover{background:var(--surface2);}
       </div>
       <div class="input-group" style="margin-bottom:18px;">
         <label>Senha</label>
-        <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;" onkeydown="if(event.key==='Enter') doAppLoginComOffline()">
+        <div style="position:relative;">
+          <input type="password" id="op-pass" placeholder="••••••••" style="letter-spacing:4px;padding-right:42px;width:100%;box-sizing:border-box;" onkeydown="if(event.key==='Enter') doAppLoginComOffline()">
+          <button type="button" onclick="toggleSenha()" id="btn-toggle-senha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:17px;opacity:.4;padding:0;line-height:1;" title="Mostrar/ocultar senha">👁️</button>
+        </div>
       </div>
-      <button class="btn btn-primary" onclick="doAppLoginComOffline()">Entrar</button>
+      <button class="btn btn-primary" id="btn-login" onclick="doAppLoginComOffline()">Entrar</button>
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
         <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
@@ -1118,8 +1121,12 @@ async function doAppLogin() {
   if (!auth) { alert('Firebase não configurado.'); return; }
   const email = document.getElementById('op-email').value.trim();
   const pass = document.getElementById('op-pass').value;
+  if (!email) { const e=document.getElementById('app-login-err');e.textContent='Informe seu e-mail.';e.style.display='block';return; }
+  if (!pass)  { const e=document.getElementById('app-login-err');e.textContent='Informe sua senha.';e.style.display='block';return; }
   const errEl = document.getElementById('app-login-err');
   errEl.style.display = 'none';
+  const btnLogin = document.getElementById('btn-login');
+  if (btnLogin) { btnLogin.disabled=true; btnLogin.textContent='Entrando...'; }
   try {
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const cred = await auth.signInWithEmailAndPassword(email, pass);
@@ -1148,7 +1155,7 @@ async function doAppLogin() {
     setTimeout(()=>startCamera('origem'), 300);
   } catch(e) {
     console.error('App login error:', e.code, e.message);
-    errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential'
+    errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials'
       ? 'E-mail ou senha incorretos.'
       : e.code === 'auth/too-many-requests'
       ? 'Muitas tentativas. Aguarde alguns minutos.'
@@ -3615,7 +3622,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r21';
+    const BUILD_HASH = 'v20260322-r22';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -3745,8 +3752,12 @@ async function doAppLoginComOffline() {
   if (!auth) { alert('Firebase não configurado.'); return; }
   const email = document.getElementById('op-email').value.trim();
   const pass = document.getElementById('op-pass').value;
+  if (!email) { const e=document.getElementById('app-login-err');e.textContent='Informe seu e-mail.';e.style.display='block';return; }
+  if (!pass)  { const e=document.getElementById('app-login-err');e.textContent='Informe sua senha.';e.style.display='block';return; }
   const errEl = document.getElementById('app-login-err');
   errEl.style.display = 'none';
+  const btnLogin = document.getElementById('btn-login');
+  if (btnLogin) { btnLogin.disabled=true; btnLogin.textContent='Entrando...'; }
   try {
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const cred = await auth.signInWithEmailAndPassword(email, pass);
@@ -3794,7 +3805,7 @@ async function doAppLoginComOffline() {
     setTimeout(popularFornecedoresDatalist, 1500);
   } catch(e) {
     console.error('App login error:', e.code, e.message);
-    errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential'
+    errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials'
       ? 'E-mail ou senha incorretos.'
       : e.code === 'auth/too-many-requests'
       ? 'Muitas tentativas. Aguarde alguns minutos.'
@@ -3802,6 +3813,9 @@ async function doAppLoginComOffline() {
       ? 'Sem conexão com a internet. Verifique sua rede.'
       : `Erro (${e.code||'desconhecido'}): ${e.message}`;
     errEl.style.display = 'block';
+  } finally {
+    const btnL=document.getElementById('btn-login');
+    if(btnL){btnL.disabled=false;btnL.textContent='Entrar';}
   }
 }
 
@@ -4402,6 +4416,13 @@ function filtrarLogs(){
 }
 
 // ── RECUPERAÇÃO DE SENHA ──────────────────────────────────────
+function toggleSenha(){
+  const input=document.getElementById('op-pass');
+  const btn=document.getElementById('btn-toggle-senha');
+  if(input.type==='password'){input.type='text';input.style.letterSpacing='0';if(btn)btn.style.opacity='1';}
+  else{input.type='password';input.style.letterSpacing='4px';if(btn)btn.style.opacity='.5';}
+}
+
 async function enviarRecuperacaoSenha(evt){
   if(evt)evt.preventDefault();
   const email=(document.getElementById('op-email')?.value.trim())||prompt('Digite seu e-mail:');
@@ -4456,7 +4477,7 @@ function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
-  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v20260322-r21</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
+  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v20260322-r22</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
   const warn=document.getElementById('staging-env-warning');if(warn)warn.style.display=isProd?'block':'none';
 }
 function jsConfigToJson(raw){return raw.replace(/\/\/.*/g,'').replace(/,\s*\}/g,'}').replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g,'$1"$2":');}
@@ -4505,7 +4526,7 @@ function atualizarChecklist(show=false){
   r.style.cssText=checked===total?'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);':'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
   r.innerHTML=checked===total?'✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar. Lembre de atualizar o BUILD_HASH!</span>':`⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
 }
-const CHANGELOG=[{version:'v20260322-r21',data:'22/03/2026',novidades:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial de chamado','Perfil detectado automaticamente pelo e-mail','Banner de feedback persistente — erros não somem sozinhos','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy'],correcoes:['Correção crítica: funções JS não executavam (bloco corrompido)','Duplicatas de botão Suporte removidas','Erro de initFirebase ao sair resolvido']},{version:'v20260320-r14',data:'20/03/2026',novidades:['Painel de staging','Checklist pré-deploy','Changelog de versões'],correcoes:['Timeout padrão 2h','E-mail só em desvios']},{version:'v20260319-r13',data:'19/03/2026',novidades:['Inativar/reativar lacres, placas, usuários','Aba Logs','Fornecedores: editar, inativar, reativar'],correcoes:[]}];
+const CHANGELOG=[{version:'v20260322-r22',data:'22/03/2026',novidades:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial de chamado','Perfil detectado automaticamente pelo e-mail','Banner de feedback persistente — erros não somem sozinhos','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy'],correcoes:['Correção crítica: funções JS não executavam (bloco corrompido)','Duplicatas de botão Suporte removidas','Erro de initFirebase ao sair resolvido']},{version:'v20260320-r14',data:'20/03/2026',novidades:['Painel de staging','Checklist pré-deploy','Changelog de versões'],correcoes:['Timeout padrão 2h','E-mail só em desvios']},{version:'v20260319-r13',data:'19/03/2026',novidades:['Inativar/reativar lacres, placas, usuários','Aba Logs','Fornecedores: editar, inativar, reativar'],correcoes:[]}];
 function verChangelog(){
   let m=document.getElementById('changelog-modal');if(!m){m=document.createElement('div');m.id='changelog-modal';document.body.appendChild(m);}
   m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
