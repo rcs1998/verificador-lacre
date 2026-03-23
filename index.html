@@ -63,7 +63,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 }
 
 /* TOP ALERT */
-#top-alert{display:none;width:100%;padding:12px 20px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;position:sticky;top:64px;z-index:39;}
+#top-alert{display:none;width:100%;padding:0;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;position:sticky;top:64px;z-index:39;}
+.top-alert-inner{display:flex;align-items:flex-start;justify-content:center;gap:10px;padding:11px 20px;flex-wrap:wrap;}
+.top-alert-icon{font-size:18px;flex-shrink:0;line-height:1.4;}
+.top-alert-body{flex:1;min-width:0;text-align:left;}
+.top-alert-title{font-size:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;line-height:1.3;}
+.top-alert-detail{font-size:12px;font-weight:500;opacity:.85;margin-top:2px;text-transform:none;letter-spacing:0;word-break:break-word;line-height:1.4;}
+.top-alert-close{background:none;border:none;cursor:pointer;font-size:16px;opacity:.7;line-height:1;padding:2px 4px;flex-shrink:0;color:inherit;}
+.top-alert-close:hover{opacity:1;}
 
 /* CONTAINER */
 body{display:flex;flex-direction:column;align-items:center;}
@@ -241,6 +248,20 @@ tbody tr:hover{background:var(--surface2);}
   table{font-size:12px;}
   th,td{padding:8px;}
 }
+
+/* ── SUPORTE ─────────────────────────────────────────── */
+.support-fab{position:fixed;bottom:20px;right:20px;z-index:50;background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50px;padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;align-items:center;gap:7px;transition:all .2s;}
+.support-fab:hover{background:var(--gerdau-yellow-dark);transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.3);}
+.support-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,40,.65);z-index:200;overflow-y:auto;backdrop-filter:blur(4px);}
+.support-overlay.show{display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;}
+.support-modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:560px;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;margin:auto;}
+.support-header{background:var(--gerdau-blue);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);}
+.support-header h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase;margin:0;}
+.support-body{padding:20px 24px 24px;}
+.support-success{display:none;padding:32px 24px;text-align:center;}
+.support-success-icon{font-size:52px;margin-bottom:12px;}
+.support-success-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--success);letter-spacing:1px;margin-bottom:8px;}
+.support-success-msg{font-size:14px;color:var(--text2);line-height:1.6;}
 </style>
 </head>
 <body>
@@ -266,6 +287,8 @@ tbody tr:hover{background:var(--surface2);}
       <div style="text-align:center;margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
         <a href="#" onclick="enviarRecuperacaoSenha(event)" style="font-size:13px;color:var(--gerdau-blue);text-decoration:none;font-weight:600;">🔑 Esqueci minha senha</a>
         <a href="manual-operacional.html" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">📖 Manual do Operador</a>
+        <a href="#" onclick="abrirSuporte(event)" style="font-size:13px;color:var(--danger);text-decoration:none;font-weight:600;">🆘 Suporte</a>
+        <a href="#" onclick="abrirSuporte()" style="font-size:13px;color:var(--text2);text-decoration:none;font-weight:600;">🎧 Suporte</a>
       </div>
       <div id="app-login-err" style="color:var(--danger);font-size:13px;text-align:center;margin-top:8px;display:none;font-weight:600;">E-mail ou senha incorretos.</div>
     </div>
@@ -281,6 +304,7 @@ tbody tr:hover{background:var(--surface2);}
     </div>
     <div class="header-buttons">
       <a href="manual-admin.html" target="_blank" class="admin-btn" id="btn-ajuda-admin" style="text-decoration:none;display:none;">❓ Ajuda</a>
+      <button class="admin-btn" onclick="abrirSuporte()" style="background:rgba(245,166,35,.2);border-color:rgba(245,166,35,.5);">🆘 Suporte</button>
       <button class="admin-btn" onclick="openAdmin()">🔐 Admin</button>
       <button class="admin-btn" onclick="doAppLogoutComOffline()">🚪 Sair</button>
     </div>
@@ -561,6 +585,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
           <button class="admin-tab" onclick="adminTab('config-avancada')">Config Avançada</button>
           <button class="admin-tab" id="tab-deploy-btn" onclick="adminTab('deploy')" style="display:none;border-color:var(--gerdau-yellow);color:var(--gerdau-yellow);">🚀 Deploy</button>
+          <button class="admin-tab" id="tab-suporte-btn" onclick="adminTab('suporte')" style="display:none;">🎧 Chamados</button>
         </div>
       </div>
 
@@ -1025,20 +1050,21 @@ let db = null, auth = null;
 
 let storage = null;
 
+// ── STAGING BUILD FLAG ───────────────────────────────────
+// Mude para false antes de subir para produção
+const IS_STAGING_BUILD = false;
+const STAGING_FIREBASE_CONFIG = null; // Cole aqui o config do staging se IS_STAGING_BUILD = true
+// Exemplo: { apiKey:"AIzaSy...", authDomain:"...", projectId:"verificador-lacre-staging", ... }
+
 function initFirebase() {
   try {
-    // Tenta primeiro pelo localStorage (painel admin)
-    const raw = getCfg('firebase_config', '{}');
-    const cfg = JSON.parse(raw);
-    if (cfg.apiKey) {
-      if (!firebase.apps.length) firebase.initializeApp(cfg);
-      db = firebase.firestore();
-      auth = firebase.auth();
-      storage = firebase.storage();
-      return;
-    }
-    // Fallback: config fixa
-    const fixedCfg = {
+    // Staging build flag (hardcoded) > staging localStorage > produção localStorage > config fixa
+    const stagingRaw = getCfg('firebase_staging_config', '{}');
+    const stagingCfg = (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) ? STAGING_FIREBASE_CONFIG : JSON.parse(stagingRaw);
+    const customRaw = getCfg('firebase_config', '{}');
+    const customCfg = JSON.parse(customRaw);
+
+    const chosen = stagingCfg?.apiKey ? stagingCfg : customCfg.apiKey ? customCfg : {
       apiKey: "AIzaSyAMFZcVrgvGBc5xeTFSeUf5_txXqB7SDQA",
       authDomain: "verificador-lacre.firebaseapp.com",
       projectId: "verificador-lacre",
@@ -1046,17 +1072,34 @@ function initFirebase() {
       messagingSenderId: "868626072222",
       appId: "1:868626072222:web:b26599efa525476522b18f"
     };
-    if (!firebase.apps.length) firebase.initializeApp(fixedCfg);
+
+    // Se Firebase já inicializado com o mesmo projeto, reusar
+    if (firebase.apps.length > 0) {
+      if (firebase.apps[0].options.projectId === chosen.projectId) {
+        db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage();
+        console.log('Firebase reusado:', chosen.projectId);
+        return;
+      }
+      // Projeto diferente: deletar app e reiniciar
+      firebase.apps[0].delete().then(() => { firebase.initializeApp(chosen); db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage(); });
+      return;
+    }
+    firebase.initializeApp(chosen);
     db = firebase.firestore();
     auth = firebase.auth();
     storage = firebase.storage();
-    console.log('Firebase inicializado com config fixa');
+    console.log('Firebase iniciado:', chosen.projectId);
   } catch(e) {
     console.error('Firebase erro:', e.message);
-    const errDiv = document.createElement('div');
-    errDiv.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#FDECEA;border:1px solid #F1A9A3;border-radius:8px;padding:12px 20px;font-size:13px;color:#C0392B;font-weight:600;z-index:999;text-align:center;';
-    errDiv.textContent = '⚠️ Erro ao conectar: ' + e.message;
-    document.body.appendChild(errDiv);
+    // Só mostrar erro visual se não for erro de "app already exists"
+    if (!e.message.includes('already exists') && !e.message.includes('duplicate')) {
+      const errDiv = document.createElement('div');
+      errDiv.id = 'firebase-err-banner';
+      errDiv.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#FDECEA;border:1px solid #F1A9A3;border-radius:8px;padding:12px 20px;font-size:13px;color:#C0392B;font-weight:600;z-index:999;text-align:center;max-width:90%;';
+      errDiv.textContent = '⚠️ Erro ao conectar: ' + e.message;
+      document.body.appendChild(errDiv);
+      setTimeout(() => errDiv.remove(), 6000);
+    }
   }
 }
 initFirebase();
@@ -1961,16 +2004,39 @@ async function verificarDestino(resultDestino) {
 // ============================================================
 // HELPERS
 // ============================================================
-function showTopAlert(msg, type) {
-  const alert = document.getElementById('top-alert');
-  alert.textContent = msg;
-  alert.className = `info-bar ${type === 'error' ? 'danger-bar' : 'info-bar'}`;
-  alert.style.display = 'block';
-  setTimeout(() => alert.style.display = 'none', 5000);
+function showTopAlert(msg, type, detail) {
+  const el = document.getElementById('top-alert');
+  if (!el) return;
+  // type: 'ok' | 'error' | 'warning' | 'info'
+  const cfg = {
+    ok:      { bg:'#E8F7EE', border:'#1A8C4E', color:'#1A8C4E', icon:'✅' },
+    error:   { bg:'#FDECEA', border:'#C0392B', color:'#C0392B', icon:'❌' },
+    warning: { bg:'#FEF3E2', border:'#B7770D', color:'#B7770D', icon:'⚠️' },
+    info:    { bg:'#E8EEF8', border:'#1B3A6B', color:'#1B3A6B', icon:'ℹ️' },
+  };
+  const c = cfg[type] || cfg.info;
+  el.style.cssText = `display:block;background:${c.bg};border-bottom:3px solid ${c.border};color:${c.color};`;
+  el.innerHTML = `<div class="top-alert-inner">
+    <span class="top-alert-icon">${c.icon}</span>
+    <div class="top-alert-body">
+      <div class="top-alert-title">${msg}</div>
+      ${detail ? `<div class="top-alert-detail">${detail}</div>` : ''}
+    </div>
+    <button class="top-alert-close" onclick="hideTopAlert()">✕</button>
+  </div>`;
+  if (window._alertTimer) clearTimeout(window._alertTimer);
+  // Erros nunca somem automaticamente — usuário precisa fechar
+  // Avisos ficam 10s, sucessos ficam 5s
+  if (type !== 'error') {
+    const delay = type === 'warning' ? 10000 : 5000;
+    window._alertTimer = setTimeout(() => hideTopAlert(), delay);
+  }
 }
 
 function hideTopAlert() {
-  document.getElementById('top-alert').style.display = 'none';
+  const el = document.getElementById('top-alert');
+  if (el) el.style.display = 'none';
+  if (window._alertTimer) clearTimeout(window._alertTimer);
 }
 
 function mostrarEntradaManual(lado) {
@@ -2211,6 +2277,8 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
+  const suporteTabBtn = document.getElementById('tab-suporte-btn');
+  if (suporteTabBtn) suporteTabBtn.style.display = (role === 'admin' || role === 'developer') ? '' : 'none';
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -2302,7 +2370,7 @@ async function criarUsuario() {
     showTopAlert(`✅ Usuário ${email} criado com perfil ${perfil}!`, 'ok');
     loadUsuarios();
   } catch(e) {
-    alert('Erro: ' + e.message);
+    showTopAlert('❌ Erro', 'error', e.message);
   }
 }
 
@@ -2414,6 +2482,7 @@ function adminTab(tab) {
   if (tab==='perfis') loadPerfis();
   if (tab==='config-avancada') loadConfig();
   if (tab==='deploy') loadDeployPanel();
+  if (tab==='suporte') loadChamadosSuporte();
 }
 
 // ============================================================
@@ -3029,7 +3098,7 @@ async function encerrarProcessoManual(id, lacreNum) {
     await registrarLog('encerramento_manual', `Processo ${id} encerrado manualmente. Lacre: ${lacreNum}. Justificativa: ${justificativa.trim()}`);
     loadProcessos();
   } catch(e) {
-    alert('Erro: ' + e.message);
+    showTopAlert('❌ Erro', 'error', e.message);
   }
 }
 
@@ -3102,7 +3171,7 @@ async function salvarGeminiKey() {
   try {
     await db.collection('config').doc('gemini').set({ key });
     GEMINI_API_KEY = key;
-    showTopAlert('✅ API Key Gemini salva com sucesso!', 'ok');
+    showTopAlert('API Key salva', 'ok', 'Chave do Gemini atualizada no Firestore.');
   } catch(e) { alert('Erro ao salvar: ' + e.message); }
 }
 
@@ -3119,7 +3188,7 @@ async function salvarConfig() {
     }, { merge: true });
   }
   sessionTimeoutMs = parseInt(timeout) * 60 * 60 * 1000;
-  showTopAlert('✅ Configurações salvas e sincronizadas em todos os dispositivos!', 'ok');
+  showTopAlert('Configurações salvas', 'ok', 'Tempo de alerta e timeout de sessão atualizados em todos os dispositivos.');
 }
 
 async function salvarTimeoutConfig() {
@@ -3597,7 +3666,7 @@ loadGeminiKey(); // config read - still public
   // PWA build-hash check: forces full reload when a new version is deployed
   // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    const BUILD_HASH = 'v20260322-r17';
+    const BUILD_HASH = 'v20260322-r18';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -3939,41 +4008,7 @@ Se não conseguir ler algum campo, deixe null. Se não conseguir ler nada, respo
   }
 }
 
-async function capturarFotoNF(lado = 'origem') {
-  const video = document.getElementById(`video-nf-${lado}`);
-  const canvas = document.getElementById(`canvas-nf-${lado}`);
-  const preview = document.getElementById(`preview-nf-${lado}`);
-  const camArea = document.getElementById(`cam-nf-${lado}`);
-  if (!video || !canvas) return;
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } });
-    video.srcObject = stream;
-    video.play();
-    if (camArea) camArea.style.display = 'block';
-    video.style.display = 'block';
-    preview.style.display = 'none';
-    const captureBtn = document.getElementById(`btn-capturar-nf-${lado}`);
-    if (captureBtn) {
-      captureBtn.textContent = '📸 Capturar Foto';
-      captureBtn.onclick = () => {
-        const ctx = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        stateNF[lado].photoBase64 = canvas.toDataURL('image/jpeg', 0.8);
-        preview.src = stateNF.photoBase64;
-        preview.style.display = 'block';
-        video.style.display = 'none';
-        stream.getTracks().forEach(t => t.stop());
-        captureBtn.textContent = '📷 Nova Foto da NF';
-        captureBtn.onclick = () => capturarFotoNF(lado);
-        analisarNF(lado);
-      };
-    }
-  } catch (err) {
-    alert('Não foi possível acessar a câmera. Verifique as permissões.');
-  }
-}
+// capturarFotoNF definida mais abaixo com detecção automática
 
 // ============================================================
 // FORNECEDORES — CRUD
@@ -4070,7 +4105,7 @@ async function limparProcessosTeste() {
     showTopAlert(`✅ ${snap.size} processos de teste removidos`, 'ok');
     await registrarLog('limpar_testes', `${snap.size} processos de teste removidos`);
     loadProcessos();
-  } catch(e) { alert('Erro: ' + e.message); }
+  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
 }
 
 
@@ -4098,7 +4133,7 @@ function loadDeployPanel() {
   const envInfo = document.getElementById('deploy-env-info');
   const isProd = isProduction();
   const isStagingCfg = isStagingConfigured();
-  const buildHash = 'v20260322-r16';
+  const buildHash = 'v20260322-r18';
   if (envInfo) {
     envInfo.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px;">
@@ -4143,7 +4178,7 @@ function salvarStagingConfig() {
     catch(e2) { alert('JSON inválido: ' + e2.message + '\n\nDica: Cole o JSON com aspas nas chaves, ex:\n{"apiKey": "...", "projectId": "..."}'); return; }
   }
   setCfg('firebase_staging_config', raw);
-  showTopAlert('✅ Config staging salva! Recarregue a página para conectar ao banco de staging.', 'ok');
+  showTopAlert('Config Staging salva', 'ok', 'Recarregue a página para conectar ao banco de staging.');
 }
 
 function limparStagingConfig() {
@@ -4378,7 +4413,7 @@ function atualizarChecklist(mostrarResultado = false) {
 // ── CHANGELOG ────────────────────────────────────────────
 const CHANGELOG = [
   {
-    version: 'v20260322-r16',
+    version: 'v20260322-r18',
     data: '22/03/2026',
     novidades: [
       'Perfil Developer com aba de Deploy',
@@ -4488,7 +4523,7 @@ async function salvarEdicaoPlaca() {
     document.getElementById('edit-placa-modal').style.display = 'none';
     showTopAlert(`✅ Placa ${placa} atualizada`, 'ok');
     loadPlacas();
-  } catch(e) { alert('Erro: ' + e.message); }
+  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
 }
 
 // ── GESTÃO DE PERFIS CUSTOMIZADOS ────────────────────────
@@ -4512,7 +4547,7 @@ async function criarNovoPerfil() {
     showTopAlert(`✅ Perfil "${nome}" criado!`, 'ok');
     await registrarLog('criar_perfil', `Perfil: ${id} = ${nome}`);
     loadPerfis();
-  } catch(e) { alert('Erro: ' + e.message); }
+  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
 }
 
 async function removerPerfilCustomizado(id, nome) {
@@ -4523,7 +4558,1245 @@ async function removerPerfilCustomizado(id, nome) {
     _cachedPerms = null;
     showTopAlert(`🚫 Perfil "${nome}" removido`, 'warning');
     loadPerfis();
-  } catch(e) { alert('Erro: ' + e.message); }
+  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
+}
+
+
+
+// ══════════════════════════════════════════════════════════════
+// VALIDAÇÃO INLINE DE PLACA
+// ══════════════════════════════════════════════════════════════
+async function validarPlacaInline(lado) {
+  const input  = document.getElementById(`placa-${lado}`);
+  const status = document.getElementById(`placa-${lado}-status`);
+  if (!input || !status) return;
+  const placa = input.value.trim().toUpperCase();
+  const reA = /^[A-Z]{3}-?\d{4}$/;
+  const reM = /^[A-Z]{3}\d[A-Z]\d{2}$/;
+  if (!placa) { status.style.display = 'none'; return; }
+  if (!reA.test(placa) && !reM.test(placa)) {
+    status.style.cssText = 'display:block;color:var(--danger);font-weight:600;';
+    status.textContent = '⚠️ Formato inválido (ex: ABC-1234 ou ABC1D23)'; return;
+  }
+  if (!db) return;
+  status.style.cssText = 'display:block;color:var(--text2);';
+  status.textContent = '⏳ Verificando...';
+  try {
+    const placaLimpa = placa.replace(/[^A-Z0-9]/g, '');
+    const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
+    if (doc.exists && !doc.data().inativa) {
+      const desc = doc.data().descricao ? ` — ${doc.data().descricao}` : '';
+      status.style.cssText = 'display:block;color:var(--success);font-weight:600;';
+      status.textContent = `✅ Placa autorizada${desc}`;
+    } else {
+      status.style.cssText = 'display:block;color:var(--danger);font-weight:600;';
+      status.textContent = '❌ Placa não autorizada — contate o administrador';
+    }
+  } catch(e) {
+    status.style.cssText = 'display:block;color:var(--text2);';
+    status.textContent = 'Não foi possível verificar agora';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CÂMERA DA NF — COM DETECÇÃO AUTOMÁTICA
+// ══════════════════════════════════════════════════════════════
+let _nfStream = null;
+let _nfCaptured = false;
+
+async function capturarFotoNF(lado = 'origem') {
+  const video     = document.getElementById(`video-nf-${lado}`);
+  const canvas    = document.getElementById(`canvas-nf-${lado}`);
+  const preview   = document.getElementById(`preview-nf-${lado}`);
+  const camArea   = document.getElementById(`cam-nf-${lado}`);
+  const indicator = document.getElementById('nf-doc-indicator');
+  const captBtn   = document.getElementById(`btn-capturar-nf-${lado}`);
+  if (!video || !canvas || !camArea) return;
+  preview.style.display = 'none'; preview.src = '';
+  stateNF[lado].photoBase64 = null; _nfCaptured = false;
+  try {
+    if (_nfStream) { _nfStream.getTracks().forEach(t => t.stop()); _nfStream = null; }
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
+    _nfStream = stream; video.srcObject = stream; video.style.display = 'block'; camArea.style.display = 'block';
+    if (captBtn) { captBtn.textContent = '📸 Capturar Agora'; captBtn.onclick = () => _tirarFotoNF(lado); }
+    if (indicator) { indicator.style.display = 'block'; indicator.textContent = '📄 APONTE PARA A NF/DANFE'; indicator.style.background = 'rgba(0,0,0,.45)'; }
+    await video.play();
+    _detectarDocumentoNF(lado);
+  } catch(err) { alert('Não foi possível acessar a câmera. Verifique as permissões.'); console.error(err); }
+}
+
+function _detectarDocumentoNF(lado) {
+  const video     = document.getElementById(`video-nf-${lado}`);
+  const canvas    = document.getElementById(`canvas-nf-${lado}`);
+  const indicator = document.getElementById('nf-doc-indicator');
+  if (!video || !canvas || _nfCaptured) return;
+  const ctx = canvas.getContext('2d'); let docFrames = 0;
+  const tick = () => {
+    if (_nfCaptured || !_nfStream) return;
+    if (video.readyState >= 2) {
+      canvas.width = video.videoWidth || 640; canvas.height = video.videoHeight || 480;
+      ctx.drawImage(video, 0, 0);
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height); const data = imgData.data;
+        const cx = Math.floor(canvas.width*.2), cy = Math.floor(canvas.height*.2);
+        const cw = Math.floor(canvas.width*.6), ch = Math.floor(canvas.height*.6);
+        let brightSum = 0, brightCount = 0, darkPixels = 0;
+        for (let y = cy; y < cy+ch; y+=4) for (let x = cx; x < cx+cw; x+=4) {
+          const i = (y*canvas.width+x)*4;
+          const lum = data[i]*.299+data[i+1]*.587+data[i+2]*.114;
+          brightSum+=lum; brightCount++; if(lum<80) darkPixels++;
+        }
+        const avg = brightCount>0 ? brightSum/brightCount : 0;
+        const dark = brightCount>0 ? darkPixels/brightCount : 0;
+        if (avg>160 && dark>0.03 && dark<0.55) {
+          docFrames++;
+          if (indicator) { indicator.style.background='rgba(26,140,78,.75)'; indicator.textContent=`✅ DOCUMENTO DETECTADO — MANTENDO FIRME... (${docFrames}/8)`; }
+          if (docFrames>=8) { _tirarFotoNF(lado); return; }
+        } else {
+          docFrames=0;
+          if (indicator) { indicator.style.background='rgba(0,0,0,.45)'; indicator.textContent=avg<80?'🌑 MUITO ESCURO — ILUMINE A NF':avg>230?'☀️ MUITO CLARO — REDUZA O BRILHO':'📄 APONTE PARA A NF/DANFE'; }
+        }
+      } catch(e) {}
+    }
+    setTimeout(()=>requestAnimationFrame(tick), 120);
+  };
+  requestAnimationFrame(tick);
+}
+
+function _tirarFotoNF(lado) {
+  if (_nfCaptured) return; _nfCaptured = true;
+  const video=document.getElementById(`video-nf-${lado}`), canvas=document.getElementById(`canvas-nf-${lado}`);
+  const preview=document.getElementById(`preview-nf-${lado}`), captBtn=document.getElementById(`btn-capturar-nf-${lado}`);
+  const indicator=document.getElementById('nf-doc-indicator');
+  if(!video||!canvas) return;
+  const ctx=canvas.getContext('2d'); canvas.width=video.videoWidth||640; canvas.height=video.videoHeight||480; ctx.drawImage(video,0,0);
+  stateNF[lado].photoBase64=canvas.toDataURL('image/jpeg',0.9);
+  preview.src=stateNF[lado].photoBase64; preview.style.display='block'; video.style.display='none';
+  if(indicator) indicator.style.display='none';
+  if(_nfStream){_nfStream.getTracks().forEach(t=>t.stop());_nfStream=null;}
+  if(captBtn){captBtn.textContent='🔄 Nova Foto da NF';captBtn.onclick=()=>{_nfCaptured=false;capturarFotoNF(lado);};}
+  analisarNF(lado);
+}
+
+// ══════════════════════════════════════════════════════════════
+// FORNECEDORES — DROPDOWN / DATALIST
+// ══════════════════════════════════════════════════════════════
+let _fornecedoresCache = null;
+
+async function carregarFornecedoresDropdown() {
+  if (!db) return [];
+  if (_fornecedoresCache) return _fornecedoresCache;
+  try {
+    const snap = await db.collection('fornecedores').orderBy('nome').get();
+    _fornecedoresCache = snap.docs.filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
+    _fornecedoresCache.sort((a,b)=>a.nome.localeCompare(b.nome));
+  } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); _fornecedoresCache = []; }
+  return _fornecedoresCache;
+}
+
+async function popularFornecedoresDatalist() {
+  const lista = await carregarFornecedoresDropdown();
+  const dl = document.getElementById('fornecedores-datalist');
+  if (dl) dl.innerHTML = lista.map(f=>`<option value="${f.nome}">${f.nome}${f.cnpj?' — CNPJ: '+formatarCNPJ(f.cnpj):''}</option>`).join('');
+}
+
+function verificarFornecedorSelecionado(lado, valor) {
+  if (!valor || !_fornecedoresCache) return;
+  const match = _fornecedoresCache.find(f=>f.nome.toLowerCase()===valor.toLowerCase());
+  const badge = document.getElementById(`forn-badge-${lado}`);
+  if (badge) badge.style.display = match ? 'inline' : 'none';
+  if (match && stateNF && stateNF[lado]) stateNF[lado].cnpjEmissor = match.cnpj;
+}
+
+// ══════════════════════════════════════════════════════════════
+// FORNECEDORES — CRUD COMPLETO
+// ══════════════════════════════════════════════════════════════
+async function loadFornecedores() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('fornecedores').orderBy('nome').get();
+    _todosFornecedores = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filtroFornStatus(_filtroForn||'ativos');
+  } catch(e) { console.warn('Erro ao carregar fornecedores:', e.message); }
+}
+
+async function adicionarFornecedor() {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  const cnpjRaw = document.getElementById('novo-forn-cnpj').value.replace(/\D/g,'');
+  const nome = document.getElementById('novo-forn-nome').value.trim().toUpperCase();
+  if (!nome) { alert('Informe o nome do fornecedor.'); return; }
+  if (!cnpjRaw) { alert('Informe o CNPJ do fornecedor.'); return; }
+  if (cnpjRaw.length !== 14) { alert(`CNPJ incompleto: ${cnpjRaw.length} dígitos (esperado 14).`); return; }
+  if (!validarCNPJ(cnpjRaw)) { if (!confirm(`O CNPJ ${formatarCNPJ(cnpjRaw)} parece inválido.
+Deseja cadastrar mesmo assim?`)) return; }
+  const btn = document.querySelector('[onclick="adicionarFornecedor()"]');
+  if (btn) { btn.disabled=true; btn.textContent='Salvando...'; }
+  try {
+    const existing = await db.collection('fornecedores').doc(cnpjRaw).get();
+    if (existing.exists) {
+      if (existing.data().inativo) {
+        if (!confirm(`CNPJ já cadastrado mas inativo como "${existing.data().nome}".
+Reativar com o nome "${nome}"?`)) { if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} return; }
+        await db.collection('fornecedores').doc(cnpjRaw).update({nome,inativo:false,inativadoEm:null,inativadoPor:null,inativadoPorNome:null});
+        showTopAlert(`✅ Fornecedor "${nome}" reativado`,'ok'); loadFornecedores(); _fornecedoresCache=null;
+        if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} return;
+      }
+      if (!confirm(`CNPJ já cadastrado como "${existing.data().nome}".
+Atualizar para "${nome}"?`)) { if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} return; }
+    }
+    await db.collection('fornecedores').doc(cnpjRaw).set({cnpj:cnpjRaw,nome,cadastradoEm:firebase.firestore.FieldValue.serverTimestamp(),cadastradoPor:currentOperador?.nome||auth?.currentUser?.email||'Admin'});
+    document.getElementById('novo-forn-cnpj').value=''; document.getElementById('novo-forn-nome').value='';
+    showTopAlert(`✅ Fornecedor "${nome}" cadastrado!`,'ok'); loadFornecedores(); _fornecedoresCache=null;
+    try{await registrarLog('cadastro_fornecedor',`CNPJ ${formatarCNPJ(cnpjRaw)} — ${nome}`);}catch(_){}
+  } catch(e) { showTopAlert('❌ Erro ao salvar', 'error', e.message); }
+  finally { if(btn){btn.disabled=false;btn.textContent='+ Cadastrar';} }
+}
+
+async function inativarFornecedor(cnpj) {
+  if (!confirm(`Inativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?
+Poderá ser reativado quando necessário.`)) return;
+  const op = currentOperador||{nome:auth?.currentUser?.email||'Admin',email:auth?.currentUser?.email||''};
+  await db.collection('fornecedores').doc(cnpj).update({inativo:true,inativadoEm:firebase.firestore.FieldValue.serverTimestamp(),inativadoPor:op.email,inativadoPorNome:op.nome});
+  await registrarLog('inativar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} inativado por ${op.nome}`);
+  showTopAlert('🚫 Fornecedor inativado','warning'); loadFornecedores(); _fornecedoresCache=null;
+}
+
+async function reativarFornecedor(cnpj) {
+  if (!confirm(`Reativar fornecedor CNPJ ${formatarCNPJ(cnpj)}?`)) return;
+  const op = currentOperador||{nome:auth?.currentUser?.email||'Admin',email:auth?.currentUser?.email||''};
+  await db.collection('fornecedores').doc(cnpj).update({inativo:false,inativadoEm:null,inativadoPor:null,inativadoPorNome:null});
+  await registrarLog('reativar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} reativado por ${op.nome}`);
+  showTopAlert('✅ Fornecedor reativado','ok'); loadFornecedores(); _fornecedoresCache=null;
+}
+
+function editarFornecedor(cnpj, nomeAtual) {
+  let m = document.getElementById('edit-forn-modal');
+  if (!m) { m = document.createElement('div'); m.id='edit-forn-modal'; document.body.appendChild(m); }
+  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML = `<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:16px;">✏️ EDITAR FORNECEDOR</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">CNPJ: <strong>${formatarCNPJ(cnpj)}</strong></div>
+    <input type="hidden" id="edit-forn-cnpj" value="${cnpj}">
+    <div class="input-group"><label>Nome</label><input type="text" id="edit-forn-nome" value="${nomeAtual}" style="font-size:15px;letter-spacing:0;text-transform:uppercase;"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" onclick="salvarEdicaoFornecedor()" style="flex:1;">💾 Salvar</button>
+      <button class="btn btn-outline" onclick="document.getElementById('edit-forn-modal').style.display='none'" style="flex:1;">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+async function salvarEdicaoFornecedor() {
+  const cnpj = document.getElementById('edit-forn-cnpj').value;
+  const nome = document.getElementById('edit-forn-nome').value.trim().toUpperCase();
+  if (!nome) { alert('Informe o nome.'); return; }
+  try {
+    await db.collection('fornecedores').doc(cnpj).update({nome});
+    await registrarLog('editar_fornecedor',`CNPJ ${formatarCNPJ(cnpj)} → nome: ${nome}`);
+    document.getElementById('edit-forn-modal').style.display='none';
+    showTopAlert('✅ Fornecedor atualizado','ok'); loadFornecedores(); _fornecedoresCache=null;
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// USUÁRIOS — EDITAR E RESETAR SENHA
+// ══════════════════════════════════════════════════════════════
+function abrirEdicaoUsuario(uid, nome, empresa, perfil) {
+  let m = document.getElementById('edit-user-modal');
+  if (!m) { m = document.createElement('div'); m.id='edit-user-modal'; document.body.appendChild(m); }
+  m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;';
+  m.innerHTML = `<div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--gerdau-blue);letter-spacing:2px;margin-bottom:20px;">✏️ EDITAR USUÁRIO</div>
+    <input type="hidden" id="edit-uid" value="${uid}">
+    <div class="input-group"><label>Nome</label><input type="text" id="edit-nome" value="${nome.replace(/"/g,'&quot;')}" style="font-size:15px;letter-spacing:0;text-transform:none;"></div>
+    <div class="input-group"><label>Empresa</label><input type="text" id="edit-empresa" value="${empresa.replace(/"/g,'&quot;')}" style="font-size:15px;letter-spacing:0;text-transform:none;"></div>
+    <div class="input-group"><label>Perfil</label>
+      <select id="edit-perfil" style="font-size:15px;letter-spacing:0;text-transform:none;">
+        <option value="operacional" ${perfil==='operacional'?'selected':''}>Operacional</option>
+        <option value="operador" ${perfil==='operador'?'selected':''}>Operador</option>
+        <option value="admin" ${perfil==='admin'?'selected':''}>Admin</option>
+        <option value="developer" ${perfil==='developer'?'selected':''}>Developer</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" onclick="salvarEdicaoUsuario()" style="flex:1;">💾 Salvar</button>
+      <button class="btn btn-outline" onclick="document.getElementById('edit-user-modal').style.display='none'" style="flex:1;">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+async function salvarEdicaoUsuario() {
+  const uid = document.getElementById('edit-uid').value;
+  const nome = document.getElementById('edit-nome').value.trim();
+  const empresa = document.getElementById('edit-empresa').value.trim();
+  const perfil = document.getElementById('edit-perfil').value;
+  if (!nome) { alert('Informe o nome.'); return; }
+  try {
+    await db.collection('usuarios').doc(uid).update({nome,empresa,perfil});
+    await registrarLog('editar_usuario',`Usuário ${uid}: nome=${nome}, perfil=${perfil}`);
+    document.getElementById('edit-user-modal').style.display='none';
+    showTopAlert('✅ Usuário atualizado','ok'); loadUsuarios();
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+async function resetarSenhaUsuario(email) {
+  if (!confirm(`Enviar link de recuperação de senha para ${email}?`)) return;
+  if (!auth) { alert('Firebase não configurado.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showTopAlert(`✅ Link enviado para ${email}`,'ok');
+    await registrarLog('reset_senha',`Link de recuperação enviado para ${email}`);
+  } catch(e) { alert('Erro: '+e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOGS — CARREGAR E FILTRAR
+// ══════════════════════════════════════════════════════════════
+let _todosLogs = [];
+
+async function loadLogs() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('logs').orderBy('timestamp','desc').limit(200).get();
+    _todosLogs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    filtrarLogs();
+  } catch(e) { console.warn('Logs error:',e.message); }
+}
+
+function filtrarLogs() {
+  const filtro = document.getElementById('logs-filtro-acao')?.value||'';
+  const lista = filtro ? _todosLogs.filter(l=>l.acao===filtro) : _todosLogs;
+  const tbody = document.getElementById('logs-tbody');
+  if (!lista.length) { tbody.innerHTML='<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:20px;">Nenhum log encontrado</td></tr>'; return; }
+  const LABELS = { cadastro_lacres:'Cadastro lacres',inativar_lacre:'Inativar lacre',reativar_lacre:'Reativar lacre',cadastro_placa:'Cadastro placa',inativar_placa:'Inativar placa',reativar_placa:'Reativar placa',cadastro_fornecedor:'Cadastro fornecedor',inativar_fornecedor:'Inativar fornecedor',reativar_fornecedor:'Reativar fornecedor',inativar_usuario:'Inativar usuário',reativar_usuario:'Reativar usuário',editar_usuario:'Editar usuário',reset_senha:'Reset senha',login:'Login',encerramento_manual:'Encerramento manual',confirmacao_processo:'Confirmação processo',limpar_testes:'Limpar testes' };
+  tbody.innerHTML = lista.map(l=>{
+    const ts = l.timestamp?.toDate?.()?.toLocaleString('pt-BR')||'—';
+    const label = LABELS[l.acao]||l.acao||'—';
+    const isAlert = l.acao?.includes('inativar')||l.acao?.includes('remoc');
+    const isOk = l.acao?.includes('reativar')||l.acao?.includes('cadastro')||l.acao==='login';
+    const bs = isAlert?'background:var(--danger);color:#fff;':isOk?'background:var(--success);color:#fff;':'background:var(--gerdau-blue);color:#fff;';
+    return `<tr><td style="white-space:nowrap;color:var(--text2)">${ts}</td><td><span class="badge" style="${bs}">${label}</span></td><td style="color:var(--text)">${l.detalhe||'—'}</td><td style="color:var(--text2)">${l.usuario||'—'}</td></tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// RECUPERAÇÃO DE SENHA (tela de login)
+// ══════════════════════════════════════════════════════════════
+async function enviarRecuperacaoSenha(evt) {
+  if (evt) evt.preventDefault();
+  const emailInput = document.getElementById('op-email');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const dest = email || prompt('Digite seu e-mail para receber o link de recuperação:');
+  if (!dest) return;
+  if (!auth) { alert('Firebase não configurado.'); return; }
+  try {
+    await auth.sendPasswordResetEmail(dest);
+    alert(`✅ Link de recuperação enviado para ${dest}
+
+Verifique sua caixa de entrada (e a pasta de spam).`);
+  } catch(e) {
+    const msg = e.code==='auth/user-not-found'?'E-mail não encontrado no sistema.':e.code==='auth/invalid-email'?'E-mail inválido.':e.message;
+    alert('❌ Erro: '+msg);
+  }
+}
+
+</script>
+
+<!-- ── BOTÃO FLUTUANTE DE SUPORTE ───────────────── -->
+<button class="support-fab" id="btn-suporte" onclick="abrirSuporte()">🎧 Suporte</button>
+
+<!-- ── MODAL DE SUPORTE ─────────────────────────── -->
+<div class="support-overlay" id="support-overlay">
+  <div class="support-modal">
+    <div class="support-header">
+      <h2>🎧 Abrir Chamado de Suporte</h2>
+      <button onclick="fecharSuporte()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">✕ Fechar</button>
+    </div>
+    <!-- FORM -->
+    <div class="support-body" id="support-form-area">
+      <div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-left:3px solid var(--warning);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--warning);margin-bottom:16px;">
+        ⚠️ <strong>Todos os campos são obrigatórios.</strong> A resposta será enviada ao e-mail utilizado para login.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="input-group">
+          <label>Nome completo <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="sup-nome" placeholder="SEU NOME" style="font-size:14px;letter-spacing:0;text-transform:none;">
+        </div>
+        <div class="input-group">
+          <label>Telefone / WhatsApp <span style="color:var(--danger)">*</span></label>
+          <input type="tel" id="sup-telefone" placeholder="(00) 00000-0000" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="this.value=mascaraTelefone(this.value)">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>E-mail de login no sistema <span style="color:var(--danger)">*</span>
+          <span style="font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0;text-transform:none;"> — a resposta será enviada aqui</span>
+        </label>
+        <input type="email" id="sup-email" placeholder="seu@email.com" style="font-size:14px;letter-spacing:0;text-transform:none;">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="input-group">
+          <label>Seu perfil no sistema <span style="color:var(--danger)">*</span></label>
+          <select id="sup-perfil" style="font-size:14px;letter-spacing:0;text-transform:none;">
+            <option value="">Selecione...</option>
+            <option value="operacional">Operacional</option>
+            <option value="operador">Operador</option>
+            <option value="admin">Administrador</option>
+            <option value="developer">Developer</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Tipo de problema <span style="color:var(--danger)">*</span></label>
+          <select id="sup-tipo" style="font-size:14px;letter-spacing:0;text-transform:none;">
+            <option value="">Selecione...</option>
+            <option value="bug">🐛 Bug / Erro no sistema</option>
+            <option value="duvida">❓ Dúvida de uso</option>
+            <option value="acesso">🔑 Acesso / Senha</option>
+            <option value="melhoria">💡 Sugestão de melhoria</option>
+            <option value="outro">📌 Outro</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="input-group">
+          <label>Prioridade <span style="color:var(--danger)">*</span></label>
+          <select id="sup-prioridade" style="font-size:14px;letter-spacing:0;text-transform:none;">
+            <option value="">Selecione...</option>
+            <option value="baixa">🟢 Baixa — não impede o trabalho</option>
+            <option value="media">🟡 Média — impacta mas tem alternativa</option>
+            <option value="alta">🔴 Alta — impede parte do trabalho</option>
+            <option value="urgente">🚨 Urgente — sistema parado</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Assunto <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="sup-assunto" placeholder="Resumo em poucas palavras" style="font-size:14px;letter-spacing:0;text-transform:none;">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Descrição detalhada do problema <span style="color:var(--danger)">*</span></label>
+        <textarea id="sup-descricao" rows="4" placeholder="Descreva o que aconteceu, o que esperava que acontecesse e os passos para reproduzir o problema..." style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:12px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;min-height:100px;"></textarea>
+      </div>
+      <div class="input-group" style="margin-bottom:0;">
+        <label>Anexo (opcional) — Print, foto ou arquivo</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          <label style="flex:1;min-width:120px;background:var(--surface2);border:1.5px dashed var(--border-strong);border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:12px;color:var(--text2);font-weight:600;letter-spacing:1px;text-transform:uppercase;" for="sup-anexo">📎 Upload de arquivo</label>
+          <input type="file" id="sup-anexo" accept="image/*,.pdf,.txt,.csv" style="display:none;" onchange="previewAnexoSuporte(this)">
+          <button type="button" class="btn btn-outline btn-sm" onclick="tirarFotoSuporte()" style="flex:1;min-width:120px;">📷 Tirar Foto</button>
+        </div>
+        <div id="sup-anexo-preview" style="margin-top:8px;display:none;">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;">
+            <span id="sup-anexo-nome" style="flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+            <button onclick="removerAnexoSuporte()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:0;">✕</button>
+          </div>
+          <img id="sup-anexo-img" src="" alt="" style="max-width:100%;max-height:200px;border-radius:8px;margin-top:6px;display:none;">
+        </div>
+      </div>
+      <div id="sup-err" style="display:none;margin-top:12px;"></div>
+      <div style="margin-top:18px;display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="enviarSuporte()" id="btn-enviar-suporte" style="flex:2;">📨 Enviar Chamado</button>
+        <button class="btn btn-outline" onclick="fecharSuporte()" style="flex:1;">Cancelar</button>
+      </div>
+    </div>
+    <!-- SUCESSO -->
+    <div class="support-success" id="support-success-area">
+      <div class="support-success-icon">✅</div>
+      <div class="support-success-title">Chamado enviado!</div>
+      <div class="support-success-msg">
+        Seu chamado foi registrado com sucesso.<br>
+        Retornaremos em breve no e-mail informado.<br><br>
+        <strong>Número do chamado:</strong> <span id="sup-numero-chamado" style="font-family:monospace;color:var(--gerdau-blue);"></span>
+      </div>
+      <button class="btn btn-primary" onclick="fecharSuporte()" style="width:auto;padding:12px 32px;margin-top:20px;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CÂMERA PARA SUPORTE -->
+<div id="sup-cam-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;flex-direction:column;align-items:center;justify-content:center;">
+  <video id="sup-cam-video" autoplay playsinline style="max-width:100%;max-height:70vh;border-radius:12px;"></video>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button onclick="capturarFotoSuporte()" style="background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50px;padding:14px 28px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">📸 Capturar</button>
+    <button onclick="fecharCameraSuporte()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:50px;padding:14px 28px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;cursor:pointer;">Cancelar</button>
+  </div>
+</div>
+
+</body>
+</html
+
+// ══════════════════════════════════════════════════════════════
+// SUPORTE — LÓGICA COMPLETA
+// ══════════════════════════════════════════════════════════════
+let _supAnexoBase64 = null;
+let _supAnexoNome   = null;
+let _supCamStream   = null;
+
+async function abrirSuporte() {
+  const overlay = document.getElementById('support-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+  // Pré-preencher e-mail e nome do operador logado
+  if (currentOperador) {
+    const emailField = document.getElementById('sup-email');
+    const nomeField  = document.getElementById('sup-nome');
+    if (emailField && !emailField.value) emailField.value = currentOperador.email || '';
+    if (nomeField  && !nomeField.value)  nomeField.value  = currentOperador.nome  || '';
+    // Pré-selecionar perfil
+    const perfilField = document.getElementById('sup-perfil');
+    if (perfilField && currentOperador.perfil) perfilField.value = currentOperador.perfil;
+  }
+  // Carregar perfis customizados no select
+  await _popularPerfisSuporte();
+}
+
+async function _popularPerfisSuporte() {
+  const select = document.getElementById('sup-perfil');
+  if (!select || !db) return;
+  try {
+    const doc = await db.collection('config').doc('perfis-customizados').get();
+    const custom = doc.exists ? doc.data() : {};
+    // Remove old custom options first
+    Array.from(select.options).forEach(o => { if (o.dataset.custom) o.remove(); });
+    Object.entries(custom).forEach(([id, nome]) => {
+      const opt = document.createElement('option');
+      opt.value = id; opt.textContent = nome; opt.dataset.custom = '1';
+      select.appendChild(opt);
+    });
+    if (currentOperador?.perfil) select.value = currentOperador.perfil;
+  } catch(e) { /* fail silently */ }
+}
+
+function fecharSuporte() {
+  const overlay = document.getElementById('support-overlay');
+  if (overlay) overlay.classList.remove('show');
+  // Reset form
+  ['sup-nome','sup-telefone','sup-email','sup-assunto','sup-descricao'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['sup-perfil','sup-tipo','sup-prioridade'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  removerAnexoSuporte();
+  document.getElementById('sup-err').style.display = 'none';
+  document.getElementById('support-form-area').style.display = 'block';
+  document.getElementById('support-success-area').style.display = 'none';
+  fecharCameraSuporte();
+}
+
+function mascaraTelefone(v) {
+  v = v.replace(/\D/g,'').slice(0,11);
+  if (v.length <= 2)  return `(${v}`;
+  if (v.length <= 6)  return `(${v.slice(0,2)}) ${v.slice(2)}`;
+  if (v.length <= 10) return `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+  return `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+}
+
+function previewAnexoSuporte(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { alert('Arquivo muito grande. Máximo 10MB.'); input.value=''; return; }
+  _supAnexoNome = file.name;
+  document.getElementById('sup-anexo-nome').textContent = file.name;
+  document.getElementById('sup-anexo-preview').style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _supAnexoBase64 = e.target.result;
+    const img = document.getElementById('sup-anexo-img');
+    if (file.type.startsWith('image/')) { img.src = e.target.result; img.style.display = 'block'; }
+    else img.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerAnexoSuporte() {
+  _supAnexoBase64 = null; _supAnexoNome = null;
+  const input = document.getElementById('sup-anexo'); if (input) input.value = '';
+  document.getElementById('sup-anexo-preview').style.display = 'none';
+  document.getElementById('sup-anexo-img').style.display = 'none';
+  document.getElementById('sup-anexo-img').src = '';
+}
+
+async function tirarFotoSuporte() {
+  const overlay = document.getElementById('sup-cam-overlay');
+  const video   = document.getElementById('sup-cam-video');
+  if (!overlay || !video) return;
+  try {
+    _supCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    video.srcObject = _supCamStream;
+    overlay.style.display = 'flex';
+    await video.play();
+  } catch(e) { alert('Não foi possível acessar a câmera: ' + e.message); }
+}
+
+function capturarFotoSuporte() {
+  const video  = document.getElementById('sup-cam-video');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  _supAnexoBase64 = dataUrl;
+  _supAnexoNome = `foto_suporte_${Date.now()}.jpg`;
+  document.getElementById('sup-anexo-nome').textContent = _supAnexoNome;
+  document.getElementById('sup-anexo-preview').style.display = 'block';
+  const img = document.getElementById('sup-anexo-img');
+  img.src = dataUrl; img.style.display = 'block';
+  fecharCameraSuporte();
+}
+
+function fecharCameraSuporte() {
+  const overlay = document.getElementById('sup-cam-overlay');
+  if (overlay) overlay.style.display = 'none';
+  if (_supCamStream) { _supCamStream.getTracks().forEach(t=>t.stop()); _supCamStream = null; }
+}
+
+async function enviarSuporte() {
+  const campos = [
+    { id:'sup-nome',       label:'Nome completo' },
+    { id:'sup-telefone',   label:'Telefone' },
+    { id:'sup-email',      label:'E-mail de login' },
+    { id:'sup-perfil',     label:'Perfil no sistema' },
+    { id:'sup-tipo',       label:'Tipo de problema' },
+    { id:'sup-prioridade', label:'Prioridade' },
+    { id:'sup-assunto',    label:'Assunto' },
+    { id:'sup-descricao',  label:'Descrição' },
+  ];
+
+  const errEl = document.getElementById('sup-err');
+  errEl.style.display = 'none';
+
+  const vazios = campos.filter(c => !document.getElementById(c.id)?.value?.trim());
+  if (vazios.length > 0) {
+    errEl.style.cssText = 'display:block;background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--danger);font-weight:600;';
+    errEl.textContent = `❌ Preencha os campos obrigatórios: ${vazios.map(c=>c.label).join(', ')}`;
+    return;
+  }
+
+  const btn = document.getElementById('btn-enviar-suporte');
+  btn.disabled = true; btn.textContent = '⏳ Enviando...';
+
+  const dados = {
+    nome:       document.getElementById('sup-nome').value.trim(),
+    telefone:   document.getElementById('sup-telefone').value.trim(),
+    email:      document.getElementById('sup-email').value.trim(),
+    perfil:     document.getElementById('sup-perfil').value,
+    tipo:       document.getElementById('sup-tipo').value,
+    prioridade: document.getElementById('sup-prioridade').value,
+    assunto:    document.getElementById('sup-assunto').value.trim(),
+    descricao:  document.getElementById('sup-descricao').value.trim(),
+    anexoNome:  _supAnexoNome || null,
+    // Não salvamos o base64 no Firestore (muito pesado) — só salva no Storage se disponível
+    criadoEm:   firebase.firestore.FieldValue.serverTimestamp(),
+    status:     'aberto',
+    userAgent:  navigator.userAgent.substring(0, 120),
+    url:        window.location.href,
+  };
+
+  try {
+    // Gerar número do chamado
+    const ano = new Date().getFullYear();
+    const num = Date.now().toString().slice(-6);
+    const numeroChamado = `SUP-${ano}-${num}`;
+    dados.numeroChamado = numeroChamado;
+
+    // Salvar no Firestore
+    if (db) {
+      await db.collection('chamados-suporte').doc(numeroChamado).set(dados);
+
+      // Se tem anexo e storage disponível, salvar
+      if (_supAnexoBase64 && storage) {
+        try {
+          const resp = await fetch(_supAnexoBase64);
+          const blob = await resp.blob();
+          await storage.ref(`suporte/${numeroChamado}/${_supAnexoNome}`).put(blob);
+        } catch(eS) { console.warn('Erro ao salvar anexo:', eS.message); }
+      }
+    }
+
+    // Enviar e-mail de notificação (para admin e para o usuário)
+    const svc = getCfg('ejs_svc',''); const tpl = getCfg('ejs_tpl','');
+    if (svc && tpl) {
+      const PRIORIDADE_LABEL = { baixa:'🟢 Baixa', media:'🟡 Média', alta:'🔴 Alta', urgente:'🚨 Urgente' };
+      const TIPO_LABEL = { bug:'🐛 Bug / Erro', duvida:'❓ Dúvida', acesso:'🔑 Acesso / Senha', melhoria:'💡 Melhoria', outro:'📌 Outro' };
+      const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+        <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+          <div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">GERDAU — VERIFICA LACRE</div>
+          <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🎧 NOVO CHAMADO DE SUPORTE</div>
+        </td></tr>
+        <tr><td style="background:#fff;padding:24px;">
+          <div style="background:#F0F4F9;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:11px;color:#5A6A85;letter-spacing:1px;margin-bottom:4px;">NÚMERO DO CHAMADO</div>
+            <div style="font-size:22px;font-weight:700;font-family:monospace;color:#1B3A6B;">${numeroChamado}</div>
+          </div>
+          <table width="100%" style="border-collapse:collapse;">
+            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:35%;">👤 Nome</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.nome}</td></tr>
+            <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📱 Telefone</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.telefone}</td></tr>
+            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📧 E-mail</td><td style="padding:10px 14px;font-size:13px;">${dados.email}</td></tr>
+            <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Perfil</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.perfil}</td></tr>
+            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🔧 Tipo</td><td style="padding:10px 14px;font-size:13px;">${TIPO_LABEL[dados.tipo]||dados.tipo}</td></tr>
+            <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">⚡ Prioridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;border-top:1px solid #DDE3EE;">${PRIORIDADE_LABEL[dados.prioridade]||dados.prioridade}</td></tr>
+            <tr style="background:#F7F9FC;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📋 Assunto</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.assunto}</td></tr>
+          </table>
+          <div style="margin-top:14px;padding:14px;background:#F7F9FC;border-radius:8px;border-left:3px solid #1B3A6B;">
+            <div style="font-size:11px;color:#5A6A85;letter-spacing:1px;margin-bottom:6px;">DESCRIÇÃO</div>
+            <div style="font-size:14px;color:#1A2540;line-height:1.6;white-space:pre-wrap;">${dados.descricao}</div>
+          </div>
+          ${dados.anexoNome ? `<div style="margin-top:10px;font-size:12px;color:#5A6A85;">📎 Anexo: ${dados.anexoNome}</div>` : ''}
+        </td></tr>
+      </table>`;
+
+      const emails = await getEmails();
+      for (const email of emails) {
+        try { await emailjs.send(svc, tpl, { to_email: email, subject: `🎧 [${numeroChamado}] ${dados.assunto}`, message: dados.descricao, body_html: corpo }); } catch(_) {}
+      }
+      // Confirmação para o usuário
+      try {
+        const corpoUsuario = `<div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px;">
+          <div style="background:#1B3A6B;padding:16px 20px;border-bottom:3px solid #F5A623;border-radius:8px 8px 0 0;">
+            <div style="color:#fff;font-size:18px;font-weight:700;">✅ Chamado recebido!</div>
+          </div>
+          <div style="background:#fff;border:1px solid #DDE3EE;border-top:none;padding:20px;border-radius:0 0 8px 8px;">
+            <p style="color:#5A6A85;font-size:14px;">Olá, <strong>${dados.nome}</strong>!</p>
+            <p style="color:#5A6A85;font-size:14px;">Seu chamado foi registrado com sucesso. Retornaremos em breve.</p>
+            <div style="background:#F0F4F9;border-radius:8px;padding:12px 16px;margin:16px 0;text-align:center;">
+              <div style="font-size:11px;color:#5A6A85;margin-bottom:4px;">NÚMERO DO CHAMADO</div>
+              <div style="font-size:24px;font-weight:700;font-family:monospace;color:#1B3A6B;">${numeroChamado}</div>
+            </div>
+            <p style="color:#5A6A85;font-size:13px;"><strong>Assunto:</strong> ${dados.assunto}</p>
+          </div>
+        </div>`;
+        await emailjs.send(svc, tpl, { to_email: dados.email, subject: `✅ [${numeroChamado}] Chamado recebido — ${dados.assunto}`, message: `Seu chamado foi registrado. Número: ${numeroChamado}`, body_html: corpoUsuario });
+      } catch(_) {}
+    }
+
+    // Mostrar sucesso
+    document.getElementById('support-form-area').style.display = 'none';
+    document.getElementById('support-success-area').style.display = 'block';
+    document.getElementById('sup-numero-chamado').textContent = numeroChamado;
+
+  } catch(e) {
+    errEl.style.cssText = 'display:block;background:var(--danger-bg);border:1px solid var(--danger-border);border-left:3px solid var(--danger);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--danger);font-weight:600;';
+    errEl.innerHTML = `❌ Erro ao enviar chamado: <br><span style="font-weight:400;">${e.message}</span>`;
+    btn.disabled = false; btn.textContent = '📨 Enviar Chamado';
+  }
+}
+
+
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN — CHAMADOS DE SUPORTE
+// ══════════════════════════════════════════════════════════════
+async function loadChamadosSuporte() {
+  if (!db) return;
+  const filtroStatus = document.getElementById('suporte-filtro-status')?.value || '';
+  const filtroPrioridade = document.getElementById('suporte-filtro-prioridade')?.value || '';
+  const tbody = document.getElementById('suporte-tbody');
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text2);">⏳ Carregando...</td></tr>';
+  try {
+    let query = db.collection('chamados-suporte').orderBy('criadoEm','desc').limit(200);
+    const snap = await query.get();
+    let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (filtroStatus)     docs = docs.filter(d => d.status === filtroStatus);
+    if (filtroPrioridade) docs = docs.filter(d => d.prioridade === filtroPrioridade);
+
+    const stats = document.getElementById('suporte-stats');
+    const abertos = docs.filter(d=>d.status==='aberto').length;
+    const urgentes = docs.filter(d=>d.prioridade==='urgente'&&d.status==='aberto').length;
+    if (stats) stats.textContent = `Total: ${docs.length} | Abertos: ${abertos}${urgentes>0?' | 🚨 Urgentes: '+urgentes:''}`;
+
+    if (!docs.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text2);">Nenhum chamado encontrado</td></tr>';
+      return;
+    }
+
+    const PRIORIDADE = { urgente:'<span class="badge" style="background:var(--danger);color:#fff;">🚨 Urgente</span>', alta:'<span class="badge badge-err">🔴 Alta</span>', media:'<span class="badge badge-warn">🟡 Média</span>', baixa:'<span class="badge badge-ok">🟢 Baixa</span>' };
+    const STATUS = { aberto:'<span class="badge badge-err">Aberto</span>', em_andamento:'<span class="badge badge-warn">Em andamento</span>', resolvido:'<span class="badge badge-ok">Resolvido</span>' };
+    const TIPO = { bug:'🐛 Bug', duvida:'❓ Dúvida', acesso:'🔑 Acesso', melhoria:'💡 Melhoria', outro:'📌 Outro' };
+
+    tbody.innerHTML = docs.map(d => {
+      const ts = d.criadoEm?.toDate?.()?.toLocaleString('pt-BR') || '—';
+      return `<tr>
+        <td><strong style="font-family:monospace;font-size:12px;">${d.numeroChamado||d.id}</strong></td>
+        <td style="font-size:12px;color:var(--text2);white-space:nowrap;">${ts}</td>
+        <td><strong>${d.nome||'—'}</strong><br><span style="font-size:11px;color:var(--text2);">${d.email||'—'}</span></td>
+        <td style="font-size:13px;">${d.perfil||'—'}</td>
+        <td style="font-size:13px;">${TIPO[d.tipo]||d.tipo||'—'}</td>
+        <td>${PRIORIDADE[d.prioridade]||d.prioridade||'—'}</td>
+        <td style="font-size:13px;max-width:200px;"><strong>${d.assunto||'—'}</strong><br><span style="font-size:11px;color:var(--text2);">${(d.descricao||'').substring(0,60)}${d.descricao?.length>60?'...':''}</span></td>
+        <td>${STATUS[d.status]||d.status||'—'}</td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="verDetalhesChamado('${d.id}')" style="font-size:12px;padding:5px 8px;">👁 Ver</button>
+            ${d.status!=='resolvido'?`<button class="btn btn-success btn-sm" onclick="resolverChamado('${d.id}')" style="font-size:12px;padding:5px 8px;width:auto;">✅ Resolver</button>`:''}
+            ${d.status==='aberto'?`<button class="btn btn-outline btn-sm" onclick="iniciarAtendimento('${d.id}')" style="font-size:12px;padding:5px 8px;border-color:var(--warning);color:var(--warning);">▶ Atender</button>`:''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--danger);">❌ Erro: ${e.message}</td></tr>`;
+  }
+}
+
+async function resolverChamado(id) {
+  if (!confirm('Marcar chamado como resolvido?')) return;
+  try {
+    await db.collection('chamados-suporte').doc(id).update({ status: 'resolvido', resolvidoEm: firebase.firestore.FieldValue.serverTimestamp(), resolvidoPor: auth?.currentUser?.email||'Admin' });
+    showTopAlert('Chamado resolvido', 'ok', 'Status atualizado para Resolvido.');
+    loadChamadosSuporte();
+  } catch(e) { showTopAlert('Erro ao resolver chamado', 'error', e.message); }
+}
+
+async function iniciarAtendimento(id) {
+  try {
+    await db.collection('chamados-suporte').doc(id).update({ status: 'em_andamento', iniciadoEm: firebase.firestore.FieldValue.serverTimestamp(), iniciadoPor: auth?.currentUser?.email||'Admin' });
+    showTopAlert('Atendimento iniciado', 'ok', 'Status atualizado para Em andamento.');
+    loadChamadosSuporte();
+  } catch(e) { showTopAlert('Erro', 'error', e.message); }
+}
+
+function verDetalhesChamado(id) {
+  if (!db) return;
+  db.collection('chamados-suporte').doc(id).get().then(doc => {
+    if (!doc.exists) { alert('Chamado não encontrado.'); return; }
+    const d = doc.data();
+    let m = document.getElementById('chamado-detail-modal');
+    if (!m) { m = document.createElement('div'); m.id='chamado-detail-modal'; document.body.appendChild(m); }
+    m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
+    const PRIORIDADE = { urgente:'🚨 Urgente', alta:'🔴 Alta', media:'🟡 Média', baixa:'🟢 Baixa' };
+    const TIPO = { bug:'🐛 Bug / Erro', duvida:'❓ Dúvida de uso', acesso:'🔑 Acesso / Senha', melhoria:'💡 Sugestão', outro:'📌 Outro' };
+    m.innerHTML = `<div style="background:var(--surface);border-radius:16px;width:100%;max-width:600px;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;">
+      <div style="background:var(--gerdau-blue);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;">🎧 ${d.numeroChamado||id}</div>
+        <button onclick="document.getElementById('chamado-detail-modal').style.display='none'" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:700;">✕</button>
+      </div>
+      <div style="padding:20px;max-height:70vh;overflow-y:auto;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">NOME</div><div style="font-size:14px;font-weight:600;">${d.nome||'—'}</div></div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">TELEFONE</div><div style="font-size:14px;">${d.telefone||'—'}</div></div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">E-MAIL</div><div style="font-size:14px;">${d.email||'—'}</div></div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">PERFIL</div><div style="font-size:14px;">${d.perfil||'—'}</div></div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">TIPO</div><div style="font-size:14px;">${TIPO[d.tipo]||d.tipo||'—'}</div></div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text3);margin-bottom:3px;letter-spacing:1px;">PRIORIDADE</div><div style="font-size:14px;font-weight:700;">${PRIORIDADE[d.prioridade]||d.prioridade||'—'}</div></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:1px;">ASSUNTO</div>
+          <div style="font-size:15px;font-weight:700;">${d.assunto||'—'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:14px;margin-bottom:10px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:1px;">DESCRIÇÃO</div>
+          <div style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-wrap;">${d.descricao||'—'}</div>
+        </div>
+        ${d.anexoNome?`<div style="font-size:13px;color:var(--text2);padding:10px;background:var(--surface2);border-radius:8px;">📎 Anexo: <strong>${d.anexoNome}</strong></div>`:''}
+        <div style="font-size:11px;color:var(--text3);margin-top:12px;">Enviado de: ${d.url||'—'} · ${d.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}</div>
+      </div>
+    </div>`;
+  }).catch(e => showTopAlert('❌ Erro', 'error', e.message));
+}
+
+</script>
+
+<!-- MODAL DE SUPORTE -->
+<div id="suporte-modal" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.7);z-index:10000;overflow-y:auto;backdrop-filter:blur(4px);" onclick="if(event.target===this)fecharSuporte()">
+  <div style="background:var(--surface);border-radius:var(--radius-lg);width:92%;max-width:540px;margin:24px auto;box-shadow:0 16px 60px rgba(0,0,0,.4);overflow:hidden;">
+    <!-- Cabeçalho -->
+    <div style="background:var(--gerdau-blue);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gerdau-yellow);">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;">🆘 SOLICITAR SUPORTE</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px;">Preencha todos os campos — a resposta será enviada ao seu e-mail</div>
+      </div>
+      <button onclick="fecharSuporte()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:14px;font-weight:700;">✕</button>
+    </div>
+    <!-- Corpo -->
+    <div style="padding:22px;">
+      <div id="suporte-sucesso" style="display:none;background:var(--success-bg);border:1.5px solid var(--success-border);border-radius:10px;padding:20px;text-align:center;">
+        <div style="font-size:32px;margin-bottom:8px;">✅</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--success);letter-spacing:1px;">SOLICITAÇÃO ENVIADA!</div>
+        <div style="font-size:14px;color:var(--text2);margin-top:8px;line-height:1.6;">Recebemos sua solicitação de suporte.<br>Retornaremos em breve pelo e-mail informado.</div>
+        <button onclick="fecharSuporte()" class="btn btn-primary" style="margin-top:16px;width:auto;padding:10px 28px;">Fechar</button>
+      </div>
+      <div id="suporte-form">
+        <!-- Nome -->
+        <div class="input-group">
+          <label>Nome completo <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="sup-nome" placeholder="SEU NOME COMPLETO" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-nome')">
+          <small id="sup-nome-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <!-- Telefone -->
+        <div class="input-group">
+          <label>Telefone / WhatsApp <span style="color:var(--danger);">*</span></label>
+          <input type="tel" id="sup-tel" placeholder="(XX) XXXXX-XXXX" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="mascararTelefone(this);limparErroCampo('sup-tel')">
+          <small id="sup-tel-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <!-- E-mail -->
+        <div class="input-group">
+          <label>E-mail de login no sistema <span style="color:var(--danger);">*</span>
+            <span style="font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;"> — a resposta será enviada para este e-mail</span>
+          </label>
+          <input type="email" id="sup-email" placeholder="SEU@EMAIL.COM" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-email')">
+          <small id="sup-email-err" style="color:var(--danger);font-size:11px;display:none;">Informe um e-mail válido</small>
+        </div>
+        <!-- Perfil -->
+        <div class="input-group">
+          <label>Seu perfil no sistema <span style="color:var(--danger);">*</span></label>
+          <select id="sup-perfil" style="font-size:14px;letter-spacing:0;text-transform:none;" onchange="limparErroCampo('sup-perfil')">
+            <option value="">— Selecione seu perfil —</option>
+            <option value="operacional">Operacional</option>
+            <option value="operador">Operador</option>
+            <option value="admin">Administrador</option>
+            <option value="developer">Developer</option>
+          </select>
+          <small id="sup-perfil-err" style="color:var(--danger);font-size:11px;display:none;">Selecione seu perfil</small>
+        </div>
+        <!-- Prioridade -->
+        <div class="input-group">
+          <label>Prioridade <span style="color:var(--danger);">*</span></label>
+          <select id="sup-prioridade" style="font-size:14px;letter-spacing:0;text-transform:none;" onchange="limparErroCampo('sup-prioridade')">
+            <option value="">— Selecione a prioridade —</option>
+            <option value="baixa">🟢 Baixa — dúvida ou melhoria</option>
+            <option value="media">🟡 Média — afeta o trabalho mas tem solução alternativa</option>
+            <option value="alta">🔴 Alta — impede o uso do sistema</option>
+            <option value="urgente">🚨 Urgente — sistema parado, impacto operacional</option>
+          </select>
+          <small id="sup-prioridade-err" style="color:var(--danger);font-size:11px;display:none;">Selecione a prioridade</small>
+        </div>
+        <!-- Ambiente -->
+        <div class="input-group">
+          <label>Ambiente <span style="color:var(--danger);">*</span>
+            <span style="font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;"> — detectado automaticamente</span>
+          </label>
+          <select id="sup-ambiente" style="font-size:14px;letter-spacing:0;text-transform:none;">
+            <option value="producao">🔴 Produção</option>
+            <option value="staging">🟢 Staging (ambiente de testes)</option>
+          </select>
+        </div>
+        <!-- Assunto -->
+        <div class="input-group">
+          <label>Assunto <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="sup-assunto" placeholder="Resumo do problema em poucas palavras" style="font-size:14px;letter-spacing:0;text-transform:none;" oninput="limparErroCampo('sup-assunto')">
+          <small id="sup-assunto-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <!-- Descrição -->
+        <div class="input-group">
+          <label>Descrição do problema <span style="color:var(--danger);">*</span></label>
+          <textarea id="sup-descricao" rows="4" placeholder="Descreva com detalhes o que aconteceu, o que estava fazendo e qual era o resultado esperado..." style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;padding:10px 13px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;" oninput="limparErroCampo('sup-descricao')"></textarea>
+          <small id="sup-descricao-err" style="color:var(--danger);font-size:11px;display:none;">Campo obrigatório</small>
+        </div>
+        <!-- Anexo -->
+        <div class="input-group" style="margin-bottom:6px;">
+          <label>Anexo <span style="color:var(--text3);font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;">(opcional — foto ou arquivo)</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="tirarFotoSuporte()" style="flex:1;min-width:130px;">📷 Tirar Foto</button>
+            <label style="flex:1;min-width:130px;cursor:pointer;">
+              <input type="file" id="sup-arquivo" accept="image/*,.pdf,.xlsx,.xls,.csv,.txt,.docx" style="display:none;" onchange="previsualizarAnexo(this)">
+              <div class="btn btn-outline btn-sm" style="text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;height:100%;">📎 Upload de Arquivo</div>
+            </label>
+          </div>
+          <div id="sup-preview-area" style="margin-top:8px;display:none;">
+            <div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);">
+              <div id="sup-preview-img-wrap" style="display:none;"><img id="sup-preview-img" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" alt=""></div>
+              <div style="flex:1;"><div id="sup-preview-nome" style="font-size:13px;font-weight:600;color:var(--text);"></div><div id="sup-preview-size" style="font-size:11px;color:var(--text3);margin-top:2px;"></div></div>
+              <button onclick="removerAnexoSuporte()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;padding:2px 6px;">✕</button>
+            </div>
+          </div>
+          <!-- Câmera para foto de suporte -->
+          <div id="sup-cam-area" style="display:none;margin-top:8px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
+            <video id="sup-video" autoplay playsinline style="width:100%;border-radius:10px;"></video>
+            <div style="position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:10px;">
+              <button onclick="capturarFotoSuporte()" style="background:var(--gerdau-yellow);color:var(--gerdau-blue);border:none;border-radius:50%;width:52px;height:52px;font-size:22px;cursor:pointer;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.3);">📷</button>
+              <button onclick="cancelarFotoSuporte()" style="background:rgba(0,0,0,.5);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:8px 14px;cursor:pointer;font-size:13px;">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <!-- Botão enviar -->
+        <button class="btn btn-primary" onclick="enviarSuporte()" style="margin-top:12px;">📨 Enviar Solicitação</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html
+
+// ══════════════════════════════════════════════════════════════
+// SUPORTE — FUNÇÕES COMPLETAS
+// ══════════════════════════════════════════════════════════════
+
+let _supStream = null;
+let _supAnexoBase64 = null;
+let _supAnexoNome = '';
+let _supAnexoTipo = '';
+
+async function abrirSuporte(evt) {
+  if (evt) evt.preventDefault();
+  const modal = document.getElementById('suporte-modal');
+  if (!modal) return;
+
+  // Pré-preencher com dados do operador logado
+  if (currentOperador) {
+    const nomeEl = document.getElementById('sup-nome');
+    const emailEl = document.getElementById('sup-email');
+    const perfilEl = document.getElementById('sup-perfil');
+    if (nomeEl && !nomeEl.value) nomeEl.value = currentOperador.nome || '';
+    if (emailEl && !emailEl.value) emailEl.value = currentOperador.email || '';
+    if (perfilEl && currentOperador.perfil) perfilEl.value = currentOperador.perfil;
+  }
+
+  // Detectar ambiente automaticamente
+  const ambienteEl = document.getElementById('sup-ambiente');
+  if (ambienteEl) ambienteEl.value = isProduction() ? 'producao' : 'staging';
+
+  // Popular lista de perfis customizados
+  await popularPerfilsSuporte();
+
+  // Resetar estado
+  document.getElementById('suporte-sucesso').style.display = 'none';
+  document.getElementById('suporte-form').style.display = 'block';
+
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('sup-nome')?.focus(), 100);
+}
+
+function fecharSuporte() {
+  cancelarFotoSuporte();
+  document.getElementById('suporte-modal').style.display = 'none';
+}
+
+async function popularPerfilsSuporte() {
+  const select = document.getElementById('sup-perfil');
+  if (!select) return;
+  // Perfis padrão sempre presentes
+  const base = [
+    { value:'operacional', label:'Operacional' },
+    { value:'operador',    label:'Operador' },
+    { value:'admin',       label:'Administrador' },
+    { value:'developer',   label:'Developer' },
+  ];
+  // Adicionar perfis customizados se existirem
+  let extras = [];
+  try {
+    if (db) {
+      const doc = await db.collection('config').doc('perfis-customizados').get();
+      if (doc.exists) {
+        extras = Object.entries(doc.data()).map(([id, nome]) => ({ value: id, label: String(nome) }));
+      }
+    }
+  } catch(e) {}
+
+  const all = [...base, ...extras];
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">— Selecione seu perfil —</option>' +
+    all.map(p => `<option value="${p.value}" ${currentVal === p.value ? 'selected' : ''}>${p.label}</option>`).join('');
+}
+
+function limparErroCampo(id) {
+  const err = document.getElementById(id + '-err');
+  if (err) err.style.display = 'none';
+  const input = document.getElementById(id);
+  if (input) input.style.borderColor = '';
+}
+
+function mascararTelefone(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length <= 10) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  else v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+  input.value = v;
+}
+
+function previsualizarAnexo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  _supAnexoNome = file.name;
+  _supAnexoTipo = file.type;
+  const area = document.getElementById('sup-preview-area');
+  const nomeEl = document.getElementById('sup-preview-nome');
+  const sizeEl = document.getElementById('sup-preview-size');
+  const imgWrap = document.getElementById('sup-preview-img-wrap');
+  const img = document.getElementById('sup-preview-img');
+  if (nomeEl) nomeEl.textContent = file.name;
+  if (sizeEl) sizeEl.textContent = (file.size / 1024).toFixed(0) + ' KB';
+  const reader = new FileReader();
+  reader.onload = e => {
+    _supAnexoBase64 = e.target.result.split(',')[1];
+    if (file.type.startsWith('image/') && img && imgWrap) {
+      img.src = e.target.result; imgWrap.style.display = 'block';
+    } else if (imgWrap) { imgWrap.style.display = 'none'; }
+    if (area) area.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerAnexoSuporte() {
+  _supAnexoBase64 = null; _supAnexoNome = ''; _supAnexoTipo = '';
+  const area = document.getElementById('sup-preview-area');
+  if (area) area.style.display = 'none';
+  const input = document.getElementById('sup-arquivo');
+  if (input) input.value = '';
+}
+
+async function tirarFotoSuporte() {
+  const camArea = document.getElementById('sup-cam-area');
+  const video = document.getElementById('sup-video');
+  if (!camArea || !video) return;
+  try {
+    if (_supStream) { _supStream.getTracks().forEach(t => t.stop()); _supStream = null; }
+    _supStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
+    video.srcObject = _supStream;
+    await video.play();
+    camArea.style.display = 'block';
+  } catch(e) { alert('Não foi possível acessar a câmera: ' + e.message); }
+}
+
+function capturarFotoSuporte() {
+  const video = document.getElementById('sup-video');
+  if (!video) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  _supAnexoBase64 = dataUrl.split(',')[1];
+  _supAnexoNome = `suporte_foto_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.jpg`;
+  _supAnexoTipo = 'image/jpeg';
+
+  const img = document.getElementById('sup-preview-img');
+  const imgWrap = document.getElementById('sup-preview-img-wrap');
+  const nomeEl = document.getElementById('sup-preview-nome');
+  const sizeEl = document.getElementById('sup-preview-size');
+  const area = document.getElementById('sup-preview-area');
+  if (img) img.src = dataUrl; if (imgWrap) imgWrap.style.display = 'block';
+  if (nomeEl) nomeEl.textContent = _supAnexoNome;
+  if (sizeEl) sizeEl.textContent = Math.round(_supAnexoBase64.length * 0.75 / 1024) + ' KB';
+  if (area) area.style.display = 'block';
+  cancelarFotoSuporte();
+}
+
+function cancelarFotoSuporte() {
+  if (_supStream) { _supStream.getTracks().forEach(t => t.stop()); _supStream = null; }
+  const camArea = document.getElementById('sup-cam-area');
+  if (camArea) camArea.style.display = 'none';
+}
+
+async function enviarSuporte() {
+  // Validação
+  const campos = [
+    { id:'sup-nome',       label:'Nome' },
+    { id:'sup-tel',        label:'Telefone' },
+    { id:'sup-email',      label:'E-mail' },
+    { id:'sup-perfil',     label:'Perfil' },
+    { id:'sup-prioridade', label:'Prioridade' },
+    { id:'sup-assunto',    label:'Assunto' },
+    { id:'sup-descricao',  label:'Descrição' },
+  ];
+  let valido = true;
+  for (const c of campos) {
+    const el = document.getElementById(c.id);
+    const err = document.getElementById(c.id + '-err');
+    if (!el || !el.value.trim()) {
+      valido = false;
+      if (el) el.style.borderColor = 'var(--danger)';
+      if (err) err.style.display = 'block';
+    }
+  }
+  // Validação de e-mail
+  const emailEl = document.getElementById('sup-email');
+  if (emailEl && emailEl.value && !emailEl.value.includes('@')) {
+    emailEl.style.borderColor = 'var(--danger)';
+    const errEl = document.getElementById('sup-email-err');
+    if (errEl) { errEl.textContent = 'Informe um e-mail válido'; errEl.style.display = 'block'; }
+    valido = false;
+  }
+  if (!valido) {
+    showTopAlert('❌ Preencha todos os campos obrigatórios antes de enviar.', 'error', 'Os campos marcados em vermelho são obrigatórios.');
+    return;
+  }
+
+  const btn = document.querySelector('[onclick="enviarSuporte()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
+
+  const dados = {
+    nome:       document.getElementById('sup-nome').value.trim(),
+    telefone:   document.getElementById('sup-tel').value.trim(),
+    email:      document.getElementById('sup-email').value.trim().toLowerCase(),
+    perfil:     document.getElementById('sup-perfil').value,
+    prioridade: document.getElementById('sup-prioridade').value,
+    ambiente:   document.getElementById('sup-ambiente').value,
+    assunto:    document.getElementById('sup-assunto').value.trim(),
+    descricao:  document.getElementById('sup-descricao').value.trim(),
+    url:        window.location.href,
+    userAgent:  navigator.userAgent.substring(0, 120),
+    criadoEm:   firebase.firestore?.FieldValue?.serverTimestamp?.() || new Date().toISOString(),
+    temAnexo:   !!_supAnexoBase64,
+    anexoNome:  _supAnexoNome || null,
+  };
+
+  try {
+    // Salvar no Firestore
+    if (db) {
+      const ref = await db.collection('suporte').add(dados);
+      // Salvar anexo no Storage se existir
+      if (_supAnexoBase64 && storage) {
+        try {
+          const bc = atob(_supAnexoBase64); const bn = new Uint8Array(bc.length);
+          for (let i=0; i<bc.length; i++) bn[i] = bc.charCodeAt(i);
+          const blob = new Blob([bn], {type: _supAnexoTipo||'application/octet-stream'});
+          await storage.ref(`suporte/${ref.id}/${_supAnexoNome}`).put(blob);
+          await ref.update({ anexoNome: _supAnexoNome, temAnexo: true });
+        } catch(storageErr) { console.warn('Erro ao salvar anexo:', storageErr.message); }
+      }
+    }
+
+    // Enviar e-mail via EmailJS
+    const svc = getCfg('ejs_svc','service_1e7gg3f');
+    const tpl = getCfg('ejs_tpl','template_vdkbodd');
+    const prioridades = { baixa:'🟢 Baixa', media:'🟡 Média', alta:'🔴 Alta', urgente:'🚨 Urgente' };
+    const ambientes = { producao:'🔴 Produção', staging:'🟢 Staging' };
+    const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+      <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+        <div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;">GERDAU — VERIFICA LACRE</div>
+        <div style="color:#fff;font-size:22px;font-weight:900;letter-spacing:2px;">🆘 NOVA SOLICITAÇÃO DE SUPORTE</div>
+      </td></tr>
+      <tr><td style="background:#fff;padding:24px;">
+        <table width="100%" style="border-collapse:collapse;">
+          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;width:38%;">👤 Nome</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.nome}</td></tr>
+          <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">📱 Telefone</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.telefone}</td></tr>
+          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📧 E-mail</td><td style="padding:10px 14px;font-size:13px;">${dados.email}</td></tr>
+          <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">👤 Perfil</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${dados.perfil}</td></tr>
+          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">🚦 Prioridade</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${prioridades[dados.prioridade]||dados.prioridade}</td></tr>
+          <tr><td style="padding:10px 14px;font-size:13px;color:#5A6A85;border-top:1px solid #DDE3EE;">🌐 Ambiente</td><td style="padding:10px 14px;font-size:13px;border-top:1px solid #DDE3EE;">${ambientes[dados.ambiente]||dados.ambiente}</td></tr>
+          <tr style="background:#F0F4F9;"><td style="padding:10px 14px;font-size:13px;color:#5A6A85;">📋 Assunto</td><td style="padding:10px 14px;font-size:13px;font-weight:700;">${dados.assunto}</td></tr>
+        </table>
+        <div style="margin-top:16px;background:#F8F9FA;border-left:4px solid #1B3A6B;padding:14px 16px;border-radius:0 6px 6px 0;">
+          <div style="font-size:11px;font-weight:700;color:#5A6A85;letter-spacing:1px;margin-bottom:8px;">DESCRIÇÃO DO PROBLEMA</div>
+          <div style="font-size:14px;color:#1A2540;line-height:1.6;">${dados.descricao.replace(/\n/g,'<br>')}</div>
+        </div>
+        ${dados.temAnexo ? `<div style="margin-top:12px;font-size:13px;color:#B7770D;background:#FEF3E2;border-radius:6px;padding:10px 14px;">📎 Anexo: ${dados.anexoNome||'arquivo'} (salvo no sistema)</div>` : ''}
+        <div style="margin-top:14px;font-size:11px;color:#8A98AF;">URL: ${dados.url} | ${new Date().toLocaleString('pt-BR')}</div>
+      </td></tr>
+    </table>`;
+
+    try {
+      if (svc && tpl) {
+        await emailjs.send(svc, tpl, {
+          to_email: 'rodrigo.santos16@gerdau.com.br',
+          subject: `[SUPORTE ${(prioridades[dados.prioridade]||dados.prioridade).toUpperCase()}] ${dados.assunto}`,
+          message: `Nova solicitação de ${dados.nome} (${dados.email}) — ${dados.assunto}`,
+          body_html: corpo
+        });
+      }
+    } catch(emailErr) { console.warn('E-mail não enviado:', emailErr.message); }
+
+    // Mostrar tela de sucesso
+    document.getElementById('suporte-form').style.display = 'none';
+    document.getElementById('suporte-sucesso').style.display = 'block';
+
+    // Limpar campos para próxima vez
+    ['sup-nome','sup-tel','sup-email','sup-assunto','sup-descricao'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('sup-perfil').value='';
+    document.getElementById('sup-prioridade').value='';
+    removerAnexoSuporte();
+
+  } catch(e) {
+    showTopAlert('❌ Erro ao enviar solicitação', 'error', e.message);
+  } finally {
+    if (btn) { btn.disabled=false; btn.textContent='📨 Enviar Solicitação'; }
+  }
 }
 
 </script>
