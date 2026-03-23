@@ -470,8 +470,9 @@ tbody tr:hover{background:var(--surface2);}
     <!-- Admin Header -->
     <div class="admin-header">
       <h1>GERDAU — VERIFICA LACRE</h1>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <a href="manual-admin.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
+        <button class="admin-btn" id="btn-staging-header" onclick="abrirConfigurarStaging(event)" style="display:none;background:linear-gradient(135deg,#0f4a28,#1a6b3a);border-color:#1a8c4e;color:#5ecb8a;">⚙ Staging</button>
         <button class="admin-btn" onclick="closeAdmin()" style="display:flex;align-items:center;gap:6px;">← Voltar ao Sistema</button>
       </div>
     </div>
@@ -980,6 +981,20 @@ tbody tr:hover{background:var(--surface2);}
             <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove permanentemente todos os documentos marcados como <code>_testData</code> do banco de <strong>produção</strong>. Use quando dados de teste vazaram para o ambiente real.</div>
             <button class="btn btn-sm" style="width:auto;background:var(--danger);color:#fff;" onclick="limparDadosTesteProducao()">🗑 Deletar dados de teste da produção</button>
             <div id="limpar-prod-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;"></div>
+          </div>
+
+          <!-- LIMPAR DADOS POR DATA -->
+          <div class="card" style="margin-bottom:16px;border-left:3px solid var(--warning);">
+            <div class="card-title" style="color:var(--warning);">📅 Limpar Dados por Data</div>
+            <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove <strong>permanentemente</strong> todos os documentos de todas as coleções principais que foram criados na data informada. Use para apagar dados gerados acidentalmente em um dia específico.</div>
+            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
+              <div class="input-group" style="margin-bottom:0;flex:1;min-width:160px;">
+                <label>Data para apagar (dd/mm/aaaa)</label>
+                <input type="text" id="limpar-data-input" placeholder="22/03/2026" maxlength="10" style="font-size:15px;letter-spacing:1px;text-transform:none;" oninput="this.value=this.value.replace(/[^0-9\/]/g,'')">
+              </div>
+              <button class="btn btn-sm" style="width:auto;background:var(--warning);color:#fff;white-space:nowrap;" onclick="limparDadosPorData()">🗑 Apagar dados desta data</button>
+            </div>
+            <div id="limpar-data-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;white-space:pre-line;"></div>
           </div>
 
           <!-- GERAR DADOS DE TESTE -->
@@ -2329,6 +2344,12 @@ function openAdmin() {
   overlay.scrollTop = 0;
   const sb = document.getElementById('staging-banner');
   if (sb) sb.style.display = isStagingConfigured() ? 'block' : 'none';
+  // Exibir botão de staging no header se for ambiente staging ou developer
+  const stagingHeaderBtn = document.getElementById('btn-staging-header');
+  if (stagingHeaderBtn) {
+    const showStagingBtn = isStagingConfigured() || !isProduction() || window.location.href.includes('staging');
+    stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
+  }
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-body').style.display = 'none';
   document.getElementById('admin-email').value = '';
@@ -2424,6 +2445,12 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
+  // Exibir botão de staging no header para developer ou quando staging está configurado
+  const stagingHeaderBtn = document.getElementById('btn-staging-header');
+  if (stagingHeaderBtn) {
+    const showStagingBtn = role === 'developer' || isStagingConfigured() || !isProduction();
+    stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
+  }
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -4332,10 +4359,14 @@ function renderFornecedores(lista) {
     const statusBadge = d.inativo
       ? '<span class="badge badge-err">Inativo</span>'
       : '<span class="badge badge-ok">Ativo</span>';
+    // Informação de quem inativou (se aplicável)
+    const inativadoPor = d.inativo && d.inativadoPorNome
+      ? `<br><span style="font-size:11px;color:var(--text3);">por ${d.inativadoPorNome}</span>`
+      : '';
     const btns = d.inativo
       ? `<button class="btn btn-outline btn-sm" onclick="reativarFornecedor('${d.cnpj}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
       : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
-           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')">✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')" >✏️ Editar</button>
            <button class="btn btn-outline btn-sm" onclick="inativarFornecedor('${d.cnpj}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>
          </div>`;
     return `<tr style="${d.inativo ? 'opacity:.6;' : ''}">
@@ -4849,6 +4880,68 @@ async function limparDadosTesteProducaoAvanc() {
   _fornecedoresCache = null;
   loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
 }
+// ── LIMPAR DADOS POR DATA ─────────────────────────────────────────
+async function limparDadosPorData() {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  const logEl = document.getElementById('limpar-data-log');
+  const inputEl = document.getElementById('limpar-data-input');
+  const rawDate = (inputEl?.value || '').trim();
+  if (!rawDate) { alert('Informe a data no formato dd/mm/aaaa.'); return; }
+  // Parsear dd/mm/aaaa
+  const parts = rawDate.split('/');
+  if (parts.length !== 3 || parts[0].length !== 2 || parts[1].length !== 2 || parts[2].length !== 4) {
+    alert('Formato inválido. Use dd/mm/aaaa (ex: 22/03/2026).');
+    return;
+  }
+  const dia = parseInt(parts[0]), mes = parseInt(parts[1]) - 1, ano = parseInt(parts[2]);
+  const inicioDia = new Date(ano, mes, dia, 0, 0, 0, 0);
+  const fimDia    = new Date(ano, mes, dia, 23, 59, 59, 999);
+  const dataFmt   = `${parts[0]}/${parts[1]}/${parts[2]}`;
+  if (!confirm(`⚠️ Isso vai DELETAR permanentemente todos os documentos criados em ${dataFmt} nas coleções:\n\n• processos\n• lacresValidos\n• placasAutorizadas\n• fornecedores\n• logs\n\nEsta ação é IRREVERSÍVEL. Confirmar?`)) return;
+  if (logEl) logEl.textContent = `⏳ Buscando documentos criados em ${dataFmt}...`;
+  const colecoes = ['processos','lacresValidos','placasAutorizadas','fornecedores','logs'];
+  // Campos de timestamp a verificar por coleção
+  const camposTs = {
+    processos:          ['registradoEm', 'encerradoEm'],
+    lacresValidos:      ['cadastradoEm'],
+    placasAutorizadas:  ['adicionadaEm'],
+    fornecedores:       ['cadastradoEm'],
+    logs:               ['timestamp']
+  };
+  let totalGeral = 0;
+  for (const col of colecoes) {
+    let totalCol = 0;
+    const campos = camposTs[col] || ['registradoEm'];
+    // Buscar por cada campo de timestamp
+    const docsParaDeletar = new Map(); // id -> ref
+    for (const campo of campos) {
+      try {
+        // Firestore Timestamp: usar >= e <= com objetos Date
+        const snap = await db.collection(col)
+          .where(campo, '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
+          .where(campo, '<=', firebase.firestore.Timestamp.fromDate(fimDia))
+          .get();
+        snap.docs.forEach(d => docsParaDeletar.set(d.id, d.ref));
+      } catch(e) { /* campo pode não existir em todos os docs */ }
+    }
+    // Deletar em batches de 500
+    const refs = Array.from(docsParaDeletar.values());
+    for (let i = 0; i < refs.length; i += 500) {
+      const batch = db.batch();
+      refs.slice(i, i + 500).forEach(ref => batch.delete(ref));
+      await batch.commit();
+      totalCol += Math.min(500, refs.length - i);
+    }
+    if (logEl) logEl.textContent += `\n✅ ${col}: ${totalCol} documento(s) removido(s)`;
+    totalGeral += totalCol;
+  }
+  if (logEl) logEl.textContent += `\n\n🎉 Total: ${totalGeral} documento(s) apagados da data ${dataFmt}.`;
+  showTopAlert(`✅ ${totalGeral} documento(s) de ${dataFmt} deletados.`, totalGeral > 0 ? 'ok' : 'warning');
+  try { await registrarLog('limpar_dados_por_data', `${totalGeral} docs de ${dataFmt} deletados`); } catch(_) {}
+  _fornecedoresCache = null;
+  if (totalGeral > 0) { loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard(); }
+}
+
 const DADOS_TESTE={placas:[{placa:'ABC1234',descricao:'CARRETA TANQUE — ALFA'},{placa:'XYZ5678',descricao:'BITREM — BETA'},{placa:'DEF1E23',descricao:'CARRETA SIDER — GAMA'},{placa:'GHI4567',descricao:'CARRETA BAÚ — DELTA'},{placa:'JKL8901',descricao:'TRUCK — ÉPSILON'}],lacres:Array.from({length:30},(_,i)=>String(i+1).padStart(5,'0')),fornecedores:[{cnpj:'12345678000195',nome:'FORNECEDOR ALFA LTDA'},{cnpj:'98765432000100',nome:'DISTRIBUIDORA BETA S/A'},{cnpj:'11223344000155',nome:'INDUSTRIA GAMA EIRELI'}],locais:[{loc:'São Paulo, SP',coords:'-23.5505,-46.6333'},{loc:'Campinas, SP',coords:'-22.9056,-47.0608'},{loc:'Sorocaba, SP',coords:'-23.5015,-47.4526'}]};
 async function gerarDadosTeste(tipo='todos'){
   if(!db){alert('Firebase não configurado.');return;}if(isProduction()){alert('⛔ Bloqueado em produção.');return;}
@@ -5110,11 +5203,11 @@ async function enviarSuporte(){
 
 
 <!-- MODAL CONFIGURAR STAGING -->
-<div id="staging-setup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;">
+<div id="staging-setup-modal" style="visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;display:flex;align-items:center;justify-content:center;transition:opacity .2s,visibility .2s;">
   <div style="background:var(--surface);border-radius:14px;width:92%;max-width:500px;box-shadow:0 16px 60px rgba(0,0,0,.5);overflow:hidden;">
     <div style="background:#0f4a28;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1a8c4e;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#5ecb8a;letter-spacing:2px;">⚙ CONFIGURAR STAGING</div>
-      <button onclick="document.getElementById('staging-setup-modal').style.display='none'" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;">✕</button>
+      <button onclick="const m=document.getElementById('staging-setup-modal');m.style.visibility='hidden';m.style.opacity='0';" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;cursor:pointer;">✕</button>
     </div>
     <div style="padding:20px;">
       <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
@@ -5170,9 +5263,9 @@ function abrirConfigurarStaging(evt) {
   }
   const errEl = document.getElementById('staging-setup-err');
   if (errEl) errEl.style.display = 'none';
-  // Forçar visibilidade — remover qualquer inline style conflitante e aplicar flex
-  modal.removeAttribute('style');
-  modal.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;';
+  // Mostrar modal com visibility e opacity (evita conflitos com display:none)
+  modal.style.visibility = 'visible';
+  modal.style.opacity = '1';
 }
 
 function jsToJson(raw) {
@@ -5203,7 +5296,9 @@ function salvarStagingSetup() {
   status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
   status.textContent = '✅ Staging configurado: ' + cfg.projectId + ' — Recarregue a página para conectar.';
   setTimeout(() => {
-    document.getElementById('staging-setup-modal').style.display = 'none';
+    const m = document.getElementById('staging-setup-modal');
+    m.style.visibility = 'hidden';
+    m.style.opacity = '0';
     location.reload();
   }, 2000);
 }
@@ -5217,10 +5312,13 @@ function limparStagingSetup() {
   setTimeout(() => location.reload(), 1500);
 }
 
-// Show staging config button only in staging environment OR if URL contains 'staging'
+// Show staging config button in staging environment, if URL contains 'staging',
+// OR se o localStorage já tem uma config de staging salva (para facilitar reconfigurar)
 (function checkShowStagingBtn() {
   function _show() {
-    const isStaging = window.location.href.includes('/staging') || IS_STAGING_BUILD;
+    const urlIsStaging = window.location.href.includes('/staging') || window.location.href.includes('staging');
+    const hasLocalStaging = !!(function(){ try{ return JSON.parse(localStorage.getItem('firebase_staging_config')||'{}').apiKey; }catch(_){return false;} }());
+    const isStaging = urlIsStaging || IS_STAGING_BUILD || hasLocalStaging;
     if (!isStaging) return;
     const wrap = document.getElementById('btn-configurar-staging-wrap');
     if (wrap) wrap.style.display = 'block';
