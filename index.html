@@ -1247,7 +1247,7 @@ async function loadEmailCounter() {
   try {
     // Buscar logs de email enviado no período
     const snap = await db.collection('logs')
-      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado'])
+      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado','email_redefinicao_senha'])
       .get();
     // Filtrar no cliente por período (Firestore não suporta range + in juntos sem índice composto)
     const total = snap.docs.filter(d => {
@@ -3123,8 +3123,7 @@ async function loadHistorico() {
         const ta = b.data().encerradoEm?.seconds || b.data().registradoEm?.seconds || 0;
         const tb = a.data().encerradoEm?.seconds || a.data().registradoEm?.seconds || 0;
         return ta - tb;
-      })
-      .slice(0,200);
+      });
     _historicoCache = allEncDocs.map(d=>d.data());
     renderHistorico(_historicoCache);
   } catch(e) { console.warn(e.message); }
@@ -4068,7 +4067,7 @@ async function doAppLoginComOffline() {
       adminBtn.style.visibility = 'visible';
     }
     const ajudaBtnLogin = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='operador'||perfil==='developer') ? 'inline-block' : 'none';
+    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='developer') ? 'inline-block' : 'none';
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
     if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
@@ -4590,7 +4589,6 @@ function _tirarFotoNF(lado) {
 let _fornecedoresCache = null;
 async function carregarFornecedoresDropdown() {
   if (!db) return [];
-  if (_fornecedoresCache) return _fornecedoresCache;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
     _fornecedoresCache = filtrarDadosReais(snap.docs).filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
@@ -4681,8 +4679,8 @@ async function salvarEdicaoUsuario(){
 }
 async function resetarSenhaUsuario(email){
   if(!confirm(`Enviar link de recuperação para ${email}?`))return;
-  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');await registrarLog('reset_senha',`Link enviado para ${email}`);}
-  catch(e){alert('Erro: '+e.message);}
+  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');if(db){try{await db.collection('logs').add({acao:'email_redefinicao_senha',detalhe:`Link de redefinição enviado para ${email}`,usuario:auth?.currentUser?.email||'sistema',timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}await registrarLog('reset_senha',`Link enviado para ${email}`);}
+  catch(e){showTopAlert(`❌ Erro: ${e.message}`,'error');}
 }
 
 // ── LOGS ──────────────────────────────────────────────────────
@@ -4714,7 +4712,7 @@ async function enviarRecuperacaoSenha(evt){
   const email=(document.getElementById('op-email')?.value.trim())||prompt('Digite seu e-mail:');
   if(!email)return;
   if(!auth){alert('Firebase não configurado.');return;}
-  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);}
+  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);if(db){try{await db.collection('logs').add({acao:'email_redefinicao_senha',detalhe:`Link de redefinição enviado para ${email}`,usuario:email||'sistema',timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}}
   catch(e){alert('❌ Erro: '+(e.code==='auth/user-not-found'?'E-mail não encontrado.':e.code==='auth/invalid-email'?'E-mail inválido.':e.message));}
 }
 
@@ -4809,6 +4807,38 @@ async function limparDadosTesteProducao() {
         snap.docs.forEach(d => b.delete(d.ref));
         await b.commit();
         total += snap.size;
+        if (logEl) logEl.textContent = `⏳ Removidos ${total} até agora...`;
+      }
+    } catch(e) { console.warn(`Erro em ${col}:`, e.message); }
+  }
+  if (logEl) logEl.textContent = `✅ ${total} documento(s) de teste removidos da produção.`;
+  showTopAlert(`✅ ${total} documento(s) de teste deletados da produção.`, 'ok');
+  try { await registrarLog('limpar_dados_teste', `${total} documentos _testData deletados da produção`); } catch(_) {}
+  _fornecedoresCache = null;
+  loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
+}
+async function limparDadosTesteProducaoAvanc() {
+  if (!isProduction()) { showTopAlert('⛔ Esta função só executa em produção.', 'error'); return; }
+  if (!confirm('⚠️ Isso vai DELETAR permanentemente todos os documentos marcados como _testData do banco de PRODUÇÃO.\n\nEsta ação é irreversível. Confirmar?')) return;
+  if (!db) return;
+  const logEl = document.getElementById('limpar-prod-log');
+  if (logEl) logEl.textContent = '⏳ Removendo...';
+  let total = 0;
+  const colecoes = ['lacresValidos','placasAutorizadas','fornecedores','processos'];
+  for (const col of colecoes) {
+    try {
+      let hasMore = true;
+      let lastDoc = null;
+      while (hasMore) {
+        let query = db.collection(col).where('_testData','==',true).limit(500);
+        if (lastDoc) query = query.startAfter(lastDoc);
+        const snap = await query.get();
+        if (snap.empty) { hasMore = false; break; }
+        const b = db.batch();
+        snap.docs.forEach(d => b.delete(d.ref));
+        await b.commit();
+        total += snap.size;
+        lastDoc = snap.docs[snap.docs.length - 1];
         if (logEl) logEl.textContent = `⏳ Removidos ${total} até agora...`;
       }
     } catch(e) { console.warn(`Erro em ${col}:`, e.message); }
