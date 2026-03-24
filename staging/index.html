@@ -986,7 +986,7 @@ tbody tr:hover{background:var(--surface2);}
           <!-- LIMPAR DADOS POR DATA -->
           <div class="card" style="margin-bottom:16px;border-left:3px solid var(--warning);">
             <div class="card-title" style="color:var(--warning);">📅 Limpar Dados por Data</div>
-            <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove <strong>permanentemente</strong> todos os documentos de todas as coleções principais que foram criados na data informada. Use para apagar dados gerados acidentalmente em um dia específico.</div>
+            <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove <strong>permanentemente</strong> processos, lacres, placas e fornecedores criados na data informada. <strong>Logs de auditoria nunca são apagados</strong> — ficam preservados para rastreabilidade.</div>
             <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
               <div class="input-group" style="margin-bottom:0;flex:1;min-width:160px;">
                 <label>Data para apagar (dd/mm/aaaa)</label>
@@ -1125,7 +1125,10 @@ function isProduction() {
 }
 function isStagingConfigured() {
   if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return true;
-  try { return !!(JSON.parse(localStorage.getItem('firebase_staging_config') || '{}').apiKey); } catch(_) { return false; }
+  try {
+    const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
+    return !!(s.apiKey && s.projectId === STAGING_PROJECT_ID);
+  } catch(_) { return false; }
 }
 // Filtra dados de teste (_testData:true) de snapshots — nunca aparecem em produção
 function filtrarDadosReais(docs) {
@@ -4902,16 +4905,15 @@ async function limparDadosPorData() {
   const inicioDia = new Date(ano, mes, dia, 0, 0, 0, 0);
   const fimDia    = new Date(ano, mes, dia, 23, 59, 59, 999);
   const dataFmt   = `${parts[0]}/${parts[1]}/${parts[2]}`;
-  if (!confirm(`⚠️ Isso vai DELETAR permanentemente todos os documentos criados em ${dataFmt} nas coleções:\n\n• processos\n• lacresValidos\n• placasAutorizadas\n• fornecedores\n• logs\n\nEsta ação é IRREVERSÍVEL. Confirmar?`)) return;
+  if (!confirm(`⚠️ Isso vai DELETAR permanentemente todos os documentos criados em ${dataFmt} nas coleções:\n\n• processos\n• lacresValidos\n• placasAutorizadas\n• fornecedores\n\n⚠️ Logs de auditoria são preservados e não serão apagados.\nEsta ação é IRREVERSÍVEL. Confirmar?`)) return;
   if (logEl) logEl.textContent = `⏳ Buscando documentos criados em ${dataFmt}...`;
-  const colecoes = ['processos','lacresValidos','placasAutorizadas','fornecedores','logs'];
+  const colecoes = ['processos','lacresValidos','placasAutorizadas','fornecedores'];
   // Campos de timestamp a verificar por coleção
   const camposTs = {
     processos:          ['registradoEm', 'encerradoEm'],
     lacresValidos:      ['cadastradoEm'],
     placasAutorizadas:  ['adicionadaEm'],
-    fornecedores:       ['cadastradoEm'],
-    logs:               ['timestamp']
+    fornecedores:       ['cadastradoEm']
   };
   let totalGeral = 0;
   for (const col of colecoes) {
