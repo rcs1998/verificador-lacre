@@ -1110,7 +1110,10 @@ const PROD_PROJECT_ID    = 'verificador-lacre';
 const STAGING_PROJECT_ID = 'verificador-lacre-staging';
 
 function _isUrlStaging() {
-  return window.location.href.includes('/staging');
+  const href = window.location.href;
+  const host = window.location.hostname;
+  // Detecta /staging no path OU hostname que contenha 'staging'
+  return href.includes('/staging') || host.includes('staging');
 }
 
 // ── Helpers de ambiente — definidos cedo para uso em todo o script ──
@@ -2350,7 +2353,7 @@ function openAdmin() {
   // Exibir botão de staging no header se for ambiente staging ou developer
   const stagingHeaderBtn = document.getElementById('btn-staging-header');
   if (stagingHeaderBtn) {
-    const showStagingBtn = isStagingConfigured() || !isProduction() || window.location.href.includes('staging');
+    const showStagingBtn = isStagingConfigured() || !isProduction();
     stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
   }
   document.getElementById('admin-login').style.display = 'block';
@@ -3379,6 +3382,11 @@ async function loadConfig() {
         if (d.config_horas) setCfg('config_horas', d.config_horas);
         if (d.config_timeout) setCfg('config_timeout', d.config_timeout);
         if (d.config_horas) sessionTimeoutMs = parseInt(d.config_timeout||5) * 60 * 60 * 1000;
+        // Atualiza imediatamente o display na aba de processos com o valor do Firestore
+        if (d.config_horas) {
+          const alertaEl = document.getElementById('alerta-h-display');
+          if (alertaEl) alertaEl.textContent = d.config_horas;
+        }
       }
       if (geminiDoc.exists) document.getElementById('cfg-gemini-key').value = geminiDoc.data().key||'';
     } catch(e) { console.warn('Config load error:', e.message); }
@@ -3924,9 +3932,16 @@ loadGeminiKey(); // config read - still public
 <!-- Registrar Service Worker para PWA -->
 <script>
   // PWA build-hash check: forces full reload when a new version is deployed
-  // Change BUILD_HASH on every deploy to trigger update on all devices
+  // BUILD_HASH é gerado automaticamente a partir da versão + data/hora do último carregamento do arquivo.
+  // Para forçar atualização em todos os dispositivos, basta subir o arquivo — o hash muda sozinho.
   (function checkBuildHash() {
-    const BUILD_HASH = 'v2.0';
+    // Versão do app (atualizar junto com o CHANGELOG)
+    const APP_VERSION = '2.0';
+    // Timestamp de build: gerado no momento em que o arquivo é servido.
+    // Em produção com cache: altere APP_VERSION a cada release para garantir novo hash.
+    const BUILD_HASH = 'v' + APP_VERSION + '-' + (document.lastModified
+      ? new Date(document.lastModified).toISOString().replace(/[-:.TZ]/g,'').slice(0,12)
+      : Date.now());
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -5321,13 +5336,11 @@ function limparStagingSetup() {
   setTimeout(() => location.reload(), 1500);
 }
 
-// Show staging config button in staging environment, if URL contains 'staging',
-// OR se o localStorage já tem uma config de staging salva (para facilitar reconfigurar)
+// Exibe botão de configurar staging APENAS em ambiente staging real (URL ou IS_STAGING_BUILD).
+// hasLocalStaging foi removido intencionalmente — não deve vazar para produção.
 (function checkShowStagingBtn() {
   function _show() {
-    const urlIsStaging = window.location.href.includes('/staging') || window.location.href.includes('staging');
-    const hasLocalStaging = !!(function(){ try{ return JSON.parse(localStorage.getItem('firebase_staging_config')||'{}').apiKey; }catch(_){return false;} }());
-    const isStaging = urlIsStaging || IS_STAGING_BUILD || hasLocalStaging;
+    const isStaging = _isUrlStaging() || IS_STAGING_BUILD;
     if (!isStaging) return;
     const wrap = document.getElementById('btn-configurar-staging-wrap');
     if (wrap) wrap.style.display = 'block';
