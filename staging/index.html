@@ -470,8 +470,9 @@ tbody tr:hover{background:var(--surface2);}
     <!-- Admin Header -->
     <div class="admin-header">
       <h1>GERDAU — VERIFICA LACRE</h1>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <a href="manual-admin.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
+        <button class="admin-btn" id="btn-staging-header" onclick="abrirConfigurarStaging(event)" style="display:none;background:linear-gradient(135deg,#0f4a28,#1a6b3a);border-color:#1a8c4e;color:#5ecb8a;">⚙ Staging</button>
         <button class="admin-btn" onclick="closeAdmin()" style="display:flex;align-items:center;gap:6px;">← Voltar ao Sistema</button>
       </div>
     </div>
@@ -983,6 +984,20 @@ tbody tr:hover{background:var(--surface2);}
             <div id="limpar-prod-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;"></div>
           </div>
 
+          <!-- LIMPAR DADOS POR DATA -->
+          <div class="card" style="margin-bottom:16px;border-left:3px solid var(--warning);">
+            <div class="card-title" style="color:var(--warning);">📅 Limpar Dados por Data</div>
+            <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove <strong>permanentemente</strong> processos, lacres, placas e fornecedores criados na data informada. <strong>Logs de auditoria nunca são apagados</strong> — ficam preservados para rastreabilidade.</div>
+            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
+              <div class="input-group" style="margin-bottom:0;flex:1;min-width:160px;">
+                <label>Data para apagar (dd/mm/aaaa)</label>
+                <input type="text" id="limpar-data-input" placeholder="22/03/2026" maxlength="10" style="font-size:15px;letter-spacing:1px;text-transform:none;" oninput="this.value=this.value.replace(/[^0-9\/]/g,'')">
+              </div>
+              <button class="btn btn-sm" style="width:auto;background:var(--warning);color:#fff;white-space:nowrap;" onclick="limparDadosPorData()">🗑 Apagar dados desta data</button>
+            </div>
+            <div id="limpar-data-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;white-space:pre-line;"></div>
+          </div>
+
           <!-- GERAR DADOS DE TESTE -->
           <div class="card" style="margin-bottom:16px;">
             <div class="card-title">🎲 Gerar Dados de Teste</div>
@@ -1114,7 +1129,10 @@ function isProduction() {
 }
 function isStagingConfigured() {
   if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return true;
-  try { return !!(JSON.parse(localStorage.getItem('firebase_staging_config') || '{}').apiKey); } catch(_) { return false; }
+  try {
+    const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
+    return !!(s.apiKey && s.projectId === STAGING_PROJECT_ID);
+  } catch(_) { return false; }
 }
 // Filtra dados de teste (_testData:true) de snapshots — nunca aparecem em produção
 function filtrarDadosReais(docs) {
@@ -1285,7 +1303,7 @@ async function loadEmailCounter() {
   try {
     // Buscar logs de email enviado no período
     const snap = await db.collection('logs')
-      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado'])
+      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado','email_redefinicao_senha'])
       .get();
     // Filtrar no cliente por período (Firestore não suporta range + in juntos sem índice composto)
     const total = snap.docs.filter(d => {
@@ -2367,6 +2385,12 @@ function openAdmin() {
   overlay.scrollTop = 0;
   const sb = document.getElementById('staging-banner');
   if (sb) sb.style.display = isStagingConfigured() ? 'block' : 'none';
+  // Exibir botão de staging no header se for ambiente staging ou developer
+  const stagingHeaderBtn = document.getElementById('btn-staging-header');
+  if (stagingHeaderBtn) {
+    const showStagingBtn = isStagingConfigured() || !isProduction();
+    stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
+  }
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-body').style.display = 'none';
   document.getElementById('admin-email').value = '';
@@ -2462,6 +2486,12 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
+  // Exibir botão de staging no header para developer ou quando staging está configurado
+  const stagingHeaderBtn = document.getElementById('btn-staging-header');
+  if (stagingHeaderBtn) {
+    const showStagingBtn = role === 'developer' || isStagingConfigured() || !isProduction();
+    stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
+  }
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -2707,6 +2737,11 @@ function adminTab(tab) {
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
   document.getElementById(`atab-${tab}`).classList.add('active');
+
+  // Ocultar contador de e-mails por padrão (só aparece na aba config para developer)
+  const emailCounterCard = document.getElementById('email-counter-card');
+  if (emailCounterCard) emailCounterCard.style.display = 'none';
+
   if (tab==='processos') loadProcessos();
   if (tab==='emails') loadEmails();
   if (tab==='lacres') loadLacres();
@@ -3161,8 +3196,7 @@ async function loadHistorico() {
         const ta = b.data().encerradoEm?.seconds || b.data().registradoEm?.seconds || 0;
         const tb = a.data().encerradoEm?.seconds || a.data().registradoEm?.seconds || 0;
         return ta - tb;
-      })
-      .slice(0,200);
+      });
     _historicoCache = allEncDocs.map(d=>d.data());
     renderHistorico(_historicoCache);
   } catch(e) { console.warn(e.message); }
@@ -3370,6 +3404,7 @@ async function loadConfig() {
   // Show version info
   const vEl = document.getElementById('cfg-version-display');
   if (vEl) {
+    // Usa sempre o primeiro item do CHANGELOG como versão atual — atualização automática
     const vc = (typeof CHANGELOG !== 'undefined' && CHANGELOG.length) ? CHANGELOG[0] : null;
     const vStr = vc ? vc.version : '—';
     const dStr = vc ? vc.data    : '—';
@@ -3941,11 +3976,14 @@ loadGeminiKey(); // config read - still public
 <!-- Registrar Service Worker para PWA -->
 <script>
   // PWA build-hash check: forces full reload when a new version is deployed
-  // BUILD_HASH é gerado automaticamente a partir da versão + data do arquivo servido.
+  // BUILD_HASH é gerado automaticamente a partir da versão + data/hora do último carregamento do arquivo.
   // Para forçar atualização em todos os dispositivos, basta subir o arquivo — o hash muda sozinho.
-  // Atualize APP_VERSION junto com o CHANGELOG a cada release.
   (function checkBuildHash() {
-    const APP_VERSION = '2.0'; // ← alterar junto com CHANGELOG[0].version a cada release
+    // ⚠️ Atualizar APP_VERSION APENAS quando mudar CHANGELOG[0].version
+    // O resto (timestamp) é gerado automaticamente a cada deploy.
+    const APP_VERSION = '2.0'; // ← alterar junto com CHANGELOG[0].version
+    // Timestamp de build: gerado a partir da data do arquivo servido pelo servidor.
+    // Cada deploy gera um hash diferente → todos os dispositivos recarregam automaticamente.
     const BUILD_HASH = 'v' + APP_VERSION + '-' + (document.lastModified
       ? new Date(document.lastModified).toISOString().replace(/[-:.TZ]/g,'').slice(0,12)
       : Date.now());
@@ -4075,7 +4113,9 @@ async function doAppLoginComOffline() {
     }
   }
   // Online: login normal + salvar para offline
-  if (!auth) { alert('Firebase não configurado.'); return; }
+  console.log('[LOGIN] Iniciando login online...');
+  console.log('[LOGIN] auth:', auth ? 'OK' : 'NULL', 'db:', db ? 'OK' : 'NULL', 'firebase.apps:', firebase.apps.length);
+  if (!auth) { alert('Firebase não configurado. Verifique se a configuração de staging foi salva.'); return; }
   const email = document.getElementById('op-email').value.trim();
   const pass = document.getElementById('op-pass').value;
   if (!email) { const e=document.getElementById('app-login-err');e.textContent='Informe seu e-mail.';e.style.display='block';return; }
@@ -4088,9 +4128,11 @@ async function doAppLoginComOffline() {
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const cred = await auth.signInWithEmailAndPassword(email, pass);
     const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
+    console.log('[LOGIN] Usuário encontrado:', userDoc.exists);
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
     const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
     const empresa = userDoc.exists ? (userDoc.data().empresa || '') : '';
+    console.log('[LOGIN] Perfil:', perfil, 'Nome:', nome);
     // Block inactive users
     if (userDoc.exists && userDoc.data().inativo) {
       errEl.textContent = 'Usuário inativo. Contate o administrador.';
@@ -4119,7 +4161,7 @@ async function doAppLoginComOffline() {
       adminBtn.style.visibility = 'visible';
     }
     const ajudaBtnLogin = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='operador'||perfil==='developer') ? 'inline-block' : 'none';
+    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='developer') ? 'inline-block' : 'none';
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
     if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
@@ -4128,7 +4170,8 @@ async function doAppLoginComOffline() {
     // Pre-load fornecedores for dropdown
     setTimeout(popularFornecedoresDatalist, 1500);
   } catch(e) {
-    console.error('App login error:', e.code, e.message);
+    console.error('[LOGIN] Erro de autenticação:', e.code, e.message);
+    console.error('[LOGIN] Stack:', e.stack);
     errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials'
       ? 'E-mail ou senha incorretos.'
       : e.code === 'auth/too-many-requests'
@@ -4384,10 +4427,14 @@ function renderFornecedores(lista) {
     const statusBadge = d.inativo
       ? '<span class="badge badge-err">Inativo</span>'
       : '<span class="badge badge-ok">Ativo</span>';
+    // Informação de quem inativou (se aplicável)
+    const inativadoPor = d.inativo && d.inativadoPorNome
+      ? `<br><span style="font-size:11px;color:var(--text3);">por ${d.inativadoPorNome}</span>`
+      : '';
     const btns = d.inativo
       ? `<button class="btn btn-outline btn-sm" onclick="reativarFornecedor('${d.cnpj}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
       : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
-           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')">✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')" >✏️ Editar</button>
            <button class="btn btn-outline btn-sm" onclick="inativarFornecedor('${d.cnpj}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>
          </div>`;
     return `<tr style="${d.inativo ? 'opacity:.6;' : ''}">
@@ -4641,7 +4688,6 @@ function _tirarFotoNF(lado) {
 let _fornecedoresCache = null;
 async function carregarFornecedoresDropdown() {
   if (!db) return [];
-  if (_fornecedoresCache) return _fornecedoresCache;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
     _fornecedoresCache = filtrarDadosReais(snap.docs).filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
@@ -4732,8 +4778,8 @@ async function salvarEdicaoUsuario(){
 }
 async function resetarSenhaUsuario(email){
   if(!confirm(`Enviar link de recuperação para ${email}?`))return;
-  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');await registrarLog('reset_senha',`Link enviado para ${email}`);}
-  catch(e){alert('Erro: '+e.message);}
+  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');if(db){try{await db.collection('logs').add({acao:'email_redefinicao_senha',detalhe:`Link de redefinição enviado para ${email}`,usuario:auth?.currentUser?.email||'sistema',timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}await registrarLog('reset_senha',`Link enviado para ${email}`);}
+  catch(e){showTopAlert(`❌ Erro: ${e.message}`,'error');}
 }
 
 // ── LOGS ──────────────────────────────────────────────────────
@@ -4765,7 +4811,7 @@ async function enviarRecuperacaoSenha(evt){
   const email=(document.getElementById('op-email')?.value.trim())||prompt('Digite seu e-mail:');
   if(!email)return;
   if(!auth){alert('Firebase não configurado.');return;}
-  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);}
+  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);if(db){try{await db.collection('logs').add({acao:'email_redefinicao_senha',detalhe:`Link de redefinição enviado para ${email}`,usuario:email||'sistema',timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}}
   catch(e){alert('❌ Erro: '+(e.code==='auth/user-not-found'?'E-mail não encontrado.':e.code==='auth/invalid-email'?'E-mail inválido.':e.message));}
 }
 
@@ -4870,6 +4916,99 @@ async function limparDadosTesteProducao() {
   _fornecedoresCache = null;
   loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
 }
+async function limparDadosTesteProducaoAvanc() {
+  if (!isProduction()) { showTopAlert('⛔ Esta função só executa em produção.', 'error'); return; }
+  if (!confirm('⚠️ Isso vai DELETAR permanentemente todos os documentos marcados como _testData do banco de PRODUÇÃO.\n\nEsta ação é irreversível. Confirmar?')) return;
+  if (!db) return;
+  const logEl = document.getElementById('limpar-prod-log');
+  if (logEl) logEl.textContent = '⏳ Removendo...';
+  let total = 0;
+  const colecoes = ['lacresValidos','placasAutorizadas','fornecedores','processos'];
+  for (const col of colecoes) {
+    try {
+      let hasMore = true;
+      let lastDoc = null;
+      while (hasMore) {
+        let query = db.collection(col).where('_testData','==',true).limit(500);
+        if (lastDoc) query = query.startAfter(lastDoc);
+        const snap = await query.get();
+        if (snap.empty) { hasMore = false; break; }
+        const b = db.batch();
+        snap.docs.forEach(d => b.delete(d.ref));
+        await b.commit();
+        total += snap.size;
+        lastDoc = snap.docs[snap.docs.length - 1];
+        if (logEl) logEl.textContent = `⏳ Removidos ${total} até agora...`;
+      }
+    } catch(e) { console.warn(`Erro em ${col}:`, e.message); }
+  }
+  if (logEl) logEl.textContent = `✅ ${total} documento(s) de teste removidos da produção.`;
+  showTopAlert(`✅ ${total} documento(s) de teste deletados da produção.`, 'ok');
+  try { await registrarLog('limpar_dados_teste', `${total} documentos _testData deletados da produção`); } catch(_) {}
+  _fornecedoresCache = null;
+  loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
+}
+// ── LIMPAR DADOS POR DATA ─────────────────────────────────────────
+async function limparDadosPorData() {
+  if (!db) { alert('Firebase não configurado.'); return; }
+  const logEl = document.getElementById('limpar-data-log');
+  const inputEl = document.getElementById('limpar-data-input');
+  const rawDate = (inputEl?.value || '').trim();
+  if (!rawDate) { alert('Informe a data no formato dd/mm/aaaa.'); return; }
+  // Parsear dd/mm/aaaa
+  const parts = rawDate.split('/');
+  if (parts.length !== 3 || parts[0].length !== 2 || parts[1].length !== 2 || parts[2].length !== 4) {
+    alert('Formato inválido. Use dd/mm/aaaa (ex: 22/03/2026).');
+    return;
+  }
+  const dia = parseInt(parts[0]), mes = parseInt(parts[1]) - 1, ano = parseInt(parts[2]);
+  const inicioDia = new Date(ano, mes, dia, 0, 0, 0, 0);
+  const fimDia    = new Date(ano, mes, dia, 23, 59, 59, 999);
+  const dataFmt   = `${parts[0]}/${parts[1]}/${parts[2]}`;
+  if (!confirm(`⚠️ Isso vai DELETAR permanentemente todos os documentos criados em ${dataFmt} nas coleções:\n\n• processos\n• lacresValidos\n• placasAutorizadas\n• fornecedores\n\n⚠️ Logs de auditoria são preservados e não serão apagados.\nEsta ação é IRREVERSÍVEL. Confirmar?`)) return;
+  if (logEl) logEl.textContent = `⏳ Buscando documentos criados em ${dataFmt}...`;
+  const colecoes = ['processos','lacresValidos','placasAutorizadas','fornecedores'];
+  // Campos de timestamp a verificar por coleção
+  const camposTs = {
+    processos:          ['registradoEm', 'encerradoEm'],
+    lacresValidos:      ['cadastradoEm'],
+    placasAutorizadas:  ['adicionadaEm'],
+    fornecedores:       ['cadastradoEm']
+  };
+  let totalGeral = 0;
+  for (const col of colecoes) {
+    let totalCol = 0;
+    const campos = camposTs[col] || ['registradoEm'];
+    // Buscar por cada campo de timestamp
+    const docsParaDeletar = new Map(); // id -> ref
+    for (const campo of campos) {
+      try {
+        // Firestore Timestamp: usar >= e <= com objetos Date
+        const snap = await db.collection(col)
+          .where(campo, '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
+          .where(campo, '<=', firebase.firestore.Timestamp.fromDate(fimDia))
+          .get();
+        snap.docs.forEach(d => docsParaDeletar.set(d.id, d.ref));
+      } catch(e) { /* campo pode não existir em todos os docs */ }
+    }
+    // Deletar em batches de 500
+    const refs = Array.from(docsParaDeletar.values());
+    for (let i = 0; i < refs.length; i += 500) {
+      const batch = db.batch();
+      refs.slice(i, i + 500).forEach(ref => batch.delete(ref));
+      await batch.commit();
+      totalCol += Math.min(500, refs.length - i);
+    }
+    if (logEl) logEl.textContent += `\n✅ ${col}: ${totalCol} documento(s) removido(s)`;
+    totalGeral += totalCol;
+  }
+  if (logEl) logEl.textContent += `\n\n🎉 Total: ${totalGeral} documento(s) apagados da data ${dataFmt}.`;
+  showTopAlert(`✅ ${totalGeral} documento(s) de ${dataFmt} deletados.`, totalGeral > 0 ? 'ok' : 'warning');
+  try { await registrarLog('limpar_dados_por_data', `${totalGeral} docs de ${dataFmt} deletados`); } catch(_) {}
+  _fornecedoresCache = null;
+  if (totalGeral > 0) { loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard(); }
+}
+
 const DADOS_TESTE={placas:[{placa:'ABC1234',descricao:'CARRETA TANQUE — ALFA'},{placa:'XYZ5678',descricao:'BITREM — BETA'},{placa:'DEF1E23',descricao:'CARRETA SIDER — GAMA'},{placa:'GHI4567',descricao:'CARRETA BAÚ — DELTA'},{placa:'JKL8901',descricao:'TRUCK — ÉPSILON'}],lacres:Array.from({length:30},(_,i)=>String(i+1).padStart(5,'0')),fornecedores:[{cnpj:'12345678000195',nome:'FORNECEDOR ALFA LTDA'},{cnpj:'98765432000100',nome:'DISTRIBUIDORA BETA S/A'},{cnpj:'11223344000155',nome:'INDUSTRIA GAMA EIRELI'}],locais:[{loc:'São Paulo, SP',coords:'-23.5505,-46.6333'},{loc:'Campinas, SP',coords:'-22.9056,-47.0608'},{loc:'Sorocaba, SP',coords:'-23.5015,-47.4526'}]};
 async function gerarDadosTeste(tipo='todos'){
   if(!db){alert('Firebase não configurado.');return;}if(isProduction()){alert('⛔ Bloqueado em produção.');return;}
@@ -5127,44 +5266,10 @@ async function enviarSuporte(){
   }
 }
 
-</script>
-
-
-<!-- MODAL CONFIGURAR STAGING -->
-<div id="staging-setup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;">
-  <div style="background:var(--surface);border-radius:14px;width:92%;max-width:500px;box-shadow:0 16px 60px rgba(0,0,0,.5);overflow:hidden;">
-    <div style="background:#0f4a28;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1a8c4e;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#5ecb8a;letter-spacing:2px;">⚙ CONFIGURAR STAGING</div>
-      <button onclick="document.getElementById('staging-setup-modal').style.display='none'" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;">✕</button>
-    </div>
-    <div style="padding:20px;">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
-        Cole o objeto de configuração do Firebase Staging abaixo. <strong style="color:var(--text)">Isso é feito uma única vez</strong> neste dispositivo — o sistema lembrará automaticamente.
-      </div>
-      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7;">
-        {<br>
-        &nbsp;&nbsp;apiKey: "...",<br>
-        &nbsp;&nbsp;authDomain: "verificador-lacre-staging.firebaseapp.com",<br>
-        &nbsp;&nbsp;projectId: "verificador-lacre-staging",<br>
-        &nbsp;&nbsp;...<br>
-        }
-      </div>
-      <textarea id="staging-setup-input" rows="8" placeholder='Cole aqui o config do Firebase Staging...' style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px 13px;width:100%;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
-      <div id="staging-setup-err" style="color:var(--danger);font-size:12px;margin-top:6px;display:none;"></div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn btn-primary" onclick="salvarStagingSetup()" style="flex:1;background:#1a8c4e;">💾 Salvar e Conectar</button>
-        <button class="btn btn-outline" onclick="limparStagingSetup()" style="border-color:var(--danger);color:var(--danger);">🗑 Limpar</button>
-      </div>
-      <div id="staging-setup-status" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;"></div>
-    </div>
-  </div>
-</div>
-
-
-<script>
 // ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
 function abrirConfigurarStaging(evt) {
   if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+  console.log('[STAGING] Abrindo modal de configuração...');
   const modal = document.getElementById('staging-setup-modal');
   if (!modal) { alert('Modal de staging não encontrado.'); return; }
   // Pre-fill se já configurado
@@ -5191,15 +5296,51 @@ function abrirConfigurarStaging(evt) {
   }
   const errEl = document.getElementById('staging-setup-err');
   if (errEl) errEl.style.display = 'none';
-  // Forçar visibilidade — remover qualquer inline style conflitante e aplicar flex
-  modal.removeAttribute('style');
-  modal.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;';
+  // Mostrar modal com visibility e opacity (evita conflitos com display:none)
+  modal.style.visibility = 'visible';
+  modal.style.opacity = '1';
+  console.log('[STAGING] Modal exibido');
 }
+
+</script>
+
+
+<!-- MODAL CONFIGURAR STAGING -->
+<div id="staging-setup-modal" style="visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;transition:opacity .2s,visibility .2s;">
+  <div style="background:var(--surface);border-radius:14px;width:92%;max-width:500px;box-shadow:0 16px 60px rgba(0,0,0,.5);overflow:hidden;">
+    <div style="background:#0f4a28;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1a8c4e;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#5ecb8a;letter-spacing:2px;">⚙ CONFIGURAR STAGING</div>
+      <button onclick="const m=document.getElementById('staging-setup-modal');m.style.visibility='hidden';m.style.opacity='0';" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:20px;">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
+        Cole o objeto de configuração do Firebase Staging abaixo. <strong style="color:var(--text)">Isso é feito uma única vez</strong> neste dispositivo — o sistema lembrará automaticamente.
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7;">
+        {<br>
+        &nbsp;&nbsp;apiKey: "...",<br>
+        &nbsp;&nbsp;authDomain: "verificador-lacre-staging.firebaseapp.com",<br>
+        &nbsp;&nbsp;projectId: "verificador-lacre-staging",<br>
+        &nbsp;&nbsp;...<br>
+        }
+      </div>
+      <textarea id="staging-setup-input" rows="8" placeholder='Cole aqui o config do Firebase Staging...' style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px 13px;width:100%;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <div id="staging-setup-err" style="color:var(--danger);font-size:12px;margin-top:6px;display:none;"></div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn btn-primary" onclick="salvarStagingSetup()" style="flex:1;background:#1a8c4e;">💾 Salvar e Conectar</button>
+        <button class="btn btn-outline" onclick="limparStagingSetup()" style="border-color:var(--danger);color:var(--danger);">🗑 Limpar</button>
+      </div>
+      <div id="staging-setup-status" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;text-align:center;"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
 
 function jsToJson(raw) {
   return raw
-    .replace(/\/\/[^
-]*/g, '')
+    .replace(/\/\/.*$/gm, '')
     .replace(/,(\s*[}\]])/g, '$1')
     .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":');
 }
@@ -5224,7 +5365,9 @@ function salvarStagingSetup() {
   status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
   status.textContent = '✅ Staging configurado: ' + cfg.projectId + ' — Recarregue a página para conectar.';
   setTimeout(() => {
-    document.getElementById('staging-setup-modal').style.display = 'none';
+    const m = document.getElementById('staging-setup-modal');
+    m.style.visibility = 'hidden';
+    m.style.opacity = '0';
     location.reload();
   }, 2000);
 }
@@ -5239,6 +5382,7 @@ function limparStagingSetup() {
 }
 
 // Exibe botão de configurar staging APENAS em ambiente staging real (URL ou IS_STAGING_BUILD).
+// hasLocalStaging foi removido intencionalmente — não deve vazar para produção.
 (function checkShowStagingBtn() {
   function _show() {
     const isStaging = _isUrlStaging() || IS_STAGING_BUILD;
