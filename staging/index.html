@@ -1156,6 +1156,10 @@ function _isUrlStaging() {
 
 // ── Helpers de ambiente — definidos cedo para uso em todo o script ──
 function isProduction() {
+  // Se estiver explicitamente no domínio de produção, SEMPRE retorna true
+  const host = window.location.hostname;
+  if (host === 'verificador-lacre.firebaseapp.com' || host === 'verificador-lacre.web.app') return true;
+  
   if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return false;
   if (_isUrlStaging()) return false;
   try {
@@ -1165,6 +1169,10 @@ function isProduction() {
   return true;
 }
 function isStagingConfigured() {
+  // Se estiver no domínio de produção, ignora qualquer config de staging salva
+  const host = window.location.hostname;
+  if (host === 'verificador-lacre.firebaseapp.com' || host === 'verificador-lacre.web.app') return false;
+
   if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return true;
   try {
     const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
@@ -5524,6 +5532,10 @@ function limparStagingSetup() {
 // hasLocalStaging foi removido intencionalmente — não deve vazar para produção.
 (function checkShowStagingBtn() {
   function _show() {
+    // Bloqueio absoluto: se estiver no domínio de produção, nunca mostra o botão de configurar staging
+    const host = window.location.hostname;
+    if (host === 'verificador-lacre.firebaseapp.com' || host === 'verificador-lacre.web.app') return;
+
     const isStaging = _isUrlStaging() || IS_STAGING_BUILD;
     if (!isStaging) return;
     const wrap = document.getElementById('btn-configurar-staging-wrap');
