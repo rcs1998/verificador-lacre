@@ -470,9 +470,8 @@ tbody tr:hover{background:var(--surface2);}
     <!-- Admin Header -->
     <div class="admin-header">
       <h1>GERDAU — VERIFICA LACRE</h1>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div style="display:flex;gap:8px;align-items:center;">
         <a href="manual-admin.html" target="_blank" class="admin-btn" style="text-decoration:none;">❓ Ajuda</a>
-        <button class="admin-btn" id="btn-staging-header" onclick="abrirConfigurarStaging(event)" style="display:none;background:linear-gradient(135deg,#0f4a28,#1a6b3a);border-color:#1a8c4e;color:#5ecb8a;">⚙ Staging</button>
         <button class="admin-btn" onclick="closeAdmin()" style="display:flex;align-items:center;gap:6px;">← Voltar ao Sistema</button>
       </div>
     </div>
@@ -883,6 +882,30 @@ tbody tr:hover{background:var(--surface2);}
           <button class="btn btn-outline btn-sm" style="margin-top:6px;width:auto;" onclick="doLogout()">Sair do Painel</button>
         </div>
 
+        <!-- CONFIG AVANÇADA -->
+        <div class="admin-section" id="atab-config-avancada">
+          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">🤖 Gemini API Key</div>
+            <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">📧 EmailJS — Configuração</div>
+            <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
+          </div>
+          <div class="card">
+            <div class="card-title">🔥 Firebase — Configuração</div>
+            <div class="input-group"><label>Firebase Config (JSON)</label>
+            <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
+          </div>
+          <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
+        </div>
+
         <!-- CONTADOR DE E-MAILS — só developer -->
         <div class="card" id="email-counter-card" style="display:none;border-left:3px solid var(--gerdau-blue);margin-top:14px;">
           <div class="card-title">📊 Contador de E-mails — Mensal</div>
@@ -925,31 +948,6 @@ tbody tr:hover{background:var(--surface2);}
           </div>
         </div>
 
-
-        <!-- CONFIG AVANÇADA -->
-        <div class="admin-section" id="atab-config-avancada">
-          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">🤖 Gemini API Key</div>
-            <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
-          </div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">📧 EmailJS — Configuração</div>
-            <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
-          </div>
-          <div class="card">
-            <div class="card-title">🔥 Firebase — Configuração</div>
-            <div class="input-group"><label>Firebase Config (JSON)</label>
-            <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
-          </div>
-          <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
-        </div>
-
         <!-- DEPLOY (somente developer) -->
         <div class="admin-section" id="atab-deploy">
           <div class="info-bar" style="border-left-color:var(--gerdau-yellow);background:rgba(245,166,35,.08);">
@@ -984,20 +982,6 @@ tbody tr:hover{background:var(--surface2);}
             <div id="limpar-prod-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;"></div>
           </div>
 
-          <!-- LIMPAR DADOS POR DATA -->
-          <div class="card" style="margin-bottom:16px;border-left:3px solid var(--warning);">
-            <div class="card-title" style="color:var(--warning);">📅 Limpar Dados por Data</div>
-            <div class="danger-bar" style="margin-bottom:14px;">⚠️ Remove <strong>permanentemente</strong> processos, lacres, placas e fornecedores criados na data informada. <strong>Logs de auditoria nunca são apagados</strong> — ficam preservados para rastreabilidade.</div>
-            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
-              <div class="input-group" style="margin-bottom:0;flex:1;min-width:160px;">
-                <label>Data para apagar (dd/mm/aaaa)</label>
-                <input type="text" id="limpar-data-input" placeholder="22/03/2026" maxlength="10" style="font-size:15px;letter-spacing:1px;text-transform:none;" oninput="this.value=this.value.replace(/[^0-9\/]/g,'')">
-              </div>
-              <button class="btn btn-sm" style="width:auto;background:var(--warning);color:#fff;white-space:nowrap;" onclick="limparDadosPorData()">🗑 Apagar dados desta data</button>
-            </div>
-            <div id="limpar-data-log" style="margin-top:10px;font-size:13px;color:var(--text2);min-height:16px;white-space:pre-line;"></div>
-          </div>
-
           <!-- GERAR DADOS DE TESTE -->
           <div class="card" style="margin-bottom:16px;">
             <div class="card-title">🎲 Gerar Dados de Teste</div>
@@ -1011,37 +995,6 @@ tbody tr:hover{background:var(--surface2);}
               <button class="btn btn-outline btn-sm" style="width:auto;border-color:var(--danger);color:var(--danger);" onclick="limparDadosTeste()">🗑 Limpar Dados de Teste (staging)</button>
             </div>
             <div id="staging-gen-log" style="margin-top:12px;font-size:13px;color:var(--text2);min-height:20px;"></div>
-          </div>
-
-          <!-- AUTO-BUILD & GENERATE FILES -->
-          <div class="card" style="margin-bottom:16px;border-left:3px solid var(--gerdau-blue);background:var(--surface2);">
-            <div class="card-title">📦 Gerador de Build (Auto-Build)</div>
-            <div class="info-bar" style="margin-bottom:14px;">Gera automaticamente os arquivos de <strong>Staging</strong> e <strong>Produção</strong> com o Changelog atualizado.</div>
-            
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-              <div class="input-group">
-                <label>Nova Versão (ex: 2.1)</label>
-                <input type="text" id="build-version" placeholder="2.1" style="font-size:15px;letter-spacing:1px;text-transform:none;">
-              </div>
-              <div class="input-group">
-                <label>Data do Build</label>
-                <input type="text" id="build-date" placeholder="DD/MM/AAAA" style="font-size:15px;letter-spacing:1px;text-transform:none;">
-              </div>
-            </div>
-
-            <div class="input-group">
-              <label>Novidades Admin (uma por linha)</label>
-              <textarea id="build-news-admin" rows="3" placeholder="ex: Novo botão de suporte..." style="font-size:13px;letter-spacing:0;text-transform:none;"></textarea>
-            </div>
-            <div class="input-group">
-              <label>Correções Admin (uma por linha)</label>
-              <textarea id="build-fixes-admin" rows="3" placeholder="ex: Corrigido bug no login..." style="font-size:13px;letter-spacing:0;text-transform:none;"></textarea>
-            </div>
-            
-            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
-              <button class="btn btn-primary" style="width:auto;padding:10px 20px;" onclick="runAutoBuild()">🚀 Gerar Arquivos de Build</button>
-            </div>
-            <div id="build-log" style="margin-top:12px;font-size:13px;color:var(--text2);min-height:20px;white-space:pre-line;"></div>
           </div>
 
           <!-- CHECKLIST PRÉ-DEPLOY -->
@@ -1131,16 +1084,10 @@ async function loadGeminiKey() {
 }
 
 function getCfg(key, def) {
-  try { 
-    const prefix = isProduction() ? 'prod_' : 'stag_';
-    return localStorage.getItem(prefix + key) || localStorage.getItem(key) || def; 
-  } catch(e) { return def; }
+  try { return localStorage.getItem(key) || def; } catch(e) { return def; }
 }
 function setCfg(key, val) {
-  try { 
-    const prefix = isProduction() ? 'prod_' : 'stag_';
-    localStorage.setItem(prefix + key, val); 
-  } catch(e) {}
+  try { localStorage.setItem(key, val); } catch(e) {}
 }
 
 // IDs dos projetos Firebase — nunca cruzar
@@ -1148,18 +1095,11 @@ const PROD_PROJECT_ID    = 'verificador-lacre';
 const STAGING_PROJECT_ID = 'verificador-lacre-staging';
 
 function _isUrlStaging() {
-  const href = window.location.href;
-  const host = window.location.hostname;
-  // Detecta /staging no path OU hostname que contenha 'staging'
-  return href.includes('/staging') || host.includes('staging');
+  return window.location.href.includes('/staging');
 }
 
 // ── Helpers de ambiente — definidos cedo para uso em todo o script ──
 function isProduction() {
-  // Se estiver explicitamente no domínio de produção, SEMPRE retorna true
-  const host = window.location.hostname;
-  if (host === 'verificador-lacre.firebaseapp.com' || host === 'verificador-lacre.web.app') return true;
-  
   if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return false;
   if (_isUrlStaging()) return false;
   try {
@@ -1169,10 +1109,6 @@ function isProduction() {
   return true;
 }
 function isStagingConfigured() {
-  // Se estiver no domínio de produção, ignora qualquer config de staging salva
-  const host = window.location.hostname;
-  if (host === 'verificador-lacre.firebaseapp.com' || host === 'verificador-lacre.web.app') return false;
-
   if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) return true;
   try {
     const s = JSON.parse(localStorage.getItem('firebase_staging_config') || '{}');
@@ -1197,7 +1133,7 @@ let storage = null;
 const IS_STAGING_BUILD = false;
 const STAGING_FIREBASE_CONFIG = null;
 // Exemplo staging:
-// const STAGING_FIREBASE_CONFIG = null;
+// const STAGING_FIREBASE_CONFIG = { apiKey:"AIzaSyCvwTaK...", authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
 
 function initFirebase() {
   try {
@@ -1274,40 +1210,6 @@ function initFirebase() {
 }
 initFirebase();
 
-// ── AUTO-RESTORE SESSION após F5 ──────────────────────────────────────
-// auth é declarado como 'let' (não fica em window.auth).
-// initFirebase() já rodou acima — auth está disponível diretamente.
-// onAuthStateChanged é chamado assim que o Firebase resolve a sessão salva (LOCAL persistence).
-auth.onAuthStateChanged(async (user) => {
-  if (!user) return; // Não autenticado — mostra tela de login normalmente
-  if (document.getElementById('app-main').style.display === 'block') return; // Já restaurado
-  try {
-    const userDoc = await db.collection('usuarios').doc(user.uid).get();
-    const perfil  = userDoc.exists ? (userDoc.data().perfil  || 'operacional') : 'operacional';
-    const nome    = userDoc.exists ? (userDoc.data().nome    || user.email)    : user.email;
-    const empresa = userDoc.exists ? (userDoc.data().empresa || '')            : '';
-    if (userDoc.exists && userDoc.data().inativo) { await auth.signOut(); return; }
-    currentOperador = { email: user.email, nome, uid: user.uid, perfil, empresa };
-    document.getElementById('op-nome-display').textContent = nome;
-    document.getElementById('app-login-screen').style.display = 'none';
-    document.getElementById('app-main').style.display = 'block';
-    const adminBtn = document.querySelector('.admin-btn:not(#btn-ajuda-admin)');
-    if (adminBtn) {
-      adminBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'block' : 'none';
-      adminBtn.style.visibility = 'visible';
-    }
-    const ajudaBtn = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtn) ajudaBtn.style.display = (perfil==='admin'||perfil==='developer') ? 'inline-block' : 'none';
-    applyRolePermissions(perfil);
-    if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); const alertaEl = document.getElementById('alerta-h-display'); if (alertaEl) alertaEl.textContent = appCfg.data().config_horas||'96'; } } catch(_) {} }
-    initSessionTimeout();
-    setTimeout(() => startCamera('origem'), 300);
-    setTimeout(popularFornecedoresDatalist, 1500);
-  } catch(e) {
-    console.warn('[AUTH RESTORE] Erro ao restaurar sessão:', e.message);
-  }
-});
-
 // Load config from Firestore on startup so PWA gets fresh settings
 async function loadConfigOnStartup() {
   if (!db) return;
@@ -1348,7 +1250,7 @@ async function loadEmailCounter() {
   try {
     // Buscar logs de email enviado no período
     const snap = await db.collection('logs')
-      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado','email_redefinicao_senha'])
+      .where('acao', 'in', ['email_desvio','email_alerta','email_suporte','email_enviado'])
       .get();
     // Filtrar no cliente por período (Firestore não suporta range + in juntos sem índice composto)
     const total = snap.docs.filter(d => {
@@ -1752,7 +1654,17 @@ async function salvarFotoNoFirebase(base64, processId, lado) {
 async function analisarLacre(lado) {
   document.getElementById(`loading-${lado}`).classList.add('show');
   await loadGeminiKey();
-  
+
+  // Verificar conectividade antes de qualquer coisa
+  if (!navigator.onLine) {
+    const box = document.getElementById(`result-${lado}`);
+    box.className = 'status-box warning show';
+    box.innerHTML = `<div class="status-title">📵 Sem Conexão</div>
+      <div class="status-item">A análise por IA requer internet. Insira o número do lacre manualmente no campo abaixo.</div>`;
+    document.getElementById(`loading-${lado}`).classList.remove('show');
+    return;
+  }
+
   if (!GEMINI_API_KEY) {
     const box = document.getElementById(`result-${lado}`);
     box.className = 'status-box error show';
@@ -2356,17 +2268,62 @@ function processarManual(lado) {
   }
 }
 
+// ── Cache offline de placas ──────────────────────────────────
+const OFFLINE_PLACAS_KEY = 'offline_placas_cache';
+const OFFLINE_PLACAS_TTL = 7 * 24 * 60 * 60 * 1000; // 7 dias
+
+async function atualizarCachePlacas() {
+  if (!db || !navigator.onLine) return;
+  try {
+    const snap = await db.collection('placasAutorizadas').where('inativa', '!=', true).get();
+    const placas = [];
+    snap.docs.forEach(d => { if (!d.data().inativa) placas.push(d.id); });
+    localStorage.setItem(OFFLINE_PLACAS_KEY, JSON.stringify({ ts: Date.now(), placas }));
+  } catch(e) { console.warn('Cache placas: falha ao atualizar', e.message); }
+}
+
+function consultarCachePlacas(placa) {
+  try {
+    const raw = localStorage.getItem(OFFLINE_PLACAS_KEY);
+    if (!raw) return null;
+    const { ts, placas } = JSON.parse(raw);
+    if (Date.now() - ts > OFFLINE_PLACAS_TTL) return null; // expirado
+    return placas.includes(placa) ? 'autorizada' : 'nao_autorizada';
+  } catch(_) { return null; }
+}
+
 async function validarPlacaCadastrada(placa) {
-  if (!db) {
-    alert('Firebase não conectado. Não foi possível validar a placa.');
-    return false;
-  }
   const placaLimpa = placa.replace(/[^A-Z0-9]/g,'');
+
+  // Sem internet: usa cache offline
+  if (!navigator.onLine || !db) {
+    const cache = consultarCachePlacas(placaLimpa);
+    if (cache === 'autorizada') {
+      showTopAlert('⚠️ Modo Offline — placa validada pelo cache local', 'warning');
+      return true;
+    }
+    if (cache === 'nao_autorizada') {
+      return false;
+    }
+    // Sem cache: não bloqueia, avisa
+    showTopAlert('⚠️ Modo Offline sem cache — validação de placa indisponível', 'warning');
+    return true; // permite continuar para não travar operação
+  }
+
   try {
     const doc = await db.collection('placasAutorizadas').doc(placaLimpa).get();
-    return doc.exists && !doc.data().inativa;
+    const ok = doc.exists && !doc.data().inativa;
+    // Aproveita para atualizar cache se online (não-bloqueante)
+    atualizarCachePlacas().catch(() => {});
+    return ok;
   } catch(e) {
     console.error('Erro ao validar placa:', e.message);
+    // Tenta cache como fallback
+    const cache = consultarCachePlacas(placaLimpa);
+    if (cache !== null) {
+      showTopAlert('⚠️ Erro de conexão — placa validada pelo cache local', 'warning');
+      return cache === 'autorizada';
+    }
     alert('Erro ao verificar placa no banco de dados: ' + e.message);
     return false;
   }
@@ -2430,12 +2387,6 @@ function openAdmin() {
   overlay.scrollTop = 0;
   const sb = document.getElementById('staging-banner');
   if (sb) sb.style.display = isStagingConfigured() ? 'block' : 'none';
-  // Exibir botão de staging no header se for ambiente staging ou developer
-  const stagingHeaderBtn = document.getElementById('btn-staging-header');
-  if (stagingHeaderBtn) {
-    const showStagingBtn = isStagingConfigured() || !isProduction();
-    stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
-  }
   document.getElementById('admin-login').style.display = 'block';
   document.getElementById('admin-body').style.display = 'none';
   document.getElementById('admin-email').value = '';
@@ -2531,12 +2482,6 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
-  // Exibir botão de staging no header para developer ou quando staging está configurado
-  const stagingHeaderBtn = document.getElementById('btn-staging-header');
-  if (stagingHeaderBtn) {
-    const showStagingBtn = role === 'developer' || isStagingConfigured() || !isProduction();
-    stagingHeaderBtn.style.display = showStagingBtn ? 'block' : 'none';
-  }
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -2782,11 +2727,6 @@ function adminTab(tab) {
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
   document.getElementById(`atab-${tab}`).classList.add('active');
-
-  // Ocultar contador de e-mails por padrão (só aparece na aba config para developer)
-  const emailCounterCard = document.getElementById('email-counter-card');
-  if (emailCounterCard) emailCounterCard.style.display = 'none';
-
   if (tab==='processos') loadProcessos();
   if (tab==='emails') loadEmails();
   if (tab==='lacres') loadLacres();
@@ -3241,7 +3181,8 @@ async function loadHistorico() {
         const ta = b.data().encerradoEm?.seconds || b.data().registradoEm?.seconds || 0;
         const tb = a.data().encerradoEm?.seconds || a.data().registradoEm?.seconds || 0;
         return ta - tb;
-      });
+      })
+      .slice(0,200);
     _historicoCache = allEncDocs.map(d=>d.data());
     renderHistorico(_historicoCache);
   } catch(e) { console.warn(e.message); }
@@ -3449,14 +3390,10 @@ async function loadConfig() {
   // Show version info
   const vEl = document.getElementById('cfg-version-display');
   if (vEl) {
-    // Usa sempre o primeiro item do CHANGELOG como versão atual — atualização automática
-    const vc = (typeof CHANGELOG !== 'undefined' && CHANGELOG.length) ? CHANGELOG[0] : null;
-    const vStr = vc ? vc.version : '—';
-    const dStr = vc ? vc.data    : '—';
     vEl.innerHTML = `
       <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);">Versão ${vStr}</span>
-        <span style="font-size:13px;color:var(--text3);">· Lançada em ${dStr}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);">Versão 2.0</span>
+        <span style="font-size:13px;color:var(--text3);">· Lançada em 22/03/2026</span>
       </div>`;
   }
   // Load from Firestore first (synced across all devices), fallback to localStorage
@@ -3471,11 +3408,6 @@ async function loadConfig() {
         if (d.config_horas) setCfg('config_horas', d.config_horas);
         if (d.config_timeout) setCfg('config_timeout', d.config_timeout);
         if (d.config_horas) sessionTimeoutMs = parseInt(d.config_timeout||5) * 60 * 60 * 1000;
-        // Atualiza imediatamente o display na aba de processos com o valor do Firestore
-        if (d.config_horas) {
-          const alertaEl = document.getElementById('alerta-h-display');
-          if (alertaEl) alertaEl.textContent = d.config_horas;
-        }
       }
       if (geminiDoc.exists) document.getElementById('cfg-gemini-key').value = geminiDoc.data().key||'';
     } catch(e) { console.warn('Config load error:', e.message); }
@@ -3485,14 +3417,7 @@ async function loadConfig() {
   document.getElementById('cfg-ejs-pub').value = getCfg('ejs_pub','');
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
-  
-  // Carregar a config do Firebase correta para o ambiente atual no campo de edição
-  if (!isProduction()) {
-    document.getElementById('cfg-firebase').value = localStorage.getItem('firebase_staging_config') || '{}';
-  } else {
-    document.getElementById('cfg-firebase').value = getCfg('firebase_config','{}');
-  }
-
+  document.getElementById('cfg-firebase').value = getCfg('firebase_config','{}');
   // Carregar EmailJS do Firestore (fonte de verdade) — substitui valores do localStorage
   if (db) {
     try {
@@ -3568,15 +3493,8 @@ async function salvarEmailJS() {
 function salvarFirebase() {
   try {
     const raw = document.getElementById('cfg-firebase').value.trim();
-    const config = JSON.parse(raw);
-    
-    // Se a config colada for do projeto staging, salvar na chave específica de staging
-    if (config.projectId === STAGING_PROJECT_ID) {
-      localStorage.setItem('firebase_staging_config', raw);
-    } else {
-      setCfg('firebase_config', raw);
-    }
-    
+    JSON.parse(raw);
+    setCfg('firebase_config', raw);
     showTopAlert('✅ Firebase salvo! Recarregando em 2 segundos...', 'ok');
     setTimeout(() => location.reload(), 2000);
   } catch(e) { alert('JSON inválido: ' + e.message); }
@@ -4035,17 +3953,9 @@ loadGeminiKey(); // config read - still public
 <!-- Registrar Service Worker para PWA -->
 <script>
   // PWA build-hash check: forces full reload when a new version is deployed
-  // BUILD_HASH é gerado automaticamente a partir da versão + data/hora do último carregamento do arquivo.
-  // Para forçar atualização em todos os dispositivos, basta subir o arquivo — o hash muda sozinho.
+  // Change BUILD_HASH on every deploy to trigger update on all devices
   (function checkBuildHash() {
-    // ⚠️ Atualizar APP_VERSION APENAS quando mudar CHANGELOG[0].version
-    // O resto (timestamp) é gerado automaticamente a cada deploy.
-    const APP_VERSION = '2.0'; // ← alterar junto com CHANGELOG[0].version
-    // Timestamp de build: gerado a partir da data do arquivo servido pelo servidor.
-    // Cada deploy gera um hash diferente → todos os dispositivos recarregam automaticamente.
-    const BUILD_HASH = '20260324211416' + APP_VERSION + '-' + (document.lastModified
-      ? new Date(document.lastModified).toISOString().replace(/[-:.TZ]/g,'').slice(0,12)
-      : Date.now());
+    const BUILD_HASH = 'v2.0';
     const stored = localStorage.getItem('app_build_hash');
     if (stored && stored !== BUILD_HASH) {
       localStorage.setItem('app_build_hash', BUILD_HASH);
@@ -4172,9 +4082,7 @@ async function doAppLoginComOffline() {
     }
   }
   // Online: login normal + salvar para offline
-  console.log('[LOGIN] Iniciando login online...');
-  console.log('[LOGIN] auth:', auth ? 'OK' : 'NULL', 'db:', db ? 'OK' : 'NULL', 'firebase.apps:', firebase.apps.length);
-  if (!auth) { alert('Firebase não configurado. Verifique se a configuração de staging foi salva.'); return; }
+  if (!auth) { alert('Firebase não configurado.'); return; }
   const email = document.getElementById('op-email').value.trim();
   const pass = document.getElementById('op-pass').value;
   if (!email) { const e=document.getElementById('app-login-err');e.textContent='Informe seu e-mail.';e.style.display='block';return; }
@@ -4187,11 +4095,9 @@ async function doAppLoginComOffline() {
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const cred = await auth.signInWithEmailAndPassword(email, pass);
     const userDoc = await db.collection('usuarios').doc(cred.user.uid).get();
-    console.log('[LOGIN] Usuário encontrado:', userDoc.exists);
     const perfil = userDoc.exists ? (userDoc.data().perfil || 'operacional') : 'operacional';
     const nome = userDoc.exists ? (userDoc.data().nome || email) : email;
     const empresa = userDoc.exists ? (userDoc.data().empresa || '') : '';
-    console.log('[LOGIN] Perfil:', perfil, 'Nome:', nome);
     // Block inactive users
     if (userDoc.exists && userDoc.data().inativo) {
       errEl.textContent = 'Usuário inativo. Contate o administrador.';
@@ -4202,6 +4108,8 @@ async function doAppLoginComOffline() {
     currentOperador = { email, nome, uid: cred.user.uid, perfil, empresa };
     // Salvar para offline
     await salvarLoginOffline(cred.user, { nome, empresa, perfil });
+    // Atualizar cache de placas para uso offline (não-bloqueante)
+    atualizarCachePlacas().catch(() => {});
     // Log de auditoria: registrar device e timestamp
     try {
       await db.collection('logs').add({
@@ -4220,7 +4128,7 @@ async function doAppLoginComOffline() {
       adminBtn.style.visibility = 'visible';
     }
     const ajudaBtnLogin = document.getElementById('btn-ajuda-admin');
-    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='developer') ? 'inline-block' : 'none';
+    if (ajudaBtnLogin) ajudaBtnLogin.style.display = (perfil==='admin'||perfil==='operador'||perfil==='developer') ? 'inline-block' : 'none';
     applyRolePermissions(perfil);
     // Load config from Firestore to get latest settings on this device
     if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); } } catch(_) {} }
@@ -4229,8 +4137,7 @@ async function doAppLoginComOffline() {
     // Pre-load fornecedores for dropdown
     setTimeout(popularFornecedoresDatalist, 1500);
   } catch(e) {
-    console.error('[LOGIN] Erro de autenticação:', e.code, e.message);
-    console.error('[LOGIN] Stack:', e.stack);
+    console.error('App login error:', e.code, e.message);
     errEl.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials'
       ? 'E-mail ou senha incorretos.'
       : e.code === 'auth/too-many-requests'
@@ -4285,6 +4192,14 @@ async function analisarNF(lado = 'origem') {
   const result = document.getElementById(`result-nf-${lado}`);
   if (!loading || !result) return;
   if (!stateNF[lado]?.photoBase64) { alert('Tire uma foto da NF antes de analisar.'); return; }
+
+  // Verificar conectividade antes de qualquer coisa
+  if (!navigator.onLine) {
+    result.style.display = 'block';
+    result.innerHTML = `<div style="color:var(--warning);font-size:13px;padding:10px 0;">📵 <strong>Sem conexão</strong> — preencha os dados da NF manualmente.</div>`;
+    return;
+  }
+
   loading.classList.add('show');
   result.style.display = 'none';
   try {
@@ -4486,14 +4401,10 @@ function renderFornecedores(lista) {
     const statusBadge = d.inativo
       ? '<span class="badge badge-err">Inativo</span>'
       : '<span class="badge badge-ok">Ativo</span>';
-    // Informação de quem inativou (se aplicável)
-    const inativadoPor = d.inativo && d.inativadoPorNome
-      ? `<br><span style="font-size:11px;color:var(--text3);">por ${d.inativadoPorNome}</span>`
-      : '';
     const btns = d.inativo
       ? `<button class="btn btn-outline btn-sm" onclick="reativarFornecedor('${d.cnpj}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
       : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
-           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')" >✏️ Editar</button>
+           <button class="btn btn-outline btn-sm" onclick="editarFornecedor('${d.cnpj}','${(d.nome||'').replace(/'/g,"\\'")}')">✏️ Editar</button>
            <button class="btn btn-outline btn-sm" onclick="inativarFornecedor('${d.cnpj}')" style="border-color:var(--danger);color:var(--danger);">🚫 Inativar</button>
          </div>`;
     return `<tr style="${d.inativo ? 'opacity:.6;' : ''}">
@@ -4747,6 +4658,7 @@ function _tirarFotoNF(lado) {
 let _fornecedoresCache = null;
 async function carregarFornecedoresDropdown() {
   if (!db) return [];
+  if (_fornecedoresCache) return _fornecedoresCache;
   try {
     const snap = await db.collection('fornecedores').orderBy('nome').get();
     _fornecedoresCache = filtrarDadosReais(snap.docs).filter(d=>!d.data().inativo).map(d=>({cnpj:d.data().cnpj,nome:d.data().nome}));
@@ -4837,8 +4749,8 @@ async function salvarEdicaoUsuario(){
 }
 async function resetarSenhaUsuario(email){
   if(!confirm(`Enviar link de recuperação para ${email}?`))return;
-  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');if(db){try{await db.collection('logs').add({acao:'email_redefinicao_senha',detalhe:`Link de redefinição enviado para ${email}`,usuario:auth?.currentUser?.email||'sistema',timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}await registrarLog('reset_senha',`Link enviado para ${email}`);}
-  catch(e){showTopAlert(`❌ Erro: ${e.message}`,'error');}
+  try{await auth.sendPasswordResetEmail(email);showTopAlert(`✅ Link enviado para ${email}`,'ok');await registrarLog('reset_senha',`Link enviado para ${email}`);}
+  catch(e){alert('Erro: '+e.message);}
 }
 
 // ── LOGS ──────────────────────────────────────────────────────
@@ -4870,7 +4782,7 @@ async function enviarRecuperacaoSenha(evt){
   const email=(document.getElementById('op-email')?.value.trim())||prompt('Digite seu e-mail:');
   if(!email)return;
   if(!auth){alert('Firebase não configurado.');return;}
-  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);if(db){try{await db.collection('logs').add({acao:'email_redefinicao_senha',detalhe:`Link de redefinição enviado para ${email}`,usuario:email||'sistema',timestamp:firebase.firestore.FieldValue.serverTimestamp()});}catch(_){}}}
+  try{await auth.sendPasswordResetEmail(email);alert(`✅ Link enviado para ${email}\n\nVerifique sua caixa de entrada.`);}
   catch(e){alert('❌ Erro: '+(e.code==='auth/user-not-found'?'E-mail não encontrado.':e.code==='auth/invalid-email'?'E-mail inválido.':e.message));}
 }
 
@@ -4937,94 +4849,8 @@ function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
-  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">${(typeof CHANGELOG!=='undefined'&&CHANGELOG.length)?'v'+CHANGELOG[0].version:'v—'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
+  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v2.0</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
   const warn=document.getElementById('staging-env-warning');if(warn)warn.style.display=isProd?'block':'none';
-  
-  // Preencher campos de build com valores atuais
-  const vEl = document.getElementById('build-version');
-  if (vEl && !vEl.value) vEl.value = (typeof CHANGELOG !== 'undefined' && CHANGELOG.length) ? (parseFloat(CHANGELOG[0].version) + 0.1).toFixed(1) : '1.0';
-  const dEl = document.getElementById('build-date');
-  if (dEl && !dEl.value) dEl.value = new Date().toLocaleDateString('pt-BR');
-}
-
-async function runAutoBuild() {
-  const version = document.getElementById('build-version').value.trim();
-  const date = document.getElementById('build-date').value.trim();
-  const newsAdmin = document.getElementById('build-news-admin').value.trim().split('\n').filter(x=>x);
-  const fixesAdmin = document.getElementById('build-fixes-admin').value.trim().split('\n').filter(x=>x);
-  const logEl = document.getElementById('build-log');
-  
-  if (!version || !date) { alert('Preencha versão e data.'); return; }
-  
-  logEl.textContent = '⏳ Lendo código fonte...';
-  
-  try {
-    // Pegar o código fonte atual da página
-    let source = await fetch(window.location.href).then(r => r.text());
-    
-    logEl.textContent += '\n📝 Atualizando Changelog...';
-    
-    // 1. Atualizar Changelog
-    const newEntry = {
-      version: version,
-      data: date,
-      novidades_admin: newsAdmin,
-      correcoes_admin: fixesAdmin,
-      novidades_user: [],
-      correcoes_user: []
-    };
-    
-    const changelogPattern = /(const CHANGELOG\s*=\s*\[)(.*?)(\];)/s;
-    const match = source.match(changelogPattern);
-    if (match) {
-      const newEntryJson = JSON.stringify(newEntry, null, 2).replace(/\n/g, '\n    ');
-      source = source.replace(changelogPattern, `$1\n    ${newEntryJson},\n    $2$3`);
-    }
-    
-    // 2. Atualizar BUILD_HASH
-    const newHash = new Date().getTime().toString();
-    source = source.replace(/const BUILD_HASH\s*=\s*'.*?'/, `const BUILD_HASH = '${newHash}'`);
-    
-    logEl.textContent += '\n📦 Gerando arquivos...';
-    
-    // Helper para download
-    const download = (filename, content) => {
-      const blob = new Blob([content], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-    
-    // 3. Gerar STAGING
-    const stagConfig = {
-      apiKey: "AIzaSyCvwTaKSEolBlP6iFPC5WmQudJs39p6Dxo",
-      authDomain: "verificador-lacre-staging.firebaseapp.com",
-      projectId: "verificador-lacre-staging",
-      storageBucket: "verificador-lacre-staging.firebasestorage.app",
-      messagingSenderId: "880634858744",
-      appId: "1:880634858744:web:1c7f91f0c1a6b95546ff0d"
-    };
-    
-    let stagSource = source.replace(/const IS_STAGING_BUILD\s*=\s*.*?;/, 'const IS_STAGING_BUILD = true;');
-    stagSource = stagSource.replace(/const STAGING_FIREBASE_CONFIG\s*=\s*.*?;/, `const STAGING_FIREBASE_CONFIG = ${JSON.stringify(stagConfig, null, 2)};`);
-    
-    // 4. Gerar PRODUÇÃO
-    let prodSource = source.replace(/const IS_STAGING_BUILD\s*=\s*.*?;/, 'const IS_STAGING_BUILD = false;');
-    prodSource = prodSource.replace(/const STAGING_FIREBASE_CONFIG\s*=\s*.*?;/, 'const STAGING_FIREBASE_CONFIG = null;');
-    
-    download(`index-staging-v${version.replace('.','_')}.html`, stagSource);
-    download(`index-producao-v${version.replace('.','_')}.html`, prodSource);
-    
-    logEl.textContent += '\n✅ Concluído! Verifique seus downloads.';
-    showTopAlert('🚀 Build concluído com sucesso!', 'ok');
-    
-  } catch(e) {
-    logEl.textContent += '\n❌ Erro: ' + e.message;
-    console.error(e);
-  }
 }
 function jsConfigToJson(raw){return raw.replace(/\/\/.*/g,'').replace(/,\s*\}/g,'}').replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g,'$1"$2":');}
 function salvarStagingConfig(){
@@ -5061,99 +4887,6 @@ async function limparDadosTesteProducao() {
   _fornecedoresCache = null;
   loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
 }
-async function limparDadosTesteProducaoAvanc() {
-  if (!isProduction()) { showTopAlert('⛔ Esta função só executa em produção.', 'error'); return; }
-  if (!confirm('⚠️ Isso vai DELETAR permanentemente todos os documentos marcados como _testData do banco de PRODUÇÃO.\n\nEsta ação é irreversível. Confirmar?')) return;
-  if (!db) return;
-  const logEl = document.getElementById('limpar-prod-log');
-  if (logEl) logEl.textContent = '⏳ Removendo...';
-  let total = 0;
-  const colecoes = ['lacresValidos','placasAutorizadas','fornecedores','processos'];
-  for (const col of colecoes) {
-    try {
-      let hasMore = true;
-      let lastDoc = null;
-      while (hasMore) {
-        let query = db.collection(col).where('_testData','==',true).limit(500);
-        if (lastDoc) query = query.startAfter(lastDoc);
-        const snap = await query.get();
-        if (snap.empty) { hasMore = false; break; }
-        const b = db.batch();
-        snap.docs.forEach(d => b.delete(d.ref));
-        await b.commit();
-        total += snap.size;
-        lastDoc = snap.docs[snap.docs.length - 1];
-        if (logEl) logEl.textContent = `⏳ Removidos ${total} até agora...`;
-      }
-    } catch(e) { console.warn(`Erro em ${col}:`, e.message); }
-  }
-  if (logEl) logEl.textContent = `✅ ${total} documento(s) de teste removidos da produção.`;
-  showTopAlert(`✅ ${total} documento(s) de teste deletados da produção.`, 'ok');
-  try { await registrarLog('limpar_dados_teste', `${total} documentos _testData deletados da produção`); } catch(_) {}
-  _fornecedoresCache = null;
-  loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard();
-}
-// ── LIMPAR DADOS POR DATA ─────────────────────────────────────────
-async function limparDadosPorData() {
-  if (!db) { alert('Firebase não configurado.'); return; }
-  const logEl = document.getElementById('limpar-data-log');
-  const inputEl = document.getElementById('limpar-data-input');
-  const rawDate = (inputEl?.value || '').trim();
-  if (!rawDate) { alert('Informe a data no formato dd/mm/aaaa.'); return; }
-  // Parsear dd/mm/aaaa
-  const parts = rawDate.split('/');
-  if (parts.length !== 3 || parts[0].length !== 2 || parts[1].length !== 2 || parts[2].length !== 4) {
-    alert('Formato inválido. Use dd/mm/aaaa (ex: 22/03/2026).');
-    return;
-  }
-  const dia = parseInt(parts[0]), mes = parseInt(parts[1]) - 1, ano = parseInt(parts[2]);
-  const inicioDia = new Date(ano, mes, dia, 0, 0, 0, 0);
-  const fimDia    = new Date(ano, mes, dia, 23, 59, 59, 999);
-  const dataFmt   = `${parts[0]}/${parts[1]}/${parts[2]}`;
-  if (!confirm(`⚠️ Isso vai DELETAR permanentemente todos os documentos criados em ${dataFmt} nas coleções:\n\n• processos\n• lacresValidos\n• placasAutorizadas\n• fornecedores\n\n⚠️ Logs de auditoria são preservados e não serão apagados.\nEsta ação é IRREVERSÍVEL. Confirmar?`)) return;
-  if (logEl) logEl.textContent = `⏳ Buscando documentos criados em ${dataFmt}...`;
-  const colecoes = ['processos','lacresValidos','placasAutorizadas','fornecedores'];
-  // Campos de timestamp a verificar por coleção
-  const camposTs = {
-    processos:          ['registradoEm', 'encerradoEm'],
-    lacresValidos:      ['cadastradoEm'],
-    placasAutorizadas:  ['adicionadaEm'],
-    fornecedores:       ['cadastradoEm']
-  };
-  let totalGeral = 0;
-  for (const col of colecoes) {
-    let totalCol = 0;
-    const campos = camposTs[col] || ['registradoEm'];
-    // Buscar por cada campo de timestamp
-    const docsParaDeletar = new Map(); // id -> ref
-    for (const campo of campos) {
-      try {
-        // Firestore Timestamp: usar >= e <= com objetos Date
-        const snap = await db.collection(col)
-          .where(campo, '>=', firebase.firestore.Timestamp.fromDate(inicioDia))
-          .where(campo, '<=', firebase.firestore.Timestamp.fromDate(fimDia))
-          .get();
-        snap.docs.forEach(d => docsParaDeletar.set(d.id, d.ref));
-      } catch(e) { /* campo pode não existir em todos os docs */ }
-    }
-    // Deletar em batches de 500
-    const refs = Array.from(docsParaDeletar.values());
-    for (let i = 0; i < refs.length; i += 500) {
-      const batch = db.batch();
-      refs.slice(i, i + 500).forEach(ref => batch.delete(ref));
-      await batch.commit();
-      totalCol += Math.min(500, refs.length - i);
-    }
-    if (logEl) logEl.textContent += `\n✅ ${col}: ${totalCol} documento(s) removido(s)`;
-    totalGeral += totalCol;
-  }
-  if (logEl) logEl.textContent += `\n\n🎉 Total: ${totalGeral} documento(s) apagados da data ${dataFmt}.`;
-  showTopAlert(`✅ ${totalGeral} documento(s) de ${dataFmt} deletados.`, totalGeral > 0 ? 'ok' : 'warning');
-  try { await registrarLog('limpar_dados_por_data', `${totalGeral} docs de ${dataFmt} deletados`); } catch(_) {}
-  _fornecedoresCache = null;
-  if (totalGeral > 0) { loadLacres(); loadPlacas(); loadFornecedores(); loadDashboard(); }
-}
-
 const DADOS_TESTE={placas:[{placa:'ABC1234',descricao:'CARRETA TANQUE — ALFA'},{placa:'XYZ5678',descricao:'BITREM — BETA'},{placa:'DEF1E23',descricao:'CARRETA SIDER — GAMA'},{placa:'GHI4567',descricao:'CARRETA BAÚ — DELTA'},{placa:'JKL8901',descricao:'TRUCK — ÉPSILON'}],lacres:Array.from({length:30},(_,i)=>String(i+1).padStart(5,'0')),fornecedores:[{cnpj:'12345678000195',nome:'FORNECEDOR ALFA LTDA'},{cnpj:'98765432000100',nome:'DISTRIBUIDORA BETA S/A'},{cnpj:'11223344000155',nome:'INDUSTRIA GAMA EIRELI'}],locais:[{loc:'São Paulo, SP',coords:'-23.5505,-46.6333'},{loc:'Campinas, SP',coords:'-22.9056,-47.0608'},{loc:'Sorocaba, SP',coords:'-23.5015,-47.4526'}]};
 async function gerarDadosTeste(tipo='todos'){
   if(!db){alert('Firebase não configurado.');return;}if(isProduction()){alert('⛔ Bloqueado em produção.');return;}
@@ -5192,9 +4925,7 @@ function atualizarChecklist(show=false){
   r.style.cssText=checked===total?'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(26,140,78,.15);border:2px solid var(--success);color:var(--success);':'display:block;margin-top:14px;padding:16px;border-radius:10px;font-size:16px;font-weight:700;text-align:center;background:rgba(192,57,43,.1);border:2px solid var(--danger);color:var(--danger);';
   r.innerHTML=checked===total?'✅ CHECKLIST 100% COMPLETO<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Pronto para publicar. Lembre de atualizar o BUILD_HASH!</span>':`⚠️ ${checked}/${total} itens (${pct}%)<br><span style="font-size:13px;font-weight:400;opacity:.8;margin-top:4px;display:block;">Conclua todos os itens antes de publicar.</span>`;
 }
-const CHANGELOG=[
-  {    version:'2.0', data:'22/03/2026',    novidades_admin:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial (SUP-AANNNN)','Perfil detectado automaticamente pelo e-mail no suporte','Banner de feedback persistente — erros não somem automaticamente','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy e checklist pré-deploy','Painel Admin em tela dedicada (sem sobreposição)','Botão Ajuda visível para todos os perfis'],    correcoes_admin:['Correção crítica: funções JS não executavam (bloco corrompido)','Login: auth/invalid-login-credentials mapeado corretamente','Staging não interfere mais com configuração de produção','Duplicatas de botão Suporte removidas','Banner de erro não sumia automaticamente'],    novidades_user:['Botão de suporte disponível em todas as telas','Câmera da nota fiscal com captura automática','Botão para mostrar/ocultar senha no login'],    correcoes_user:['Correções de estabilidade no login','Melhorias na aba Origem','Correções gerais de interface']  },  {    version:'1.3', data:'20/03/2026',    novidades_admin:['Painel de staging','Checklist pré-deploy','Changelog de versões'],    correcoes_admin:['Timeout padrão ajustado para 2h','E-mail enviado apenas em desvios'],    novidades_user:['Melhorias na aba de configurações'],    correcoes_user:['Correções gerais de estabilidade']  },  {    version:'1.2', data:'19/03/2026',    novidades_admin:['Inativar/reativar lacres, placas e usuários','Aba de Logs de auditoria','Fornecedores: editar, inativar e reativar','Exportação CSV do histórico'],    correcoes_admin:[],    novidades_user:['Melhorias no histórico de processos'],    correcoes_user:['Correções na verificação de lacres']  },  {    version:'1.0', data:'16/03/2026',    novidades_admin:['Sistema base: câmera, IA Gemini, NF, geolocalização','Painel admin com dashboard KPIs','Controle de acesso por perfil','Notificações por e-mail','Exportação CSV'],    correcoes_admin:[],    novidades_user:['Lançamento do sistema VerificaLacre','Registro de saída e verificação de chegada','Leitura de lacre por câmera'],    correcoes_user:[]  }
-];
+const CHANGELOG=[  {    version:'2.0', data:'22/03/2026',    novidades_admin:['Botão de suporte flutuante em todas as telas','Formulário de suporte com número sequencial (SUP-AANNNN)','Perfil detectado automaticamente pelo e-mail no suporte','Banner de feedback persistente — erros não somem automaticamente','Câmera da NF com detecção automática de documento','Validação inline de placa com status visual','Perfil Developer com aba Deploy e checklist pré-deploy','Painel Admin em tela dedicada (sem sobreposição)','Botão Ajuda visível para todos os perfis'],    correcoes_admin:['Correção crítica: funções JS não executavam (bloco corrompido)','Login: auth/invalid-login-credentials mapeado corretamente','Staging não interfere mais com configuração de produção','Duplicatas de botão Suporte removidas','Banner de erro não sumia automaticamente'],    novidades_user:['Botão de suporte disponível em todas as telas','Câmera da nota fiscal com captura automática','Botão para mostrar/ocultar senha no login'],    correcoes_user:['Correções de estabilidade no login','Melhorias na aba Origem','Correções gerais de interface']  },  {    version:'1.3', data:'20/03/2026',    novidades_admin:['Painel de staging','Checklist pré-deploy','Changelog de versões'],    correcoes_admin:['Timeout padrão ajustado para 2h','E-mail enviado apenas em desvios'],    novidades_user:['Melhorias na aba de configurações'],    correcoes_user:['Correções gerais de estabilidade']  },  {    version:'1.2', data:'19/03/2026',    novidades_admin:['Inativar/reativar lacres, placas e usuários','Aba de Logs de auditoria','Fornecedores: editar, inativar e reativar','Exportação CSV do histórico'],    correcoes_admin:[],    novidades_user:['Melhorias no histórico de processos'],    correcoes_user:['Correções na verificação de lacres']  },  {    version:'1.0', data:'16/03/2026',    novidades_admin:['Sistema base: câmera, IA Gemini, NF, geolocalização','Painel admin com dashboard KPIs','Controle de acesso por perfil','Notificações por e-mail','Exportação CSV'],    correcoes_admin:[],    novidades_user:['Lançamento do sistema VerificaLacre','Registro de saída e verificação de chegada','Leitura de lacre por câmera'],    correcoes_user:[]  }];
 function verChangelog(){
   const isAdmin = currentUserRole==='admin'||currentUserRole==='developer';
   let m=document.getElementById('changelog-modal');
@@ -5413,51 +5144,15 @@ async function enviarSuporte(){
   }
 }
 
-// ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
-function abrirConfigurarStaging(evt) {
-  if (evt) { evt.preventDefault(); evt.stopPropagation(); }
-  console.log('[STAGING] Abrindo modal de configuração...');
-  const modal = document.getElementById('staging-setup-modal');
-  if (!modal) { alert('Modal de staging não encontrado.'); return; }
-  // Pre-fill se já configurado
-  const existing = localStorage.getItem('firebase_staging_config');
-  const inputEl = document.getElementById('staging-setup-input');
-  if (existing && inputEl) {
-    try {
-      inputEl.value = JSON.stringify(JSON.parse(existing), null, 2);
-    } catch(_) { inputEl.value = existing; }
-  } else if (inputEl) {
-    inputEl.value = '';
-  }
-  const status = document.getElementById('staging-setup-status');
-  if (status) {
-    if (existing) {
-      try {
-        const p = JSON.parse(existing);
-        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;padding:8px 12px;border-radius:6px;';
-        status.textContent = '✅ Staging já configurado: ' + (p.projectId || '');
-      } catch(_) { status.style.display = 'none'; }
-    } else {
-      status.style.display = 'none';
-    }
-  }
-  const errEl = document.getElementById('staging-setup-err');
-  if (errEl) errEl.style.display = 'none';
-  // Mostrar modal com visibility e opacity (evita conflitos com display:none)
-  modal.style.visibility = 'visible';
-  modal.style.opacity = '1';
-  console.log('[STAGING] Modal exibido');
-}
-
 </script>
 
 
 <!-- MODAL CONFIGURAR STAGING -->
-<div id="staging-setup-modal" style="visibility:hidden;opacity:0;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:center;justify-content:center;transition:opacity .2s,visibility .2s;">
+<div id="staging-setup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;">
   <div style="background:var(--surface);border-radius:14px;width:92%;max-width:500px;box-shadow:0 16px 60px rgba(0,0,0,.5);overflow:hidden;">
     <div style="background:#0f4a28;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #1a8c4e;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:#5ecb8a;letter-spacing:2px;">⚙ CONFIGURAR STAGING</div>
-      <button onclick="const m=document.getElementById('staging-setup-modal');m.style.visibility='hidden';m.style.opacity='0';" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;cursor:pointer;">✕</button>
+      <button onclick="document.getElementById('staging-setup-modal').style.display='none'" style="background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-weight:700;">✕</button>
     </div>
     <div style="padding:20px;">
       <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">
@@ -5484,10 +5179,44 @@ function abrirConfigurarStaging(evt) {
 
 
 <script>
+// ── CONFIGURAÇÃO DE STAGING (uma vez, persiste) ───────────────────
+function abrirConfigurarStaging(evt) {
+  if (evt) { evt.preventDefault(); evt.stopPropagation(); }
+  const modal = document.getElementById('staging-setup-modal');
+  if (!modal) { alert('Modal de staging não encontrado.'); return; }
+  // Pre-fill se já configurado
+  const existing = localStorage.getItem('firebase_staging_config');
+  const inputEl = document.getElementById('staging-setup-input');
+  if (existing && inputEl) {
+    try {
+      inputEl.value = JSON.stringify(JSON.parse(existing), null, 2);
+    } catch(_) { inputEl.value = existing; }
+  } else if (inputEl) {
+    inputEl.value = '';
+  }
+  const status = document.getElementById('staging-setup-status');
+  if (status) {
+    if (existing) {
+      try {
+        const p = JSON.parse(existing);
+        status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;padding:8px 12px;border-radius:6px;';
+        status.textContent = '✅ Staging já configurado: ' + (p.projectId || '');
+      } catch(_) { status.style.display = 'none'; }
+    } else {
+      status.style.display = 'none';
+    }
+  }
+  const errEl = document.getElementById('staging-setup-err');
+  if (errEl) errEl.style.display = 'none';
+  // Forçar visibilidade — remover qualquer inline style conflitante e aplicar flex
+  modal.removeAttribute('style');
+  modal.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;';
+}
 
 function jsToJson(raw) {
   return raw
-    .replace(/\/\/.*$/gm, '')
+    .replace(/\/\/[^
+]*/g, '')
     .replace(/,(\s*[}\]])/g, '$1')
     .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":');
 }
@@ -5512,9 +5241,7 @@ function salvarStagingSetup() {
   status.style.cssText = 'display:block;background:rgba(26,140,78,.1);border:1px solid rgba(26,140,78,.3);color:#1a8c4e;';
   status.textContent = '✅ Staging configurado: ' + cfg.projectId + ' — Recarregue a página para conectar.';
   setTimeout(() => {
-    const m = document.getElementById('staging-setup-modal');
-    m.style.visibility = 'hidden';
-    m.style.opacity = '0';
+    document.getElementById('staging-setup-modal').style.display = 'none';
     location.reload();
   }, 2000);
 }
@@ -5528,15 +5255,10 @@ function limparStagingSetup() {
   setTimeout(() => location.reload(), 1500);
 }
 
-// Exibe botão de configurar staging APENAS em ambiente staging real (URL ou IS_STAGING_BUILD).
-// hasLocalStaging foi removido intencionalmente — não deve vazar para produção.
+// Show staging config button only in staging environment OR if URL contains 'staging'
 (function checkShowStagingBtn() {
   function _show() {
-    // Bloqueio absoluto: se estiver no domínio de produção, nunca mostra o botão de configurar staging
-    const host = window.location.hostname;
-    if (host === 'verificador-lacre.firebaseapp.com' || host === 'verificador-lacre.web.app') return;
-
-    const isStaging = _isUrlStaging() || IS_STAGING_BUILD;
+    const isStaging = window.location.href.includes('/staging') || IS_STAGING_BUILD;
     if (!isStaging) return;
     const wrap = document.getElementById('btn-configurar-staging-wrap');
     if (wrap) wrap.style.display = 'block';
