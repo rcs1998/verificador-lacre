@@ -1131,7 +1131,14 @@ let storage = null;
 // PRODUÇÃO: IS_STAGING_BUILD = false, STAGING_FIREBASE_CONFIG = null
 // STAGING:  IS_STAGING_BUILD = true, cole o config abaixo
 const IS_STAGING_BUILD = true;
-const STAGING_FIREBASE_CONFIG = { apiKey:"AIzaSyCvwTaK...", authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
+const STAGING_FIREBASE_CONFIG = {
+  "apiKey": "AIzaSyCvwTaKSEolBlP6iFPC5WmQudJs39p6Dxo",
+  "authDomain": "verificador-lacre-staging.firebaseapp.com",
+  "projectId": "verificador-lacre-staging",
+  "storageBucket": "verificador-lacre-staging.firebasestorage.app",
+  "messagingSenderId": "880634858744",
+  "appId": "1:880634858744:web:1c7f91f0c1a6b95546ff0d"
+};
 // ⚠️ Lembre de preencher o apiKey completo acima antes de fazer deploy do staging
 
 function initFirebase() {
@@ -1142,8 +1149,14 @@ function initFirebase() {
 
     if (urlIsStaging || (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG)) {
       // ── STAGING ─────────────────────────────────────────────────
-      // 1) Config hardcoded no build (arquivo staging/)
-      if (IS_STAGING_BUILD && STAGING_FIREBASE_CONFIG) {
+      // 1) Config hardcoded no build — só usa se apiKey estiver completo (não placeholder)
+      const hardcodedValido = IS_STAGING_BUILD
+        && STAGING_FIREBASE_CONFIG
+        && STAGING_FIREBASE_CONFIG.apiKey
+        && !STAGING_FIREBASE_CONFIG.apiKey.includes('...')
+        && STAGING_FIREBASE_CONFIG.apiKey.length > 20;
+
+      if (hardcodedValido) {
         chosen = STAGING_FIREBASE_CONFIG;
       } else {
         // 2) Config salva no localStorage pelo modal ⚙ Configurar Staging
@@ -5254,11 +5267,17 @@ function limparStagingSetup() {
   setTimeout(() => location.reload(), 1500);
 }
 
-// Show staging config button only in staging environment OR if URL contains 'staging'
+// Show staging config button in staging environment when apiKey is not yet configured
 (function checkShowStagingBtn() {
   function _show() {
     const isStaging = window.location.href.includes('/staging') || IS_STAGING_BUILD;
     if (!isStaging) return;
+    // Se o apiKey hardcoded for placeholder/incompleto, sempre mostrar o botão
+    const hardcodedIncompleto = !STAGING_FIREBASE_CONFIG
+      || !STAGING_FIREBASE_CONFIG.apiKey
+      || STAGING_FIREBASE_CONFIG.apiKey.includes('...')
+      || STAGING_FIREBASE_CONFIG.apiKey.length <= 20;
+    if (!hardcodedIncompleto) return; // apiKey válido — não precisa do botão na tela inicial
     const wrap = document.getElementById('btn-configurar-staging-wrap');
     if (wrap) wrap.style.display = 'block';
   }
