@@ -1100,10 +1100,16 @@ async function loadGeminiKey() {
 }
 
 function getCfg(key, def) {
-  try { return localStorage.getItem(key) || def; } catch(e) { return def; }
+  try { 
+    const prefix = isProduction() ? 'prod_' : 'stag_';
+    return localStorage.getItem(prefix + key) || localStorage.getItem(key) || def; 
+  } catch(e) { return def; }
 }
 function setCfg(key, val) {
-  try { localStorage.setItem(key, val); } catch(e) {}
+  try { 
+    const prefix = isProduction() ? 'prod_' : 'stag_';
+    localStorage.setItem(prefix + key, val); 
+  } catch(e) {}
 }
 
 // IDs dos projetos Firebase — nunca cruzar
@@ -3440,7 +3446,14 @@ async function loadConfig() {
   document.getElementById('cfg-ejs-pub').value = getCfg('ejs_pub','');
   document.getElementById('cfg-ejs-svc').value = getCfg('ejs_svc','');
   document.getElementById('cfg-ejs-tpl').value = getCfg('ejs_tpl','');
-  document.getElementById('cfg-firebase').value = getCfg('firebase_config','{}');
+  
+  // Carregar a config do Firebase correta para o ambiente atual no campo de edição
+  if (!isProduction()) {
+    document.getElementById('cfg-firebase').value = localStorage.getItem('firebase_staging_config') || '{}';
+  } else {
+    document.getElementById('cfg-firebase').value = getCfg('firebase_config','{}');
+  }
+
   // Carregar EmailJS do Firestore (fonte de verdade) — substitui valores do localStorage
   if (db) {
     try {
@@ -3516,8 +3529,15 @@ async function salvarEmailJS() {
 function salvarFirebase() {
   try {
     const raw = document.getElementById('cfg-firebase').value.trim();
-    JSON.parse(raw);
-    setCfg('firebase_config', raw);
+    const config = JSON.parse(raw);
+    
+    // Se a config colada for do projeto staging, salvar na chave específica de staging
+    if (config.projectId === STAGING_PROJECT_ID) {
+      localStorage.setItem('firebase_staging_config', raw);
+    } else {
+      setCfg('firebase_config', raw);
+    }
+    
     showTopAlert('✅ Firebase salvo! Recarregando em 2 segundos...', 'ok');
     setTimeout(() => location.reload(), 2000);
   } catch(e) { alert('JSON inválido: ' + e.message); }
