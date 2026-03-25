@@ -883,30 +883,6 @@ tbody tr:hover{background:var(--surface2);}
           <button class="btn btn-outline btn-sm" style="margin-top:6px;width:auto;" onclick="doLogout()">Sair do Painel</button>
         </div>
 
-        <!-- CONFIG AVANÇADA -->
-        <div class="admin-section" id="atab-config-avancada">
-          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">🤖 Gemini API Key</div>
-            <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
-          </div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">📧 EmailJS — Configuração</div>
-            <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
-          </div>
-          <div class="card">
-            <div class="card-title">🔥 Firebase — Configuração</div>
-            <div class="input-group"><label>Firebase Config (JSON)</label>
-            <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
-          </div>
-          <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
-        </div>
-
         <!-- CONTADOR DE E-MAILS — só developer -->
         <div class="card" id="email-counter-card" style="display:none;border-left:3px solid var(--gerdau-blue);margin-top:14px;">
           <div class="card-title">📊 Contador de E-mails — Mensal</div>
@@ -947,6 +923,31 @@ tbody tr:hover{background:var(--surface2);}
           <div style="margin-top:10px;font-size:12px;color:var(--text3);">
             ℹ️ Contabiliza e-mails registrados nos Logs do sistema (desvios, alertas, chamados de suporte).
           </div>
+        </div>
+
+
+        <!-- CONFIG AVANÇADA -->
+        <div class="admin-section" id="atab-config-avancada">
+          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">🤖 Gemini API Key</div>
+            <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">📧 EmailJS — Configuração</div>
+            <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
+          </div>
+          <div class="card">
+            <div class="card-title">🔥 Firebase — Configuração</div>
+            <div class="input-group"><label>Firebase Config (JSON)</label>
+            <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
+          </div>
+          <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
         </div>
 
         <!-- DEPLOY (somente developer) -->
@@ -1227,6 +1228,53 @@ function initFirebase() {
   }
 }
 initFirebase();
+
+// ── AUTO-RESTORE SESSION após F5 ──────────────────────────────────────
+// Firebase.auth.Persistence.LOCAL salva a sessão, mas sem onAuthStateChanged
+// a página recarregada não sabe que o usuário já está logado.
+(function setupAuthRestore() {
+  // Aguarda Firebase inicializar antes de registrar o listener
+  function tryRegister(attempts) {
+    if (window.auth) {
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) return; // Não logado — mostra tela de login normalmente
+        if (document.getElementById('app-main').style.display === 'block') return; // Já restaurado
+        // Usuário ainda autenticado — restaurar sessão sem pedir login
+        try {
+          const userDoc = await db.collection('usuarios').doc(user.uid).get();
+          const perfil  = userDoc.exists ? (userDoc.data().perfil  || 'operacional') : 'operacional';
+          const nome    = userDoc.exists ? (userDoc.data().nome    || user.email)    : user.email;
+          const empresa = userDoc.exists ? (userDoc.data().empresa || '')            : '';
+          if (userDoc.exists && userDoc.data().inativo) {
+            await auth.signOut(); return;
+          }
+          currentOperador = { email: user.email, nome, uid: user.uid, perfil, empresa };
+          document.getElementById('op-nome-display').textContent = nome;
+          document.getElementById('app-login-screen').style.display = 'none';
+          document.getElementById('app-main').style.display = 'block';
+          const adminBtn = document.querySelector('.admin-btn:not(#btn-ajuda-admin)');
+          if (adminBtn) {
+            adminBtn.style.display = (perfil === 'admin' || perfil === 'operador' || perfil === 'developer') ? 'block' : 'none';
+            adminBtn.style.visibility = 'visible';
+          }
+          const ajudaBtn = document.getElementById('btn-ajuda-admin');
+          if (ajudaBtn) ajudaBtn.style.display = (perfil==='admin'||perfil==='developer') ? 'inline-block' : 'none';
+          applyRolePermissions(perfil);
+          // Reload config settings (timeout, horas alerta)
+          if (db) { try { const appCfg = await db.collection('config').doc('app').get(); if (appCfg.exists && appCfg.data().config_timeout) { setCfg('config_timeout', appCfg.data().config_timeout); setCfg('config_horas', appCfg.data().config_horas||'96'); const alertaEl = document.getElementById('alerta-h-display'); if (alertaEl) alertaEl.textContent = appCfg.data().config_horas||'96'; } } catch(_) {} }
+          initSessionTimeout();
+          setTimeout(() => startCamera('origem'), 300);
+          setTimeout(popularFornecedoresDatalist, 1500);
+        } catch(e) {
+          console.warn('[AUTH RESTORE] Erro ao restaurar sessão:', e.message);
+        }
+      });
+    } else if (attempts > 0) {
+      setTimeout(() => tryRegister(attempts - 1), 200);
+    }
+  }
+  tryRegister(20);
+})();
 
 // Load config from Firestore on startup so PWA gets fresh settings
 async function loadConfigOnStartup() {
@@ -3364,10 +3412,14 @@ async function loadConfig() {
   // Show version info
   const vEl = document.getElementById('cfg-version-display');
   if (vEl) {
+    // Usa sempre o primeiro item do CHANGELOG como versão atual — atualização automática
+    const vc = (typeof CHANGELOG !== 'undefined' && CHANGELOG.length) ? CHANGELOG[0] : null;
+    const vStr = vc ? vc.version : '—';
+    const dStr = vc ? vc.data    : '—';
     vEl.innerHTML = `
       <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);">Versão 2.0</span>
-        <span style="font-size:13px;color:var(--text3);">· Lançada em 22/03/2026</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:var(--text);">Versão ${vStr}</span>
+        <span style="font-size:13px;color:var(--text3);">· Lançada em ${dStr}</span>
       </div>`;
   }
   // Load from Firestore first (synced across all devices), fallback to localStorage
@@ -3935,10 +3987,11 @@ loadGeminiKey(); // config read - still public
   // BUILD_HASH é gerado automaticamente a partir da versão + data/hora do último carregamento do arquivo.
   // Para forçar atualização em todos os dispositivos, basta subir o arquivo — o hash muda sozinho.
   (function checkBuildHash() {
-    // Versão do app (atualizar junto com o CHANGELOG)
-    const APP_VERSION = '2.0';
-    // Timestamp de build: gerado no momento em que o arquivo é servido.
-    // Em produção com cache: altere APP_VERSION a cada release para garantir novo hash.
+    // ⚠️ Atualizar APP_VERSION APENAS quando mudar CHANGELOG[0].version
+    // O resto (timestamp) é gerado automaticamente a cada deploy.
+    const APP_VERSION = '2.0'; // ← alterar junto com CHANGELOG[0].version
+    // Timestamp de build: gerado a partir da data do arquivo servido pelo servidor.
+    // Cada deploy gera um hash diferente → todos os dispositivos recarregam automaticamente.
     const BUILD_HASH = 'v' + APP_VERSION + '-' + (document.lastModified
       ? new Date(document.lastModified).toISOString().replace(/[-:.TZ]/g,'').slice(0,12)
       : Date.now());
@@ -4833,7 +4886,7 @@ function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
-  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v2.0</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
+  if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">${(typeof CHANGELOG!=='undefined'&&CHANGELOG.length)?'v'+CHANGELOG[0].version:'v—'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
   const warn=document.getElementById('staging-env-warning');if(warn)warn.style.display=isProd?'block':'none';
 }
 function jsConfigToJson(raw){return raw.replace(/\/\/.*/g,'').replace(/,\s*\}/g,'}').replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g,'$1"$2":');}
