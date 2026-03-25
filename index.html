@@ -3951,7 +3951,7 @@ loadGeminiKey(); // config read - still public
   // Para forçar atualização em todos os dispositivos, basta subir o arquivo — o hash muda sozinho.
   // Atualize APP_VERSION junto com o CHANGELOG a cada release.
   (function checkBuildHash() {
-    const APP_VERSION = '2.0'; // ← alterar junto com CHANGELOG[0].version a cada release
+    const APP_VERSION = '2.1'; // ← alterar junto com CHANGELOG[0].version a cada release
     const BUILD_HASH = 'v' + APP_VERSION + '-' + (document.lastModified
       ? new Date(document.lastModified).toISOString().replace(/[-:.TZ]/g,'').slice(0,12)
       : Date.now());
