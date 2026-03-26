@@ -1208,6 +1208,8 @@ const IS_STAGING_BUILD = true;
 // Config do staging sem a apiKey exposta no código-fonte:
 const _STAGING_BASE = { authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
 // A apiKey é injetada em runtime a partir do localStorage:
+// Auto-limpa chaves inválidas (vazias ou muito curtas) salvas por engano
+(()=>{ try { const k = localStorage.getItem('staging_api_key'); if (k !== null && k.trim().length < 20) { localStorage.removeItem('staging_api_key'); localStorage.removeItem('firebase_staging_config'); } } catch(_){} })();
 const _stagingApiKey = (()=>{ try { return localStorage.getItem('staging_api_key') || ''; } catch(_){ return ''; } })();
 const STAGING_FIREBASE_CONFIG = _stagingApiKey ? { ..._STAGING_BASE, apiKey: _stagingApiKey } : null;
 
@@ -5360,7 +5362,7 @@ function limparStagingSetup() {
     _show();
   }
 })();
-  
+
 </script>
 </body>
 </html>
