@@ -580,6 +580,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
           <button class="admin-tab" onclick="adminTab('config-avancada')">Config Avançada</button>
           <button class="admin-tab" id="tab-deploy-btn" onclick="adminTab('deploy')" style="display:none;border-color:var(--gerdau-yellow);color:var(--gerdau-yellow);">🚀 Deploy</button>
+          <button class="admin-tab" id="tab-chamados-btn" onclick="adminTab('chamados')" style="display:none;border-color:#a855f7;color:#a855f7;">🎧 Chamados</button>
         </div>
       </div>
 
@@ -879,35 +880,8 @@ tbody tr:hover{background:var(--surface2);}
             <div id="cfg-version-display" style="font-size:13px;color:var(--text2);line-height:2;">Carregando...</div>
             <button class="btn btn-outline btn-sm" style="width:auto;margin-top:10px;font-size:12px;" onclick="verChangelog()">📋 Ver Changelog</button>
           </div>
-          <button class="btn btn-outline btn-sm" style="margin-top:6px;width:auto;" onclick="doLogout()">Sair do Painel</button>
-        </div>
 
-        <!-- CONFIG AVANÇADA -->
-        <div class="admin-section" id="atab-config-avancada">
-          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">🤖 Gemini API Key</div>
-            <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
-          </div>
-          <div class="card" style="margin-bottom:14px;">
-            <div class="card-title">📧 EmailJS — Configuração</div>
-            <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
-          </div>
-          <div class="card">
-            <div class="card-title">🔥 Firebase — Configuração</div>
-            <div class="input-group"><label>Firebase Config (JSON)</label>
-            <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
-            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
-          </div>
-          <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
-        </div>
-
-        <!-- CONTADOR DE E-MAILS — só developer -->
-        <div class="card" id="email-counter-card" style="display:none;border-left:3px solid var(--gerdau-blue);margin-top:14px;">
+                <div class="card" id="email-counter-card" style="display:none;border-left:3px solid var(--gerdau-blue);margin-top:14px;">
           <div class="card-title">📊 Contador de E-mails — Mensal</div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px;">
             <div style="background:var(--surface2);border-radius:10px;padding:14px;text-align:center;">
@@ -945,6 +919,106 @@ tbody tr:hover{background:var(--surface2);}
           </div>
           <div style="margin-top:10px;font-size:12px;color:var(--text3);">
             ℹ️ Contabiliza e-mails registrados nos Logs do sistema (desvios, alertas, chamados de suporte).
+          </div>
+        </div>
+
+          <button class="btn btn-outline btn-sm" style="margin-top:6px;width:auto;" onclick="doLogout()">Sair do Painel</button>
+        </div>
+
+        <!-- CONFIG AVANÇADA -->
+        <div class="admin-section" id="atab-config-avancada">
+          <div class="info-bar">⚙️ Configurações técnicas do sistema. Altere apenas se souber o que está fazendo.</div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">🤖 Gemini API Key</div>
+            <div class="input-group"><label>API Key</label><input type="password" id="cfg-gemini-key" placeholder="AIzaSy..." style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarGeminiKey()">Salvar Key</button>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title">📧 EmailJS — Configuração</div>
+            <div class="input-group"><label>Public Key</label><input type="text" id="cfg-ejs-pub" placeholder="EMAILJS_PUBLIC_KEY" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Service ID</label><input type="text" id="cfg-ejs-svc" placeholder="SERVICE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <div class="input-group"><label>Template ID</label><input type="text" id="cfg-ejs-tpl" placeholder="TEMPLATE_ID" style="font-size:13px;letter-spacing:0;text-transform:none;"></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarEmailJS()">Salvar EmailJS</button>
+          </div>
+          <div class="card">
+            <div class="card-title">🔥 Firebase — Configuração</div>
+            <div class="input-group"><label>Firebase Config (JSON)</label>
+            <textarea id="cfg-firebase" rows="6" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:monospace;font-size:12px;padding:10px;width:100%;outline:none;resize:vertical;text-transform:none;letter-spacing:0;">{}</textarea></div>
+            <button class="btn btn-primary btn-sm" style="width:auto;margin-top:8px;" onclick="salvarFirebase()">Salvar e Reiniciar</button>
+          </div>
+          <div class="danger-bar" style="margin-top:14px;">⚠️ Após salvar a config do Firebase, a página será recarregada para aplicar as mudanças.</div>
+        </div>
+
+        <!-- CONTADOR DE E-MAILS — só developer -->
+
+        <!-- CHAMADOS DE SUPORTE (somente developer) -->
+        <div class="admin-section" id="atab-chamados">
+          <div class="info-bar" style="border-left-color:#a855f7;background:rgba(168,85,247,.08);">
+            🎧 <strong>Chamados de Suporte</strong> — Visualize, responda e gerencie todos os chamados abertos pelos usuários.
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="loadChamados()">🔄 Atualizar</button>
+            <button class="btn btn-success btn-sm" onclick="exportarChamadosCSV()" style="width:auto;">📥 Exportar CSV</button>
+            <select id="cham-filtro-status" onchange="filtrarChamados()" style="font-size:14px;padding:8px 12px;height:auto;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
+              <option value="">Todos os status</option>
+              <option value="aberto">🔴 Aberto</option>
+              <option value="em_andamento">🟡 Em andamento</option>
+              <option value="resolvido">🟢 Resolvido</option>
+            </select>
+            <select id="cham-filtro-prioridade" onchange="filtrarChamados()" style="font-size:14px;padding:8px 12px;height:auto;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
+              <option value="">Todas as prioridades</option>
+              <option value="urgente">🚨 Urgente</option>
+              <option value="alta">🔴 Alta</option>
+              <option value="media">🟡 Média</option>
+              <option value="baixa">🟢 Baixa</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Nº Chamado</th><th>Data</th><th>Nome / E-mail</th>
+                <th>Prioridade</th><th>Assunto</th><th>Status</th><th>Ações</th>
+              </tr></thead>
+              <tbody id="chamados-tbody"><tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MODAL DETALHE DO CHAMADO -->
+        <div id="chamado-modal" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.75);z-index:9000;overflow-y:auto;backdrop-filter:blur(4px);" onclick="if(event.target===this)fecharChamadoModal()">
+          <div style="max-width:680px;margin:40px auto;padding:24px;background:var(--surface);border-radius:16px;border:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <div>
+                <div id="cham-modal-numero" style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:#a855f7;"></div>
+                <div id="cham-modal-assunto" style="font-size:14px;color:var(--text);font-weight:600;margin-top:2px;"></div>
+              </div>
+              <button onclick="fecharChamadoModal()" style="background:rgba(255,255,255,.08);border:none;color:var(--text);font-size:20px;width:36px;height:36px;border-radius:8px;cursor:pointer;">✕</button>
+            </div>
+            <div id="cham-modal-dados" style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:2;"></div>
+            <div style="margin-bottom:16px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text2);margin-bottom:8px;">DESCRIÇÃO</div>
+              <div id="cham-modal-descricao" style="background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text2);">ALTERAR STATUS:</div>
+              <button id="cham-btn-andamento" onclick="alterarStatusChamado('em_andamento')" class="btn btn-outline btn-sm" style="width:auto;border-color:var(--warning);color:var(--warning);">🟡 Em Andamento</button>
+              <button id="cham-btn-resolvido" onclick="alterarStatusChamado('resolvido')" class="btn btn-sm" style="width:auto;background:var(--success);color:#fff;">🟢 Resolvido</button>
+              <button id="cham-btn-reabrir" onclick="alterarStatusChamado('aberto')" class="btn btn-outline btn-sm" style="width:auto;display:none;border-color:var(--danger);color:var(--danger);">🔴 Reabrir</button>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:6px;">✉️ RESPONDER AO USUÁRIO</div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Resposta enviada para: <span id="cham-modal-email-destino" style="color:var(--text);font-weight:600;"></span></div>
+              <textarea id="cham-resposta-texto" rows="4" placeholder="Digite sua resposta aqui..." style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:12px;outline:none;resize:vertical;letter-spacing:0;text-transform:none;line-height:1.6;"></textarea>
+              <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" style="width:auto;" onclick="enviarRespostaChamado(false)">📨 Enviar Resposta</button>
+                <button class="btn btn-sm" style="width:auto;background:var(--success);color:#fff;" onclick="enviarRespostaChamado(true)">📨 Enviar e Resolver</button>
+              </div>
+              <div id="cham-resposta-status" style="margin-top:8px;font-size:13px;min-height:16px;"></div>
+            </div>
+            <div id="cham-historico-wrap" style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;display:none;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:10px;">HISTÓRICO DE RESPOSTAS</div>
+              <div id="cham-historico-lista"></div>
+            </div>
           </div>
         </div>
 
@@ -1131,14 +1205,7 @@ let storage = null;
 // PRODUÇÃO: IS_STAGING_BUILD = false, STAGING_FIREBASE_CONFIG = null
 // STAGING:  IS_STAGING_BUILD = true, cole o config abaixo
 const IS_STAGING_BUILD = true;
-const STAGING_FIREBASE_CONFIG = {
-  "apiKey": "AIzaSyCvwTaKSEolBlP6iFPC5WmQudJs39p6Dxo",
-  "authDomain": "verificador-lacre-staging.firebaseapp.com",
-  "projectId": "verificador-lacre-staging",
-  "storageBucket": "verificador-lacre-staging.firebasestorage.app",
-  "messagingSenderId": "880634858744",
-  "appId": "1:880634858744:web:1c7f91f0c1a6b95546ff0d"
-};
+const STAGING_FIREBASE_CONFIG = { apiKey:"AIzaSyCvwTaK...", authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
 // ⚠️ Lembre de preencher o apiKey completo acima antes de fazer deploy do staging
 
 function initFirebase() {
@@ -1243,9 +1310,11 @@ setTimeout(loadEmailJSFromFirestore, 2000);
 
 async function loadEmailCounter() {
   if (currentUserRole !== 'developer') return;
-  // Mostrar card
+  // Só mostrar o card se a aba config estiver ativa no momento
+  const abaConfigAtiva = document.getElementById('atab-config')?.classList.contains('active');
   const card = document.getElementById('email-counter-card');
-  if (card) card.style.display = 'block';
+  if (!abaConfigAtiva || !card) return;
+  card.style.display = 'block';
   // Inicializar seletores de mês/ano na primeira chamada
   const mesEl = document.getElementById('email-counter-mes');
   const anoEl = document.getElementById('email-counter-ano');
@@ -2465,7 +2534,7 @@ const DEFAULT_PERMS = {
   operacional: [],
   operador:    ['lacres','placas','processos','historico'],
   admin:       ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'],
-  developer:   ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','deploy']
+  developer:   ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','deploy','chamados']
 };
 const ALL_TABS = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada'];
 const DEV_TABS = ['deploy']; // Only visible to developer profile
@@ -2494,6 +2563,8 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
+  const chamadosTabBtn = document.getElementById('tab-chamados-btn');
+  if (chamadosTabBtn) chamadosTabBtn.style.display = role === 'developer' ? '' : 'none';
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -2734,11 +2805,14 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','deploy'];
+    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','chamados','deploy'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
   document.getElementById(`atab-${tab}`).classList.add('active');
+  // Esconder card do contador ao sair da aba config
+  const emailCard = document.getElementById('email-counter-card');
+  if (emailCard && tab !== 'config') emailCard.style.display = 'none';
   if (tab==='processos') loadProcessos();
   if (tab==='emails') loadEmails();
   if (tab==='lacres') loadLacres();
@@ -2750,6 +2824,7 @@ function adminTab(tab) {
   if (tab==='logs') loadLogs();
   if (tab==='perfis') loadPerfis();
   if (tab==='config-avancada') loadConfig();
+  if (tab==='chamados') loadChamados();
   if (tab==='deploy') loadDeployPanel();
 }
 
@@ -4859,6 +4934,7 @@ const PRODUCTION_PROJECT_ID='verificador-lacre';
 // isProduction, isStagingConfigured, filtrarDadosReais definidas junto às constantes do Firebase (início do script)
 function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
+  const ct=document.getElementById('tab-chamados-btn');if(ct)ct.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
   if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v2.0</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
@@ -5286,6 +5362,265 @@ function limparStagingSetup() {
   } else {
     _show();
   }
+
+// ============================================================
+// CHAMADOS DE SUPORTE — Gerenciamento (somente developer)
+// ============================================================
+
+let _chamadoAtual = null;
+let _chamadosTodos = [];
+
+const PRIO_LABEL = { urgente: '🚨 Urgente', alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa' };
+const STATUS_LABEL = { aberto: '🔴 Aberto', em_andamento: '🟡 Em andamento', resolvido: '🟢 Resolvido' };
+const STATUS_COLOR = { aberto: 'var(--danger)', em_andamento: 'var(--warning)', resolvido: 'var(--success)' };
+
+async function loadChamados() {
+  if (!db) return;
+  const tbody = document.getElementById('chamados-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">⏳ Carregando...</td></tr>';
+  try {
+    const snap = await db.collection('suporte').orderBy('criadoEm', 'desc').limit(200).get();
+    _chamadosTodos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderChamados(_chamadosTodos);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger);text-align:center;padding:20px;">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+function filtrarChamados() {
+  const status = document.getElementById('cham-filtro-status')?.value || '';
+  const prio   = document.getElementById('cham-filtro-prioridade')?.value || '';
+  let lista = _chamadosTodos;
+  if (status) lista = lista.filter(c => c.status === status);
+  if (prio)   lista = lista.filter(c => c.prioridade === prio);
+  renderChamados(lista);
+}
+
+function renderChamados(lista) {
+  const tbody = document.getElementById('chamados-tbody');
+  if (!tbody) return;
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">Nenhum chamado encontrado.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(c => {
+    const dt = c.criadoEm?.toDate ? c.criadoEm.toDate().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : (c.dataHoraAbertura || '—');
+    const cor = STATUS_COLOR[c.status] || 'var(--text2)';
+    return `<tr>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#a855f7;letter-spacing:1px;">${c.numeroChamado||c.id}</td>
+      <td style="font-size:12px;">${dt}</td>
+      <td><div style="font-weight:600;font-size:13px;">${c.nome||'—'}</div><div style="font-size:11px;color:var(--text2);">${c.email||''}</div></td>
+      <td>${PRIO_LABEL[c.prioridade]||c.prioridade||'—'}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.assunto||'—'}</td>
+      <td><span style="color:${cor};font-weight:700;">${STATUS_LABEL[c.status]||c.status||'—'}</span></td>
+      <td><button class="btn btn-outline btn-sm" style="width:auto;" onclick="abrirChamadoModal('${c.id}')">🔍 Ver</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function abrirChamadoModal(id) {
+  if (!db) return;
+  try {
+    const doc = await db.collection('suporte').doc(id).get();
+    if (!doc.exists) { alert('Chamado não encontrado.'); return; }
+    _chamadoAtual = { id: doc.id, ...doc.data() };
+    const c = _chamadoAtual;
+    const dt = c.criadoEm?.toDate ? c.criadoEm.toDate().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}) : (c.dataHoraAbertura || '—');
+
+    document.getElementById('cham-modal-numero').textContent = c.numeroChamado || c.id;
+    document.getElementById('cham-modal-assunto').textContent = c.assunto || '';
+    document.getElementById('cham-modal-email-destino').textContent = c.email || '';
+    document.getElementById('cham-modal-descricao').textContent = c.descricao || '';
+    document.getElementById('cham-resposta-texto').value = '';
+    document.getElementById('cham-resposta-status').textContent = '';
+
+    document.getElementById('cham-modal-dados').innerHTML = [
+      `<strong>📅 Abertura:</strong> ${dt}`,
+      `<strong>👤 Nome:</strong> ${c.nome||'—'}`,
+      `<strong>📱 Telefone:</strong> ${c.telefone||'—'}`,
+      `<strong>📧 E-mail:</strong> ${c.email||'—'}`,
+      `<strong>👤 Perfil:</strong> ${c.perfil||'—'}`,
+      `<strong>🚦 Prioridade:</strong> ${PRIO_LABEL[c.prioridade]||c.prioridade||'—'}`,
+      `<strong>🌐 Ambiente:</strong> ${c.ambiente==='staging'?'🟢 Staging':'🔴 Produção'}`,
+      `<strong>🔗 URL:</strong> <span style="font-size:11px;word-break:break-all;">${c.url||'—'}</span>`,
+      c.temAnexo ? `<strong>📎 Anexo:</strong> ${c.anexoNome||'sim'}` : ''
+    ].filter(Boolean).join('<br>');
+
+    const resolvido = c.status === 'resolvido';
+    const emAndamento = c.status === 'em_andamento';
+    document.getElementById('cham-btn-andamento').style.display = (resolvido || emAndamento) ? 'none' : '';
+    document.getElementById('cham-btn-resolvido').style.display = resolvido ? 'none' : '';
+    document.getElementById('cham-btn-reabrir').style.display  = resolvido ? '' : 'none';
+
+    await carregarHistoricoChamado(id);
+    document.getElementById('chamado-modal').style.display = 'block';
+  } catch(e) {
+    alert('Erro ao abrir chamado: ' + e.message);
+  }
+}
+
+async function carregarHistoricoChamado(id) {
+  const wrap = document.getElementById('cham-historico-wrap');
+  const lista = document.getElementById('cham-historico-lista');
+  if (!wrap || !lista || !db) return;
+  try {
+    const snap = await db.collection('suporte').doc(id).collection('respostas').orderBy('criadoEm','asc').get();
+    if (snap.empty) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    lista.innerHTML = snap.docs.map(d => {
+      const r = d.data();
+      const dt = r.criadoEm?.toDate ? r.criadoEm.toDate().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      return `<div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-bottom:10px;border-left:3px solid #a855f7;">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px;">${dt} — <strong style="color:var(--text);">${r.respondidoPor||'Suporte'}</strong></div>
+        <div style="font-size:13px;color:var(--text);white-space:pre-wrap;">${r.texto||''}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { wrap.style.display = 'none'; }
+}
+
+function fecharChamadoModal() {
+  document.getElementById('chamado-modal').style.display = 'none';
+  _chamadoAtual = null;
+}
+
+async function alterarStatusChamado(novoStatus) {
+  if (!_chamadoAtual || !db) return;
+  try {
+    const updates = {
+      status: novoStatus,
+      atualizadoPor: auth?.currentUser?.email || 'sistema'
+    };
+    updates[novoStatus + 'Em'] = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('suporte').doc(_chamadoAtual.id).update(updates);
+    _chamadoAtual.status = novoStatus;
+    const resolvido = novoStatus === 'resolvido';
+    const emAndamento = novoStatus === 'em_andamento';
+    document.getElementById('cham-btn-andamento').style.display = (resolvido || emAndamento) ? 'none' : '';
+    document.getElementById('cham-btn-resolvido').style.display = resolvido ? 'none' : '';
+    document.getElementById('cham-btn-reabrir').style.display  = resolvido ? '' : 'none';
+    showTopAlert('✅ Status: ' + STATUS_LABEL[novoStatus], 'ok');
+    const idx = _chamadosTodos.findIndex(c => c.id === _chamadoAtual.id);
+    if (idx !== -1) _chamadosTodos[idx].status = novoStatus;
+    filtrarChamados();
+  } catch(e) {
+    showTopAlert('Erro ao atualizar status: ' + e.message, 'error');
+  }
+}
+
+async function enviarRespostaChamado(resolverTambem) {
+  if (!_chamadoAtual) return;
+  const texto = document.getElementById('cham-resposta-texto').value.trim();
+  if (!texto) { alert('Digite uma resposta antes de enviar.'); return; }
+  const statusEl = document.getElementById('cham-resposta-status');
+  statusEl.textContent = '⏳ Enviando...';
+  statusEl.style.color = 'var(--text2)';
+
+  const c = _chamadoAtual;
+  const respondidoPor = auth?.currentUser?.email || 'Suporte';
+  const agora = new Date();
+  const dataHoraResp = agora.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  const svc = getCfg('ejs_svc','service_1e7gg3f');
+  const tpl = getCfg('ejs_tpl','template_vdkbodd');
+  const resolvidoMsg = resolverTambem
+    ? '<div style="background:#F0FFF4;border:1px solid #86EFAC;border-radius:6px;padding:10px 14px;font-size:13px;color:#166534;margin-bottom:16px;">✅ Este chamado foi marcado como <strong>Resolvido</strong>. Se o problema persistir, abra um novo chamado pelo sistema.</div>'
+    : '';
+  const corpo = `<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+    <tr><td style="background:#1B3A6B;padding:20px 24px;border-bottom:4px solid #F5A623;">
+      <div style="color:#F5A623;font-size:12px;letter-spacing:3px;font-weight:700;margin-bottom:4px;">GERDAU — VERIFICA LACRE</div>
+      <div style="color:#fff;font-size:20px;font-weight:900;letter-spacing:2px;">📨 RESPOSTA AO SEU CHAMADO</div>
+      <div style="color:rgba(255,255,255,.8);font-size:13px;margin-top:6px;font-family:monospace;letter-spacing:2px;">${c.numeroChamado||c.id}</div>
+    </td></tr>
+    <tr><td style="background:#fff;padding:24px;">
+      <p style="font-size:14px;color:#1A2540;margin-bottom:16px;">Olá <strong>${c.nome||'usuário'}</strong>,</p>
+      <p style="font-size:13px;color:#5A6A85;margin-bottom:16px;">Sua solicitação foi analisada e segue nossa resposta:</p>
+      <div style="background:#F8F9FA;border-left:4px solid #a855f7;padding:14px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#5A6A85;letter-spacing:1px;margin-bottom:8px;">ASSUNTO</div>
+        <div style="font-size:14px;color:#1A2540;font-weight:600;">${c.assunto||'—'}</div>
+      </div>
+      <div style="background:#F0F7FF;border-left:4px solid #1B3A6B;padding:14px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#5A6A85;letter-spacing:1px;margin-bottom:8px;">RESPOSTA — ${dataHoraResp}</div>
+        <div style="font-size:14px;color:#1A2540;line-height:1.7;">${texto.replace(/\n/g,'<br>')}</div>
+      </div>
+      ${resolvidoMsg}
+      <div style="margin-top:16px;font-size:11px;color:#8A98AF;">Chamado: ${c.numeroChamado||c.id} | Aberto em: ${c.dataHoraAbertura||'—'}</div>
+    </td></tr>
+  </table>`;
+
+  try {
+    if (svc && tpl) {
+      await emailjs.send(svc, tpl, {
+        to_email: c.email,
+        subject: `[${c.numeroChamado||c.id}] Resposta: ${c.assunto}`,
+        message: `Resposta ao chamado ${c.numeroChamado||c.id}: ${texto}`,
+        body_html: corpo
+      });
+    }
+
+    if (db) {
+      await db.collection('suporte').doc(c.id).collection('respostas').add({
+        texto, respondidoPor,
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      const updates = { ultimaRespostaEm: firebase.firestore.FieldValue.serverTimestamp(), respondidoPor };
+      if (resolverTambem) {
+        updates.status = 'resolvido';
+        updates.resolvidoEm = firebase.firestore.FieldValue.serverTimestamp();
+      } else if (c.status === 'aberto') {
+        updates.status = 'em_andamento';
+      }
+      await db.collection('suporte').doc(c.id).update(updates);
+      const novoStatus = resolverTambem ? 'resolvido' : (c.status === 'aberto' ? 'em_andamento' : c.status);
+      _chamadoAtual.status = novoStatus;
+      const idx = _chamadosTodos.findIndex(x => x.id === c.id);
+      if (idx !== -1) _chamadosTodos[idx].status = novoStatus;
+      const resolvido = novoStatus === 'resolvido';
+      const emAndamento = novoStatus === 'em_andamento';
+      document.getElementById('cham-btn-andamento').style.display = (resolvido || emAndamento) ? 'none' : '';
+      document.getElementById('cham-btn-resolvido').style.display = resolvido ? 'none' : '';
+      document.getElementById('cham-btn-reabrir').style.display  = resolvido ? '' : 'none';
+      filtrarChamados();
+    }
+
+    document.getElementById('cham-resposta-texto').value = '';
+    statusEl.textContent = '✅ Resposta enviada para ' + c.email;
+    statusEl.style.color = 'var(--success)';
+    await carregarHistoricoChamado(c.id);
+  } catch(e) {
+    statusEl.textContent = '❌ Erro: ' + e.message;
+    statusEl.style.color = 'var(--danger)';
+  }
+}
+
+function exportarChamadosCSV() {
+  if (!_chamadosTodos.length) { alert('Carregue os chamados primeiro.'); return; }
+  const status = document.getElementById('cham-filtro-status')?.value || '';
+  const prio   = document.getElementById('cham-filtro-prioridade')?.value || '';
+  let lista = _chamadosTodos;
+  if (status) lista = lista.filter(c => c.status === status);
+  if (prio)   lista = lista.filter(c => c.prioridade === prio);
+
+  const esc = v => '"' + String(v||'').replace(/"/g,'""') + '"';
+  const header = ['Nº Chamado','Data Abertura','Nome','E-mail','Telefone','Perfil','Prioridade','Ambiente','Status','Assunto','Descrição','URL'];
+  const rows = lista.map(c => [
+    c.numeroChamado||c.id, c.dataHoraAbertura||'', c.nome||'', c.email||'',
+    c.telefone||'', c.perfil||'', c.prioridade||'', c.ambiente||'',
+    c.status||'', c.assunto||'', (c.descricao||'').replace(/\n/g,' '), c.url||''
+  ].map(esc).join(','));
+
+  const csv = [header.map(esc).join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'chamados_' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 })();
 
 </script>
