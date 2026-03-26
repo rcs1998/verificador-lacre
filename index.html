@@ -4493,6 +4493,8 @@ function renderFornecedores(lista) {
     const statusBadge = d.inativo
       ? '<span class="badge badge-err">Inativo</span>'
       : '<span class="badge badge-ok">Ativo</span>';
+    const inativadoPor = d.inativo && d.inativadoPorNome
+      ? `<div style="font-size:11px;color:var(--text3);margin-top:3px;">por ${d.inativadoPorNome}</div>` : '';
     const btns = d.inativo
       ? `<button class="btn btn-outline btn-sm" onclick="reativarFornecedor('${d.cnpj}')" style="border-color:var(--success);color:var(--success);">🔄 Reativar</button>`
       : `<div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -4508,6 +4510,164 @@ function renderFornecedores(lista) {
       <td>${btns}</td>
     </tr>`;
   }).join('');
+}
+
+// ── CHAMADOS DE SUPORTE ───────────────────────────────────────
+let _todosChamados = [];
+let _chamadoAtual = null;
+
+async function loadChamados() {
+  if (!db) return;
+  const tbody = document.getElementById('chamados-tbody');
+  if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">Carregando...</td></tr>`;
+  try {
+    const snap = await db.collection('chamados_suporte').orderBy('criadoEm','desc').limit(200).get();
+    _todosChamados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    filtrarChamados();
+  } catch(e) {
+    console.warn('loadChamados:', e.message);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger);text-align:center;padding:20px;">Erro ao carregar chamados: ${e.message}</td></tr>`;
+  }
+}
+
+function filtrarChamados() {
+  const status = document.getElementById('cham-filtro-status')?.value || '';
+  const prioridade = document.getElementById('cham-filtro-prioridade')?.value || '';
+  let lista = _todosChamados;
+  if (status) lista = lista.filter(c => c.status === status);
+  if (prioridade) lista = lista.filter(c => c.prioridade === prioridade);
+  renderChamados(lista);
+}
+
+function renderChamados(lista) {
+  const tbody = document.getElementById('chamados-tbody');
+  if (!tbody) return;
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">Nenhum chamado encontrado</td></tr>`;
+    return;
+  }
+  const statusLabel = { aberto: '🔴 Aberto', em_andamento: '🟡 Em andamento', resolvido: '🟢 Resolvido' };
+  const prioLabel = { urgente: '🚨 Urgente', alta: '🔴 Alta', media: '🟡 Média', baixa: '🟢 Baixa' };
+  tbody.innerHTML = lista.map(c => {
+    const data = c.criadoEm?.toDate?.()?.toLocaleString('pt-BR') || '—';
+    const st = statusLabel[c.status] || c.status || '—';
+    const pr = prioLabel[c.prioridade] || c.prioridade || '—';
+    return `<tr>
+      <td><strong style="font-family:'Barlow Condensed',sans-serif;color:#a855f7;">#${c.numero||c.id.slice(-6).toUpperCase()}</strong></td>
+      <td style="font-size:12px;color:var(--text2);">${data}</td>
+      <td><div style="font-weight:600;font-size:13px;">${c.nome||'—'}</div><div style="font-size:11px;color:var(--text2);">${c.email||''}</div></td>
+      <td>${pr}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.assunto||'—'}</td>
+      <td>${st}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="abrirChamado('${c.id}')" style="width:auto;">👁 Ver</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function abrirChamado(id) {
+  _chamadoAtual = _todosChamados.find(c => c.id === id);
+  if (!_chamadoAtual) return;
+  const c = _chamadoAtual;
+  document.getElementById('cham-modal-numero').textContent = `#${c.numero||id.slice(-6).toUpperCase()}`;
+  document.getElementById('cham-modal-assunto').textContent = c.assunto || '';
+  document.getElementById('cham-modal-email-destino').textContent = c.email || '—';
+  document.getElementById('cham-modal-descricao').textContent = c.descricao || c.mensagem || '(sem descrição)';
+  document.getElementById('cham-resposta-texto').value = '';
+  document.getElementById('cham-resposta-status').textContent = '';
+  const prioLabel = { urgente:'🚨 Urgente', alta:'🔴 Alta', media:'🟡 Média', baixa:'🟢 Baixa' };
+  document.getElementById('cham-modal-dados').innerHTML = `
+    <strong>Nome:</strong> ${c.nome||'—'} &nbsp;|&nbsp;
+    <strong>E-mail:</strong> ${c.email||'—'} &nbsp;|&nbsp;
+    <strong>Empresa:</strong> ${c.empresa||'—'}<br>
+    <strong>Prioridade:</strong> ${prioLabel[c.prioridade]||c.prioridade||'—'} &nbsp;|&nbsp;
+    <strong>Status:</strong> ${c.status||'—'} &nbsp;|&nbsp;
+    <strong>Data:</strong> ${c.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'—'}
+  `;
+  // Botões de status
+  const isResolvido = c.status === 'resolvido';
+  document.getElementById('cham-btn-andamento').style.display = isResolvido ? 'none' : '';
+  document.getElementById('cham-btn-resolvido').style.display = isResolvido ? 'none' : '';
+  document.getElementById('cham-btn-reabrir').style.display = isResolvido ? '' : 'none';
+  // Histórico de respostas
+  const hist = c.respostas || [];
+  const histWrap = document.getElementById('cham-historico-wrap');
+  const histLista = document.getElementById('cham-historico-lista');
+  if (hist.length) {
+    histWrap.style.display = '';
+    histLista.innerHTML = hist.map(r => `
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:8px;border-left:3px solid #a855f7;">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">${r.respondidoEm?.toDate?.()?.toLocaleString('pt-BR')||''} — ${r.respondidoPor||''}</div>
+        <div style="font-size:13px;white-space:pre-wrap;">${r.texto||''}</div>
+      </div>`).join('');
+  } else {
+    histWrap.style.display = 'none';
+  }
+  document.getElementById('chamado-modal').style.display = 'flex';
+}
+
+function fecharChamadoModal() {
+  document.getElementById('chamado-modal').style.display = 'none';
+  _chamadoAtual = null;
+}
+
+async function alterarStatusChamado(novoStatus) {
+  if (!_chamadoAtual || !db) return;
+  try {
+    await db.collection('chamados_suporte').doc(_chamadoAtual.id).update({ status: novoStatus });
+    _chamadoAtual.status = novoStatus;
+    const idx = _todosChamados.findIndex(c => c.id === _chamadoAtual.id);
+    if (idx >= 0) _todosChamados[idx].status = novoStatus;
+    filtrarChamados();
+    fecharChamadoModal();
+    showTopAlert(`✅ Status alterado para "${novoStatus}"`, 'ok');
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+async function enviarRespostaChamado(eResolver) {
+  if (!_chamadoAtual || !db) return;
+  const texto = document.getElementById('cham-resposta-texto').value.trim();
+  const statusEl = document.getElementById('cham-resposta-status');
+  if (!texto) { statusEl.textContent = '⚠️ Digite uma resposta antes de enviar.'; statusEl.style.color = 'var(--warning)'; return; }
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  statusEl.textContent = '';
+  try {
+    const op = currentOperador || { nome: auth?.currentUser?.email || 'Admin', email: auth?.currentUser?.email || '' };
+    const novaResposta = { texto, respondidoPor: op.nome, respondidoEm: new Date() };
+    const updates = { respostas: firebase.firestore.FieldValue.arrayUnion(novaResposta) };
+    if (eResolver) updates.status = 'resolvido';
+    await db.collection('chamados_suporte').doc(_chamadoAtual.id).update(updates);
+    statusEl.textContent = '✅ Resposta registrada!';
+    statusEl.style.color = 'var(--success)';
+    if (eResolver) {
+      _chamadoAtual.status = 'resolvido';
+      const idx = _todosChamados.findIndex(c => c.id === _chamadoAtual.id);
+      if (idx >= 0) _todosChamados[idx].status = 'resolvido';
+    }
+    document.getElementById('cham-resposta-texto').value = '';
+    setTimeout(() => { fecharChamadoModal(); filtrarChamados(); }, 1200);
+  } catch(e) {
+    statusEl.textContent = '❌ Erro: ' + e.message;
+    statusEl.style.color = 'var(--danger)';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = eResolver ? '📨 Enviar e Resolver' : '📨 Enviar Resposta'; }
+  }
+}
+
+function exportarChamadosCSV() {
+  if (!_todosChamados.length) { alert('Nenhum chamado para exportar.'); return; }
+  const header = ['Nº Chamado','Data','Nome','E-mail','Empresa','Prioridade','Assunto','Status'];
+  const rows = _todosChamados.map(c => [
+    `#${c.numero||c.id.slice(-6).toUpperCase()}`,
+    c.criadoEm?.toDate?.()?.toLocaleString('pt-BR')||'',
+    c.nome||'', c.email||'', c.empresa||'',
+    c.prioridade||'', c.assunto||'', c.status||''
+  ]);
+  const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `chamados_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 </script>
 
@@ -5308,8 +5468,7 @@ function abrirConfigurarStaging(evt) {
 
 function jsToJson(raw) {
   return raw
-    .replace(/\/\/[^
-]*/g, '')
+    .replace(/\/\/[^\n]*/g, '')
     .replace(/,(\s*[}\]])/g, '$1')
     .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":');
 }
