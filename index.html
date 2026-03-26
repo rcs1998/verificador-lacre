@@ -580,6 +580,7 @@ tbody tr:hover{background:var(--surface2);}
           <button class="admin-tab" onclick="adminTab('config')">Config</button>
           <button class="admin-tab" onclick="adminTab('config-avancada')">Config Avançada</button>
           <button class="admin-tab" id="tab-deploy-btn" onclick="adminTab('deploy')" style="display:none;border-color:var(--gerdau-yellow);color:var(--gerdau-yellow);">🚀 Deploy</button>
+          <button class="admin-tab" id="tab-chamados-btn" onclick="adminTab('chamados')" style="display:none;border-color:#a855f7;color:#a855f7;">🎧 Chamados</button>
         </div>
       </div>
 
@@ -949,6 +950,78 @@ tbody tr:hover{background:var(--surface2);}
         </div>
 
         <!-- DEPLOY (somente developer) -->
+        <div class="admin-section" id="atab-chamados">
+          <div class="info-bar" style="border-left-color:#a855f7;background:rgba(168,85,247,.08);">
+            🎧 <strong>Chamados de Suporte</strong> — Visualize, responda e gerencie todos os chamados abertos pelos usuários.
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="loadChamados()">🔄 Atualizar</button>
+            <button class="btn btn-success btn-sm" onclick="exportarChamadosCSV()" style="width:auto;">📥 Exportar CSV</button>
+            <select id="cham-filtro-status" onchange="filtrarChamados()" style="font-size:14px;padding:8px 12px;height:auto;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
+              <option value="">Todos os status</option>
+              <option value="aberto">🔴 Aberto</option>
+              <option value="em_andamento">🟡 Em andamento</option>
+              <option value="resolvido">🟢 Resolvido</option>
+            </select>
+            <select id="cham-filtro-prioridade" onchange="filtrarChamados()" style="font-size:14px;padding:8px 12px;height:auto;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
+              <option value="">Todas as prioridades</option>
+              <option value="urgente">🚨 Urgente</option>
+              <option value="alta">🔴 Alta</option>
+              <option value="media">🟡 Média</option>
+              <option value="baixa">🟢 Baixa</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Nº Chamado</th><th>Data</th><th>Nome / E-mail</th>
+                <th>Prioridade</th><th>Assunto</th><th>Status</th><th>Ações</th>
+              </tr></thead>
+              <tbody id="chamados-tbody"><tr><td colspan="7" style="color:var(--text2);text-align:center;padding:20px;">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MODAL DETALHE DO CHAMADO -->
+        <div id="chamado-modal" style="display:none;position:fixed;inset:0;background:rgba(10,20,40,.75);z-index:9000;overflow-y:auto;backdrop-filter:blur(4px);" onclick="if(event.target===this)fecharChamadoModal()">
+          <div style="max-width:680px;margin:40px auto;padding:24px;background:var(--surface);border-radius:16px;border:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <div>
+                <div id="cham-modal-numero" style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:#a855f7;"></div>
+                <div id="cham-modal-assunto" style="font-size:14px;color:var(--text);font-weight:600;margin-top:2px;"></div>
+              </div>
+              <button onclick="fecharChamadoModal()" style="background:rgba(255,255,255,.08);border:none;color:var(--text);font-size:20px;width:36px;height:36px;border-radius:8px;cursor:pointer;">✕</button>
+            </div>
+            <div id="cham-modal-dados" style="background:var(--surface2);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:2;"></div>
+            <div style="margin-bottom:16px;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text2);margin-bottom:8px;">DESCRIÇÃO</div>
+              <div id="cham-modal-descricao" style="background:var(--surface2);border-radius:10px;padding:14px;font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text2);">ALTERAR STATUS:</div>
+              <button id="cham-btn-andamento" onclick="alterarStatusChamado('em_andamento')" class="btn btn-outline btn-sm" style="width:auto;border-color:var(--warning);color:var(--warning);">🟡 Em Andamento</button>
+              <button id="cham-btn-resolvido" onclick="alterarStatusChamado('resolvido')" class="btn btn-sm" style="width:auto;background:var(--success);color:#fff;">🟢 Resolvido</button>
+              <button id="cham-btn-reabrir" onclick="alterarStatusChamado('aberto')" class="btn btn-outline btn-sm" style="width:auto;display:none;border-color:var(--danger);color:var(--danger);">🔴 Reabrir</button>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:6px;">✉️ RESPONDER AO USUÁRIO</div>
+              <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Resposta enviada para: <span id="cham-modal-email-destino" style="color:var(--text);font-weight:600;"></span></div>
+              <textarea id="cham-resposta-texto" rows="4" placeholder="Digite sua resposta aqui..." style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:12px;outline:none;resize:vertical;letter-spacing:0;text-transform:none;line-height:1.6;"></textarea>
+              <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" style="width:auto;" onclick="enviarRespostaChamado(false)">📨 Enviar Resposta</button>
+                <button class="btn btn-sm" style="width:auto;background:var(--success);color:#fff;" onclick="enviarRespostaChamado(true)">📨 Enviar e Resolver</button>
+              </div>
+              <div id="cham-resposta-status" style="margin-top:8px;font-size:13px;min-height:16px;"></div>
+            </div>
+            <div id="cham-historico-wrap" style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;display:none;">
+              <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:10px;">HISTÓRICO DE RESPOSTAS</div>
+              <div id="cham-historico-lista"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DEPLOY (somente developer) -->
+
         <div class="admin-section" id="atab-deploy">
           <div class="info-bar" style="border-left-color:var(--gerdau-yellow);background:rgba(245,166,35,.08);">
             🚀 <strong>Painel de Deploy</strong> — Visível apenas para o perfil <code>developer</code>. Use antes de qualquer publicação em produção.
@@ -1126,14 +1199,19 @@ let db = null, auth = null;
 let storage = null;
 
 // ══════════════════════════════════════════════════════════════
-// STAGING FLAG — Altere aqui antes de subir para cada ambiente
+// STAGING FLAG — Ambiente de STAGING ativo
 // ══════════════════════════════════════════════════════════════
-// PRODUÇÃO: IS_STAGING_BUILD = false, STAGING_FIREBASE_CONFIG = null
-// STAGING:  IS_STAGING_BUILD = true, cole o config abaixo
-const IS_STAGING_BUILD = false;
-const STAGING_FIREBASE_CONFIG = null;
-// Exemplo staging:
-// const STAGING_FIREBASE_CONFIG = { apiKey:"AIzaSyCvwTaK...", authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
+// A apiKey NÃO é hardcoded aqui para evitar bloqueio pelo Google.
+// Ela é lida automaticamente do localStorage (chave: staging_api_key)
+// ou do campo que o usuário preencheu via ⚙ Configurar Staging.
+const IS_STAGING_BUILD = true;
+// Config do staging sem a apiKey exposta no código-fonte:
+const _STAGING_BASE = { authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
+// A apiKey é injetada em runtime a partir do localStorage:
+// Auto-limpa chaves inválidas (vazias ou muito curtas) salvas por engano
+(()=>{ try { const k = localStorage.getItem('staging_api_key'); if (k !== null && k.trim().length < 20) { localStorage.removeItem('staging_api_key'); localStorage.removeItem('firebase_staging_config'); } } catch(_){} })();
+const _stagingApiKey = (()=>{ try { return localStorage.getItem('staging_api_key') || ''; } catch(_){ return ''; } })();
+const STAGING_FIREBASE_CONFIG = _stagingApiKey ? { ..._STAGING_BASE, apiKey: _stagingApiKey } : null;
 
 function initFirebase() {
   try {
@@ -1158,9 +1236,16 @@ function initFirebase() {
         console.warn('[STAGING] Nenhuma configuração válida encontrada. Configure via ⚙ Staging.');
         // Exibir aviso na tela de login
         document.addEventListener('DOMContentLoaded', () => {
-          const wrap = document.getElementById('btn-configurar-staging-wrap');
-          if (wrap) wrap.style.display = 'block';
-          showTopAlert('⚙ Ambiente de Staging — configure o Firebase para continuar.', 'warning');
+          // Auto-prompt para a apiKey sem precisar clicar em nenhum botão
+          const apiKey = prompt('🔑 STAGING — Cole a Firebase API Key do projeto verificador-lacre-staging:');
+          if (apiKey && apiKey.trim().length > 20) {
+            try { localStorage.setItem('staging_api_key', apiKey.trim()); } catch(_) {}
+            location.reload();
+          } else {
+            const wrap = document.getElementById('btn-configurar-staging-wrap');
+            if (wrap) wrap.style.display = 'block';
+            showTopAlert('⚙ Ambiente de Staging — configure o Firebase para continuar.', 'warning');
+          }
         });
         return; // NUNCA faz fallback para produção
       }
@@ -2482,6 +2567,8 @@ async function applyRolePermissions(perfil) {
   // Show deploy tab only for developer
   const deployTabBtn = document.getElementById('tab-deploy-btn');
   if (deployTabBtn) deployTabBtn.style.display = role === 'developer' ? '' : 'none';
+  const chamadosTabBtn = document.getElementById('tab-chamados-btn');
+  if (chamadosTabBtn) chamadosTabBtn.style.display = role === 'developer' ? '' : 'none';
   if (role === 'admin' || role === 'developer') return; // full access
 
   const perms = await getPermissoes();
@@ -2722,11 +2809,15 @@ function doLogout() {
 
 function adminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach((t,i)=>{
-    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','deploy'];
+    const tabs = ['lacres','placas','processos','historico','emails','perfis','usuarios','fornecedores','logs','config','config-avancada','chamados','deploy'];
     t.classList.toggle('active', tabs[i]===tab);
   });
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(`atab-${tab}`).classList.add('active');
+  const secEl = document.getElementById(`atab-${tab}`);
+  if (secEl) secEl.classList.add('active');
+  // FIX: esconder card do contador ao sair da aba config
+  const emailCard = document.getElementById('email-counter-card');
+  if (emailCard && tab !== 'config') emailCard.style.display = 'none';
   if (tab==='processos') loadProcessos();
   if (tab==='emails') loadEmails();
   if (tab==='lacres') loadLacres();
@@ -2738,6 +2829,7 @@ function adminTab(tab) {
   if (tab==='logs') loadLogs();
   if (tab==='perfis') loadPerfis();
   if (tab==='config-avancada') loadConfig();
+  if (tab==='chamados') loadChamados();
   if (tab==='deploy') loadDeployPanel();
 }
 
@@ -4847,6 +4939,7 @@ const PRODUCTION_PROJECT_ID='verificador-lacre';
 // isProduction, isStagingConfigured, filtrarDadosReais definidas junto às constantes do Firebase (início do script)
 function loadDeployPanel(){
   const dt=document.getElementById('tab-deploy-btn');if(dt)dt.style.display=currentUserRole==='developer'?'':'none';
+  const ct=document.getElementById('tab-chamados-btn');if(ct)ct.style.display=currentUserRole==='developer'?'':'none';
   const st=document.getElementById('cfg-firebase-staging');if(st)st.value=getCfg('firebase_staging_config','{}');
   const ei=document.getElementById('deploy-env-info'),isProd=isProduction(),isSt=isStagingConfigured();
   if(ei)ei.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px;"><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">AMBIENTE</div><div style="font-weight:700;color:${isProd?'var(--danger)':'var(--success)'};">${isProd?'🔴 PRODUÇÃO':'🟢 STAGING'}</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">BUILD</div><div style="font-weight:700;font-family:monospace;">v2.0</div></div><div style="background:var(--surface2);border-radius:8px;padding:12px;"><div style="font-size:11px;color:var(--text2);margin-bottom:4px;">STAGING CONFIG</div><div style="font-weight:700;color:${isSt?'var(--success)':'var(--warning)'};">${isSt?'✅ Configurado':'⚠️ Não configurado'}</div></div></div>`;
