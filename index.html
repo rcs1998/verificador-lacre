@@ -1204,7 +1204,7 @@ let storage = null;
 // A apiKey NÃO é hardcoded aqui para evitar bloqueio pelo Google.
 // Ela é lida automaticamente do localStorage (chave: staging_api_key)
 // ou do campo que o usuário preencheu via ⚙ Configurar Staging.
-const IS_STAGING_BUILD = true;
+const IS_STAGING_BUILD = false;
 // Config do staging sem a apiKey exposta no código-fonte:
 const _STAGING_BASE = { authDomain:"verificador-lacre-staging.firebaseapp.com", projectId:"verificador-lacre-staging", storageBucket:"verificador-lacre-staging.firebasestorage.app", messagingSenderId:"880634858744", appId:"1:880634858744:web:1c7f91f0c1a6b95546ff0d" };
 // A apiKey é injetada em runtime a partir do localStorage:
